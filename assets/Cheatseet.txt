@@ -1,0 +1,5 @@
+Extension: ES7+ React/Redux/React-Native snippets v4.4.3
+
+
+
+rnfs Componente con export y lista de estilos automatico
