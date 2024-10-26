@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image, SafeAreaView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 const CodesAccessScreen = () => {
   const { type } = useLocalSearchParams()

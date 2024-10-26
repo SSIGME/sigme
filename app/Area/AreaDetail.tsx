@@ -6,11 +6,11 @@ import {
   Image,
   Pressable,
 } from "react-native";
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import axios from "axios";
-import url from "@/constants/url.json";
+import url from "../../constants/url.json";
 import { useRouter } from "expo-router";
 import { useFonts } from "expo-font";
 interface Area {
@@ -39,6 +39,8 @@ const AreaDetail = () => {
   const [equipos, setEquipos] = useState<Equipo[]>([]);
   const [fontsLoaded] = useFonts({
     "Kanit-Regular": require("../../assets/fonts/Kanit/Kanit-Regular.ttf"),
+    "Kanit-Medium": require("../../assets/fonts/Kanit/Kanit-Medium.ttf"),
+    "Kanit-Light": require("../../assets/fonts/Kanit/Kanit-Light.ttf"),
   });
 
   const navegarEquipo = (
@@ -112,16 +114,15 @@ const AreaDetail = () => {
   return (
     <View style={styles.container}>
       <View style={styles.infoarea}>
-        <Text style={styles.title}>{area.nombre}</Text>
-        <Text style={styles.title}>{area.codigoIdentificacion}</Text>
-        <Text style={styles.description}>{area.responsableArea}</Text>
+        <Text style={[styles.title, { fontFamily: "Kanit-Light" }]}>
+          Busca el <Text style={{ fontFamily: "Kanit-Medium" }}>Equipo</Text>
+        </Text>
       </View>
       <View style={styles.listequipos}>
         {equipos.length === 0 ? (
           <Text>No hay equipos en esta area</Text>
         ) : (
           equipos.map((equipo) => (
-
             <Pressable
               onPress={() => {
                 navegarEquipo(
@@ -162,7 +163,7 @@ const AreaDetail = () => {
                 )}
               </View>
               <View
-                style={{ position: "absolute", left: "48%", height: "90%", }}
+                style={{ position: "absolute", left: "48%", height: "90%" }}
               >
                 <Text style={styles.whitetext}>{equipo.Tipo}</Text>
                 <Text style={styles.whitetext}>{equipo.Marca}</Text>
@@ -173,7 +174,6 @@ const AreaDetail = () => {
           ))
         )}
       </View>
-    
     </View>
   );
 };
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
       height: 2,
     },
     shadowOpacity: 0.58,
-    shadowRadius: 16.00,
+    shadowRadius: 16.0,
     elevation: 0.1,
     flexDirection: "row",
     padding: "2%",
@@ -227,6 +227,10 @@ const styles = StyleSheet.create({
   },
 
   title: {
+    color: "rgba(9, 3, 192, 1)",
+    position: "absolute",
+    left: "5%",
+    width: "30%",
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,

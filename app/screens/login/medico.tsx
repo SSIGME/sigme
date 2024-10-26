@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { SafeAreaView ,View, Text, StatusBar,TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const MedicoLoginScreen = () => {
   const router = useRouter();
@@ -62,6 +61,7 @@ const MedicoLoginScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#3C497A" /> 
       <View style={styles.topContainer}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Image tintColor={"white"} source={require("../../../assets/images/back.png")} style={styles.backButton}></Image>
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 10,
+    top: 20,
     left: 10,
     width: 38,
     height: 20,

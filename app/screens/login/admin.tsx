@@ -1,18 +1,26 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState, useRef } from "react";
+import {
+  View,
+  SafeAreaView,
+  Text,
+  StatusBar,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+} from "react-native";
+import { useRouter } from "expo-router";
 
 const AdminLoginScreen = () => {
   const router = useRouter();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
   // State for the three inputs of the "Código"
-  const [code1, setCode1] = useState('');
-  const [code2, setCode2] = useState('');
-  const [code3, setCode3] = useState('');
-  const [code4, setCode4] = useState('');
+  const [code1, setCode1] = useState("");
+  const [code2, setCode2] = useState("");
+  const [code3, setCode3] = useState("");
+  const [code4, setCode4] = useState("");
   const code1Ref = useRef(null);
   const code2Ref = useRef(null);
   const code3Ref = useRef(null);
@@ -50,74 +58,94 @@ const AdminLoginScreen = () => {
     }
   };
 
-
   const handleLogin = () => {
     // Combine the code inputs into one string if needed
     const hospitalCode = `${code1}${code2}${code3}${code4}`;
-    
-    console.log('Logging in with:', { username, password, hospitalCode });
-    router.push('/(tabs)/Codigos'); // Example screen
+
+    console.log("Logging in with:", { username, password, hospitalCode });
+    router.push("/(tabs)/Codigos"); // Example screen
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#BDCAEF" />
       <View style={styles.topContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Image source={require("../../../assets/images/back.png")} style={styles.backButton}></Image>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Image
+            source={require("../../../assets/images/back.png")}
+            style={styles.backButton}
+          ></Image>
         </TouchableOpacity>
-        
-        <View style={{ height: "100%", flexDirection: "row", paddingHorizontal: "5%" }}>
-          <Image source={require('../../../assets/images/admin.png')} style={styles.image} />
+
+        <View
+          style={{
+            height: "100%",
+            flexDirection: "row",
+            paddingHorizontal: "5%",
+          }}
+        >
+          <Image
+            source={require("../../../assets/images/admin.png")}
+            style={styles.image}
+          />
           <Text style={styles.title}>Administrador</Text>
         </View>
       </View>
 
       <View style={styles.formContainer}>
         {/* Input fields */}
-        <Text style={styles.label}>Ingresa tus{"\n"}<Text style={[styles.label, { fontWeight: 'bold' }]}>credenciales</Text></Text>
+        <Text style={styles.label}>
+          Ingresa tus{"\n"}
+          <Text style={[styles.label, { fontWeight: "bold" }]}>
+            credenciales
+          </Text>
+        </Text>
 
         {/* Código del hospital */}
         <View style={styles.codeInputContainer}>
-        <TextInput
-        style={styles.codeInput}
-        ref={code1Ref} // Reference to the first input
-        maxLength={1}
-        value={code1}
-        onChangeText={handleCode1Change}
-        keyboardType="default"
-        placeholder="-"
-        placeholderTextColor="#888"
-      />
-      <TextInput
-        style={styles.codeInput}
-        ref={code2Ref}  // Reference to the second input
-        maxLength={1}
-        value={code2}
-        onChangeText={handleCode2Change}
-        keyboardType="default"
-        placeholder="-"
-        placeholderTextColor="#888"
-      />
-      <TextInput
-        style={styles.codeInput}
-        ref={code3Ref}  // Reference to the third input
-        maxLength={1}
-        value={code3}
-        onChangeText={handleCode3Change}
-        keyboardType="default"
-        placeholder="-"
-        placeholderTextColor="#888"
-      />
           <TextInput
-        style={styles.codeInput}
-        ref={code4Ref}  // Reference to the third input
-        maxLength={1}
-        value={code4}
-        onChangeText={handleCode4Change}
-        keyboardType="default"
-        placeholder="-"
-        placeholderTextColor="#888"
-      />
+            style={styles.codeInput}
+            ref={code1Ref} // Reference to the first input
+            maxLength={1}
+            value={code1}
+            onChangeText={handleCode1Change}
+            keyboardType="default"
+            placeholder="-"
+            placeholderTextColor="#888"
+          />
+          <TextInput
+            style={styles.codeInput}
+            ref={code2Ref} // Reference to the second input
+            maxLength={1}
+            value={code2}
+            onChangeText={handleCode2Change}
+            keyboardType="default"
+            placeholder="-"
+            placeholderTextColor="#888"
+          />
+          <TextInput
+            style={styles.codeInput}
+            ref={code3Ref} // Reference to the third input
+            maxLength={1}
+            value={code3}
+            onChangeText={handleCode3Change}
+            keyboardType="default"
+            placeholder="-"
+            placeholderTextColor="#888"
+          />
+          <TextInput
+            style={styles.codeInput}
+            ref={code4Ref} // Reference to the third input
+            maxLength={1}
+            value={code4}
+            onChangeText={handleCode4Change}
+            keyboardType="default"
+            placeholder="-"
+            placeholderTextColor="#888"
+          />
         </View>
         <Text style={styles.hospitalCodeLabel}>Código del hospital</Text>
 
@@ -149,12 +177,11 @@ const AdminLoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFC',
-    height: "100%",
+    backgroundColor: "#F9FAFC",
   },
   backButton: {
-    position: 'absolute',
-    top: 10,
+    position: "absolute",
+    top: 20,
     left: 10,
     width: 38,
     height: 20,
@@ -167,76 +194,76 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 27,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: "14%",
     marginLeft: "6%",
-    color: '#000000',
+    color: "#000000",
     marginTop: "auto",
   },
   label: {
     fontSize: 22,
-    color: '#050259',
+    color: "#050259",
     marginBottom: "4%",
-    marginTop: '15%',
+    marginTop: "15%",
     fontWeight: "300",
   },
   input: {
-    width: '100%',
+    width: "100%",
     height: 50,
-    backgroundColor: '#D6D7F2',
+    backgroundColor: "#D6D7F2",
     borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 20,
     fontSize: 18,
   },
   codeInputContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    flexDirection: "row",
+    justifyContent: "space-evenly",
     marginBottom: 10,
-    width:'65%',
-    marginLeft:'auto',
-    marginRight:'auto',
+    width: "65%",
+    marginLeft: "auto",
+    marginRight: "auto",
   },
   codeInput: {
     width: 50,
     height: 50,
 
     borderRadius: 5,
-    textAlign: 'center',
-    borderBottomColor:'black',
-    borderBottomWidth:1.4,
+    textAlign: "center",
+    borderBottomColor: "black",
+    borderBottomWidth: 1.4,
     fontSize: 24,
   },
   hospitalCodeLabel: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 18,
-    color: '#888',
+    color: "#888",
     marginBottom: "10%",
-    fontWeight:"200"
+    fontWeight: "200",
   },
   loginButton: {
-    backgroundColor: '#001366',
-    width: '60%',
-    marginRight:'auto',
-    marginLeft:"auto",
+    backgroundColor: "#001366",
+    width: "60%",
+    marginRight: "auto",
+    marginLeft: "auto",
     padding: 15,
-    marginTop:"5%",
+    marginTop: "5%",
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   loginButtonText: {
     fontSize: 20,
-    color: '#FFF',
-    fontWeight: '300',
+    color: "#FFF",
+    fontWeight: "300",
   },
   topContainer: {
-    backgroundColor: '#BDCAEF',
+    backgroundColor: "#BDCAEF",
     height: "35%",
     borderBottomLeftRadius: 23,
     borderBottomRightRadius: 23,
   },
   formContainer: {
-    paddingHorizontal: '10%',
+    paddingHorizontal: "10%",
   },
 });
 

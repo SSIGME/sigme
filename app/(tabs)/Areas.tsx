@@ -9,13 +9,12 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import url from "@/constants/url.json";
+import url from "../../constants/url.json";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import { Dimensions } from "react-native";
 import { ActivityIndicator } from "react-native";
 import { useFonts } from "expo-font";
-import DropShadow from "react-native-drop-shadow";
 import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");

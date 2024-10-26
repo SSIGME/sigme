@@ -1,5 +1,7 @@
-import React, { useEffect } from "react";
+
+import React, { useCallback } from 'react';
 import {
+  SafeAreaView,
   View,
   Text,
   Dimensions,
@@ -7,21 +9,25 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  StatusBar,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from '@react-navigation/native';
 
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
 export default function HomeScreen() {
   const router = useRouter();
-  const navigation = useNavigation();
+
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setBarStyle("light-content");
+      StatusBar.setBackgroundColor("#050259");
+    }, [])
+  );
+
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: "white",
-      }}
-    >
+    <View style={{ flex: 1 }}>
+      <StatusBar barStyle="light-content" backgroundColor="black" />
       <Text style={styles.title}>
         Elije tu tipo{"\n"}de
         {/* Esto fuerza un salto de línea */}
@@ -84,26 +90,28 @@ export default function HomeScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
     flexGrow: 2,
-    paddingBottom: "17%",
+    paddingBottom: "18%",
+    padding: 0,
+    color: "#fff",
   },
   title: {
     fontSize: 24,
     position: "static",
-    top: "-15%",
     fontWeight: "200",
     color: "#ffffff",
     backgroundColor: "#050259",
-    paddingTop: "17%",
+    paddingTop: "13%",
     paddingBottom: "3%",
     borderBottomLeftRadius: 23, // Solo para el borde inferior izquierdo
     borderBottomRightRadius: 23,
+
     paddingLeft: 30,
   },
   highlight: {

@@ -15,7 +15,6 @@ import { useRouter } from "expo-router";
 import { Dimensions } from "react-native";
 import { ActivityIndicator } from "react-native";
 import { useFonts } from "expo-font";
-import DropShadow from "react-native-drop-shadow";
 
 const { width, height } = Dimensions.get("window");
 const ListarAreas = () => {
@@ -87,16 +86,16 @@ const ListarAreas = () => {
   return (
     <View
       style={{
-        flex: 1,
+        backgroundColor: "white",
+        position: "absolute",
+        marginTop: "15%",
         justifyContent: "center",
-        backgroundColor: "rgba(0, 175, 255, 0.125)",
       }}
     >
       <TextInput
         placeholder="Busca el área"
         value={search}
         style={{
-          marginTop: "10%",
           fontSize: 20,
           left: "10%",
           width: "80%",
@@ -200,7 +199,7 @@ const ListarAreas = () => {
 };
 const styles = StyleSheet.create({
   divareas: {
-    backgroundColor: "light-gray",
+    backgroundColor: "white",
     width: width,
     height: height * 0.8,
     display: "flex",

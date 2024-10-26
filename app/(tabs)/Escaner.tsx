@@ -1,16 +1,29 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StatusBar, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useCameraPermissions } from "expo-camera";
 
 export default function ScanScreen() {
   const router = useRouter();
+  const [permission, requestPermission] = useCameraPermissions();
+
+  const handleQrPress = async () => {
+    // Request permission if not already granted
+    if (!permission?.granted) {
+      const { granted } = await requestPermission();
+      if (!granted) return; // Stop if permission not granted
+    }
+    // Navigate to the QR scanner screen if permission is granted
+    router.push("/Escaner/EscanerQr");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" /> 
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <Image
-          source={require("../../assets/images/back.png")} // Asegúrate de tener este ícono en la ruta correcta
+          source={require("../../assets/images/back.png")}
           style={styles.backIcon}
         />
       </TouchableOpacity>
@@ -22,10 +35,10 @@ export default function ScanScreen() {
       <View style={styles.optionsContainer}>
         <TouchableOpacity
           style={styles.option}
-          onPress={() => router.push("/CrearArea")}
+          onPress={handleQrPress} // Call handleQrPress for QR option
         >
           <Image
-            source={require("../../assets/images/qrIcon.png")} // Asegúrate de tener este ícono en la ruta correcta
+            source={require("../../assets/images/qrIcon.png")}
             style={styles.icon}
           />
           <Text style={styles.optionText}>Código Qr</Text>
@@ -33,10 +46,10 @@ export default function ScanScreen() {
 
         <TouchableOpacity
           style={styles.option}
-          onPress={() => router.push("/ListarAreas")}
+          onPress={() => router.push("/Escaner/NfcReader")} // Navigate to NFC scanner screen
         >
           <Image
-            source={require("../../assets/images/nfcIcon.png")} // Asegúrate de tener este ícono en la ruta correcta
+            source={require("../../assets/images/nfcIcon.png")}
             style={styles.icon}
           />
           <Text style={styles.optionText}>Por Contacto</Text>

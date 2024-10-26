@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native";
 
 export default function PerfilScreen() {
   const router = useRouter();

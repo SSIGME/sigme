@@ -1,18 +1,35 @@
-import { StyleSheet, Text, View, Image, Pressable, ActivityIndicator } from "react-native";
-import React from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
+import React, { useEffect } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFonts } from "expo-font";
+import axios from "axios";
+import url from "@/constants/url.json";
 
+interface Equipo {
+  codigoIdentificacion: string;
+  Imagen: string;
+  Tipo: string;
+  Marca: string;
+  Modelo: string;
+  Serie: string;
+  UltimoMantenimiento: string;
+  ProximaVisita: string;
+  area: string;
+}
 const EquipoDetail = () => {
+  const [equipo, setEquipo] = React.useState<Equipo | null>(null);
   const [fontsLoaded] = useFonts({
     "Kanit-Regular": require("../../assets/fonts/Kanit/Kanit-Regular.ttf"),
+    "Kanit-Medium": require("../../assets/fonts/Kanit/Kanit-Medium.ttf"),
+    "Kanit-Light": require("../../assets/fonts/Kanit/Kanit-Light.ttf"),
   });
-
-  if (!fontsLoaded) {
-    return (
-        <ActivityIndicator size="large" color="#0000ff" />
-    ); 
-  }
   const router = useRouter();
   const {
     codigoIdentificacion,
@@ -25,15 +42,69 @@ const EquipoDetail = () => {
     ProximaVisita,
     area,
   } = useLocalSearchParams();
-  return (
-    <View style={styles.container}>
-      <View style={styles.divinfo}>
+
+  const getEquipo = async (codigoIdentificacion: string) => {
+    try {
+      const response = await axios.get(
+        `${url.url}/getequipo/${codigoIdentificacion}`
+      );
+      if (response.status === 200) {
+        console.log(response.data);
+        setEquipo(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const checkParams = () => {
+    if (
+      !codigoIdentificacion ||
+      !Imagen ||
+      !Tipo ||
+      !Marca ||
+      !Modelo ||
+      !Serie ||
+      !UltimoMantenimiento ||
+      !ProximaVisita ||
+      !area
+    ) {
+      console.log("Faltan parametros o se ha escaneado desde NFC");
+      if (codigoIdentificacion) {
+        console.log("Codigo de identificacion encontrado");
+        getEquipo(codigoIdentificacion as string);
+      } else {
+        console.log(
+          "El equipo que has buscado no ha sido encontrado en la base de datos"
+        );
+      }
+    } else {
+      console.log("Parametros encontrados");
+      setEquipo({
+        codigoIdentificacion: codigoIdentificacion as string,
+        Imagen: Imagen as string,
+        Tipo: Tipo as string,
+        Marca: Marca as string,
+        Modelo: Modelo as string,
+        Serie: Serie as string,
+        UltimoMantenimiento: UltimoMantenimiento as string,
+        ProximaVisita: ProximaVisita as string,
+        area: area as string,
+      });
+    }
+  };
+  useEffect(() => {
+    checkParams();
+  }, []);
+  if (!equipo || !fontsLoaded) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  } else {
+    return (
+      <View style={styles.container}>
         <View style={styles.fototipo}>
           {Imagen === "" ? (
             <Image
               source={require("../../assets/images/tenso.jpg")}
               style={{
-                marginLeft: "10%",
                 width: 100,
                 height: 100,
                 borderRadius: 20,
@@ -42,156 +113,162 @@ const EquipoDetail = () => {
           ) : (
             <Image
               style={{
-                width: 100,
-                height: 100,
+                width: 150,
+                height: 150,
                 borderRadius: 20,
-                marginLeft: "5%",
               }}
               source={{ uri: Array.isArray(Imagen) ? Imagen[0] : Imagen }}
             />
           )}
-
-          <Text
-            style={{
-            fontFamily: "Kanit-Regular",
-            fontSize: 22,
-              textAlign: "center",
-              flexWrap: "wrap",
-              width: "60%",
-              fontWeight: "bold",
-            }}
-          >
-            {Tipo}
-          </Text>
         </View>
-        <View style={styles.detalles}>
-          <View style={styles.cajaparametros}>
-            <View style={styles.cajitainfo}>
-              <Text style={styles.parametro}>Codigo Identificacion </Text>
-              <Text>{codigoIdentificacion}</Text>
-            </View>
-            <View style={styles.cajitainfo}>
-              <Text style={styles.parametro}>Area</Text>
-              <Text>{area}</Text>
-            </View>
-            <View style={styles.cajitainfo}>
-              <Text style={styles.parametro}>Marca </Text>
-              <Text>{Marca}</Text>
-            </View>
-            <View style={styles.cajitainfo}>
-              <Text style={styles.parametro}>Modelo </Text>
-              <Text>{Modelo}</Text>
-            </View>
-            <View style={styles.cajitainfo}>
-              <Text style={styles.parametro}>Serie </Text>
-              <Text>{Serie}</Text>
-            </View>
-            <View style={styles.cajitainfo}>
-              <Text style={styles.parametro}>Ultimo Mantenimiento </Text>
-              <Text>{UltimoMantenimiento}</Text>
-            </View>
-            <View style={styles.cajitainfo}>
-              <Text style={styles.parametro}>Proxima Visita </Text>
-              <Text>{ProximaVisita}</Text>
-            </View>
+        <View style={styles.cajaparametros}>
+          <Text style={styles.parametro}>
+            Modelo <Text style={styles.parametroinfo}> {Modelo}</Text>
+          </Text>
+          <Text style={styles.parametro}>
+            Marca <Text style={styles.parametroinfo}> {Marca}</Text>
+          </Text>
+          <Text style={styles.parametro}>
+            Serie <Text style={styles.parametroinfo}> {Serie}</Text>
+          </Text>
+          <Text style={styles.parametro}>
+            Ubicacion <Text style={styles.parametroinfo}> {area}</Text>
+          </Text>
+          <View style={styles.cajamantenimientos}>
+            <Pressable
+              style={styles.botonmantenimiento}
+              onPress={() => {
+                router.push("/Escaner/NfcReader");
+              }}
+            >
+              <Text style={styles.textboton}>Preventivo</Text>
+            </Pressable>
+            <Pressable
+              style={styles.botonmantenimiento}
+              onPress={() => {
+                router.push("/Escaner/NfcReader");
+              }}
+            >
+              <Text style={styles.textboton}>Correctivo</Text>
+            </Pressable>
           </View>
-          <View style={styles.botonesrapidos}>
-            <View style={styles.cajitabotonrapido}>
-              <Pressable style={styles.botonrapido}>
-                <Image
-                  source={require("../../assets/images/guiarapida.png")}
-                  style={{ width: 30, height: 30 }}
-                />
-              </Pressable>
-              <Text>Guia Rapida</Text>
-            </View>
-
-            <View style={styles.cajitabotonrapido}>
-              <Pressable style={styles.botonrapido}>
-                <Image
-                  source={require("../../assets/images/manual.png")}
-                  style={{ width: 30, height: 30 }}
-                />
-              </Pressable>
-              <Text>Manual</Text>
-            </View>
-
-            <View style={styles.cajitabotonrapido}>
-              <Pressable style={styles.botonrapido}>
-                <Image
-                  source={require("../../assets/images/uso.png")}
-                  style={{ width: 30, height: 30 }}
-                />
-              </Pressable>
-              <Text>Uso</Text>
-            </View>
-            <View style={styles.cajitabotonrapido}>
-              <Pressable style={styles.botonrapido}>
-                <Image
-                  source={require("../../assets/images/guiarapida.png")}
-                  style={{ width: 30, height: 30 }}
-                />
-              </Pressable>
-              <Text>Guia Rapida</Text>
-            </View>
-
-            <View style={styles.cajitabotonrapido}>
-              <Pressable style={styles.botonrapido}>
-                <Image
-                  source={require("../../assets/images/manual.png")}
-                  style={{ width: 30, height: 30 }}
-                />
-              </Pressable>
-              <Text>Manual</Text>
-            </View>
-
-            <View style={styles.cajitabotonrapido}>
-              <Pressable style={styles.botonrapido}>
-                <Image
-                  source={require("../../assets/images/uso.png")}
-                  style={{ width: 30, height: 30 }}
-                />
-              </Pressable>
-              <Text>Uso</Text>
-            </View>
-          </View>
+        </View>
+        <View style={styles.botonesrapidos}>
+          <Pressable style={styles.botonrapido}>
+            <Image
+              source={require("../../assets/images/manual.png")}
+              style={{ width: 30, height: 30 }}
+            />
+            <Text style={{ position: "absolute", bottom: "-40%" }}>Manual</Text>
+          </Pressable>
+          <Pressable style={styles.botonrapido}>
+            <Image
+              source={require("../../assets/images/uso.png")}
+              style={{ width: 30, height: 30 }}
+            />
+            <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
+          </Pressable>
+          <Pressable style={styles.botonrapido}>
+            <Image
+              source={require("../../assets/images/guiarapida.png")}
+              style={{ width: 30, height: 30 }}
+            />
+            <Text
+              style={{
+                position: "absolute",
+                bottom: "-40%",
+                width: "150%",
+                textAlign: "center",
+              }}
+            >
+              Guia Rapida
+            </Text>
+          </Pressable>
+          <Pressable style={styles.botonrapido}>
+            <Image
+              source={require("../../assets/images/manual.png")}
+              style={{ width: 30, height: 30 }}
+            />
+            <Text style={{ position: "absolute", bottom: "-40%" }}>Manual</Text>
+          </Pressable>
+          <Pressable style={styles.botonrapido}>
+            <Image
+              source={require("../../assets/images/uso.png")}
+              style={{ width: 30, height: 30 }}
+            />
+            <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
+          </Pressable>
+          <Pressable style={styles.botonrapido}>
+            <Image
+              source={require("../../assets/images/guiarapida.png")}
+              style={{ width: 30, height: 30 }}
+            />
+            <Text
+              style={{
+                position: "absolute",
+                bottom: "-40%",
+                width: "150%",
+                textAlign: "center",
+              }}
+            >
+              Guia Rapida
+            </Text>
+          </Pressable>
+          <Pressable style={styles.botonrapido}>
+            <Image
+              source={require("../../assets/images/manual.png")}
+              style={{ width: 30, height: 30 }}
+            />
+            <Text style={{ position: "absolute", bottom: "-40%" }}>Manual</Text>
+          </Pressable>
+          <Pressable style={styles.botonrapido}>
+            <Image
+              source={require("../../assets/images/uso.png")}
+              style={{ width: 30, height: 30 }}
+            />
+            <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
+          </Pressable>
+          <Pressable style={styles.botonrapido}>
+            <Image
+              source={require("../../assets/images/guiarapida.png")}
+              style={{ width: 30, height: 30 }}
+            />
+            <Text
+              style={{
+                position: "absolute",
+                bottom: "-40%",
+                width: "150%",
+                textAlign: "center",
+              }}
+            >
+              Guia Rapida
+            </Text>
+          </Pressable>
         </View>
       </View>
-    </View>
-  );
+    );
+  }
 };
 
 export default EquipoDetail;
 
 const styles = StyleSheet.create({
   container: {
+    padding: "5%",
     flex: 1,
     alignItems: "center",
-    backgroundColor: "rgba(208, 215, 237, 1)",
+    backgroundColor: "#F2F2F2",
   },
-  divinfo: {
-    marginTop: "10%",
-    width: "85%",
-    height: "80%",
-    borderRadius: 20,
-    backgroundColor: "rgba(158, 171, 255, 1)",
-  },
+
   cajaparametros: {
+    padding: "8%",
     justifyContent: "center",
     alignItems: "center",
-    position: "absolute",
-    top: "0%",
-    height: "60%",
-    width: "100%",
-  },
-  detalles: {
-    position: "absolute",
-    bottom: "0%",
-    width: "100%",
-    height: "80%",
     display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    height: "100%",
+    width: "100%",
   },
   cajitainfo: {
     marginLeft: "12%",
@@ -203,48 +280,76 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   parametro: {
+    fontFamily: "Kanit-Medium",
     width: "50%",
-    fontWeight: "bold",
+  },
+  parametroinfo: {
+    color: "rgba(0, 0, 0, 0.3)",
+    fontFamily: "Kanit-Light",
   },
   fototipo: {
-    position: "absolute",
-    top: "-2%",
-    borderRadius: 20,
-    flexDirection: "row",
-    width: "100%",
+    width: "40%",
     height: "25%",
-    display: "flex",
     justifyContent: "center",
     alignItems: "center",
   },
   botonesrapidos: {
-    paddingLeft: "5%",
-    paddingRight: "5%",
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    borderRadius: 9,
+    borderColor: "rgba(160, 164, 242, 0.4)",
+    paddingBottom: "-30%",
     flexDirection: "row",
     flexWrap: "wrap", // Permite que los botones se ajusten a la siguiente línea
     justifyContent: "space-between", // Ajusta el espacio entre los botones
     position: "absolute",
-    top: "60%",
+    top: "50%",
     width: "100%",
-    height: "15%",
+    height: "50%",
     display: "flex",
-    alignItems: "center",
   },
   botonrapido: {
+    marginTop: "5%",
+    marginLeft: "5%",
+    marginBottom: "15%",
+    marginRight: "5%",
     backgroundColor: "rgba(5, 2, 89, 1)",
-    width: 55,
-    height: 55,
+    width: "20%",
+    height: "18%",
     borderRadius: 100,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    textAlign: "center",
   },
   cajitabotonrapido: {
-    marginBottom: "7%",
     width: "30%",
     height: "100%",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+  },
+  cajamantenimientos: {
+    marginTop: "8%",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "110%",
+    height: "10%",
+  },
+  botonmantenimiento: {
+    margin: "4%",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 9,
+    backgroundColor: "rgba(5, 2, 89, 1)",
+    width: "45%",
+    height: "45%",
+    elevation: 12,
+  },
+  textboton: {
+    color: "white",
+    fontFamily: "Kanit-Regular",
+    fontSize: 16,
   },
 });

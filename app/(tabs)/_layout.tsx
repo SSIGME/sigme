@@ -93,25 +93,25 @@ export default function TabLayout() {
       <Tabs.Screen
         name="Areas"
         options={{
-          title: 'Areas',
+          headerShown: false,
         }}
       />
         <Tabs.Screen
         name="Escaner"
         options={{
-          title: 'Escáner',
+          headerShown: false,
         }}
       />
       <Tabs.Screen
         name="Codigos"
         options={{
-          title: 'Códigos',
+          headerShown: false,
         }}
       />
       <Tabs.Screen
         name="Perfil"
         options={{
-          title: 'Perfil',
+          headerShown: false,
         }}
       />
     </Tabs>
