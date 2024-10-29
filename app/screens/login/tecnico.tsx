@@ -8,9 +8,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Alert
 } from "react-native";
 import { useRouter } from "expo-router";
-
+import axios from "axios" 
+import url from "@/constants/url.json";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const TecnicoLoginScreen = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
@@ -58,14 +61,41 @@ const TecnicoLoginScreen = () => {
     }
   };
 
-  const handleLogin = () => {
-    // Combine the code inputs into one string if needed
-    const hospitalCode = `${code1}${code2}${code3}`;
 
-    console.log("Logging in with:", { username, password, hospitalCode });
-    router.push("/dashboard"); // Example screen
+  const handleLogin = async () => {
+    const hospitalCode = `${code1}${code2}${code3}${code4}`;
+  
+    try {
+      const response = await axios.post(`${url.url}/login/code`, {
+        codigo: username,
+        contrasena: password,
+        codigoHospital: hospitalCode,
+        tipo: "tecnico"
+      });
+      
+      if (response.status === 200) {
+        await AsyncStorage.setItem('codigoHospital', hospitalCode);
+        await AsyncStorage.setItem('access_token', response.data.access_token);
+        await AsyncStorage.setItem('codigo', username);
+        
+        console.log(response.data.firmaEstado)
+        if (response.data.firmaEstado) {
+          router.push("/(tabs)/Areas");
+          
+        } else {
+          router.push("/screens/terminos/terminos");
+       
+        }
+      } else {
+        Alert.alert("Acceso denegado", "No tienes permisos de administrador.");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Hubo un problema con el inicio de sesión.");
+    }
   };
-
+  
+  
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#A4B1E3" />
@@ -128,6 +158,7 @@ const TecnicoLoginScreen = () => {
           />
           <TextInput
             style={styles.codeInput}
+            ref={code3Ref} 
             value={code3}
             onChangeText={handleCode3Change}
             keyboardType="default"
@@ -156,7 +187,7 @@ const TecnicoLoginScreen = () => {
         />
 
         {/* Login button */}
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin} >
           <Text style={styles.loginButtonText}>Iniciar</Text>
         </TouchableOpacity>
       </View>

@@ -5,6 +5,8 @@ import {
   StyleSheet,
   Image,
   Pressable,
+  ScrollView,
+  TextInput,
 } from "react-native";
 import React from "react";
 import { useEffect, useState } from "react";
@@ -13,6 +15,7 @@ import axios from "axios";
 import url from "../../constants/url.json";
 import { useRouter } from "expo-router";
 import { useFonts } from "expo-font";
+import { Dimensions } from "react-native";
 interface Area {
   codigoIdentificacion: string;
   nombre: string;
@@ -32,11 +35,13 @@ interface Equipo {
   Modelo: string;
   Serie: string;
 }
+const { width, height } = Dimensions.get("window");
 const AreaDetail = () => {
   const router = useRouter();
   const { codigoIdentificacion } = useLocalSearchParams();
   const [area, setArea] = useState<Area | null>(null);
   const [equipos, setEquipos] = useState<Equipo[]>([]);
+  const [search, setSearch] = useState("");
   const [fontsLoaded] = useFonts({
     "Kanit-Regular": require("../../assets/fonts/Kanit/Kanit-Regular.ttf"),
     "Kanit-Medium": require("../../assets/fonts/Kanit/Kanit-Medium.ttf"),
@@ -70,7 +75,9 @@ const AreaDetail = () => {
       },
     });
   };
-
+  const filteredEquipos = equipos.filter((equipo) =>
+    equipo.Tipo.toLowerCase().includes(search.toLowerCase())
+  );
   const getEquipos = async () => {
     try {
       const response = await axios.get(
@@ -113,67 +120,162 @@ const AreaDetail = () => {
   }
   return (
     <View style={styles.container}>
-      <View style={styles.infoarea}>
-        <Text style={[styles.title, { fontFamily: "Kanit-Light" }]}>
-          Busca el <Text style={{ fontFamily: "Kanit-Medium" }}>Equipo</Text>
-        </Text>
-      </View>
-      <View style={styles.listequipos}>
-        {equipos.length === 0 ? (
-          <Text>No hay equipos en esta area</Text>
-        ) : (
-          equipos.map((equipo) => (
-            <Pressable
-              onPress={() => {
-                navegarEquipo(
-                  equipo.codigoIdentificacion,
-                  equipo.Imagen,
-                  equipo.Tipo,
-                  equipo.Marca,
-                  equipo.Modelo,
-                  equipo.Serie,
-                  equipo.UltimoMantenimiento,
-                  equipo.ProximaVisita,
-                  equipo.area
-                );
-              }}
-              style={styles.cadaequipo}
-              key={equipo.codigoIdentificacion}
-            >
-              <View
-                style={{
-                  position: "absolute",
-                  left: "3%",
-                  width: "40%",
-                  height: "100%",
-                  justifyContent: "center",
-                  alignItems: "center",
+      {equipos.length === 0 ? (
+        <View
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "20%",
+            justifyContent: "center",
+            alignItems: "center",
+            top: "30%",
+          }}
+        >
+          <Text style={styles.textbold}>
+            No se han encontrado equipos en {area.nombre}
+          </Text>
+          <Text style={styles.textbold}>
+            Responsable de area: {area.responsableArea}
+          </Text>
+          <Text style={styles.textbold}>
+            Codigo de identificacion del area: {area.codigoIdentificacion}
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.infoarea}>
+          <Text style={[styles.title, { fontFamily: "Kanit-Light" }]}>
+            Busca el <Text style={{ fontFamily: "Kanit-Medium" }}>Equipo</Text>
+          </Text>
+          <TextInput
+            style={{
+              position: "absolute",
+              right: "10%",
+              width: "45%",
+              height: height * 0.08,
+              backgroundColor: "rgba(0, 0, 98, 0.75)",
+              borderRadius: 10,
+              color: "white",
+              paddingLeft: 10,
+              fontFamily: "Kanit-Regular",
+            }}
+            placeholder="Ej. Tomografo"
+            placeholderTextColor="lightgray"
+            returnKeyType="search"
+            onChangeText={(text) => {
+              setSearch(text);
+            }}
+          />
+        </View>
+      )}
+      <ScrollView
+        contentContainerStyle={styles.listequipos}
+        scrollEnabled={true}
+        showsVerticalScrollIndicator={true}
+      >
+        {equipos.length === 0
+          ? null
+          : search === ""
+          ? equipos.map((equipo) => (
+              <Pressable
+                onPress={() => {
+                  navegarEquipo(
+                    equipo.codigoIdentificacion,
+                    equipo.Imagen,
+                    equipo.Tipo,
+                    equipo.Marca,
+                    equipo.Modelo,
+                    equipo.Serie,
+                    equipo.UltimoMantenimiento,
+                    equipo.ProximaVisita,
+                    equipo.area
+                  );
                 }}
+                style={styles.cadaequipo}
+                key={equipo.codigoIdentificacion}
               >
-                {equipo.Imagen === "" ? (
-                  <Image
-                    source={require("../../assets/images/tenso.jpg")}
-                    style={{ width: "90%", height: "90%", borderRadius: 20 }}
-                  />
-                ) : (
-                  <Image
-                    source={{ uri: equipo.Imagen }}
-                    style={{ width: "90%", height: "90%", borderRadius: 20 }}
-                  />
-                )}
-              </View>
-              <View
-                style={{ position: "absolute", left: "48%", height: "90%" }}
+                <View
+                  style={{
+                    position: "absolute",
+                    left: "3%",
+                    width: "40%",
+                    height: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  {equipo.Imagen === "" ? (
+                    <Image
+                      source={require("../../assets/images/tenso.jpg")}
+                      style={{ width: "90%", height: "90%", borderRadius: 20 }}
+                    />
+                  ) : (
+                    <Image
+                      source={{ uri: equipo.Imagen }}
+                      style={{ width: "90%", height: "90%", borderRadius: 20 }}
+                    />
+                  )}
+                </View>
+                <View
+                  style={{ position: "absolute", left: "48%", height: "90%" }}
+                >
+                  <Text style={styles.whitetext}>{equipo.Tipo}</Text>
+                  <Text style={styles.whitetext}>{equipo.Marca}</Text>
+                  <Text style={styles.whitetext}>{equipo.Modelo}</Text>
+                  <Text style={styles.whitetext}>{equipo.Serie}</Text>
+                </View>
+              </Pressable>
+            ))
+          : filteredEquipos.map((equipo) => (
+              <Pressable
+                onPress={() => {
+                  navegarEquipo(
+                    equipo.codigoIdentificacion,
+                    equipo.Imagen,
+                    equipo.Tipo,
+                    equipo.Marca,
+                    equipo.Modelo,
+                    equipo.Serie,
+                    equipo.UltimoMantenimiento,
+                    equipo.ProximaVisita,
+                    equipo.area
+                  );
+                }}
+                style={styles.cadaequipo}
+                key={equipo.codigoIdentificacion}
               >
-                <Text style={styles.whitetext}>{equipo.Tipo}</Text>
-                <Text style={styles.whitetext}>{equipo.Marca}</Text>
-                <Text style={styles.whitetext}>{equipo.Modelo}</Text>
-                <Text style={styles.whitetext}>{equipo.Serie}</Text>
-              </View>
-            </Pressable>
-          ))
-        )}
-      </View>
+                <View
+                  style={{
+                    position: "absolute",
+                    left: "3%",
+                    width: "40%",
+                    height: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  {equipo.Imagen === "" ? (
+                    <Image
+                      source={require("../../assets/images/tenso.jpg")}
+                      style={{ width: "90%", height: "90%", borderRadius: 20 }}
+                    />
+                  ) : (
+                    <Image
+                      source={{ uri: equipo.Imagen }}
+                      style={{ width: "90%", height: "90%", borderRadius: 20 }}
+                    />
+                  )}
+                </View>
+                <View
+                  style={{ position: "absolute", left: "48%", height: "90%" }}
+                >
+                  <Text style={styles.whitetext}>{equipo.Tipo}</Text>
+                  <Text style={styles.whitetext}>{equipo.Marca}</Text>
+                  <Text style={styles.whitetext}>{equipo.Modelo}</Text>
+                  <Text style={styles.whitetext}>{equipo.Serie}</Text>
+                </View>
+              </Pressable>
+            ))}
+      </ScrollView>
     </View>
   );
 };
@@ -192,19 +294,19 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
   },
   infoarea: {
-    width: "100%",
-    height: "18%",
+    flexDirection: "row",
+    marginLeft: "3%",
     justifyContent: "center",
+    width: "100%",
+    height: "15%",
     alignItems: "center",
-    borderBottomWidth: 1,
   },
   listequipos: {
-    position: "absolute",
-    top: "15%",
-    height: "70%",
-    width: "100%",
-    justifyContent: "center",
+    paddingTop: "5%",
+    height: height * 0.9,
+    width: width,
     alignItems: "center",
+    paddingBottom: 20,
   },
   cadaequipo: {
     shadowColor: "#000",
@@ -219,20 +321,19 @@ const styles = StyleSheet.create({
     padding: "2%",
     alignItems: "center",
     justifyContent: "space-around",
-    width: "90%",
-    height: "25%",
+    width: width * 0.88,
+    height: height * 0.18,
     backgroundColor: "rgba(0, 0, 98, 0.75)", // Fondo del botón
     marginBottom: "5%",
     borderRadius: 9, // Bordes redondeados
   },
 
   title: {
-    color: "rgba(9, 3, 192, 1)",
+    color: "black",
     position: "absolute",
     left: "5%",
     width: "30%",
     fontSize: 24,
-    fontWeight: "bold",
     marginBottom: 10,
   },
   description: {
@@ -247,6 +348,13 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     color: "white",
     fontWeight: "400",
+    fontFamily: "Kanit-Regular",
+    fontSize: 16,
+  },
+  textbold: {
+    textAlign: "center",
+    color: "black",
+    fontWeight: "bold",
     fontFamily: "Kanit-Regular",
     fontSize: 16,
   },

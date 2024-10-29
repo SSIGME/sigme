@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { SafeAreaView,View, Text, TouchableOpacity, StyleSheet, FlatList, TextInput, Alert, Platform } from 'react-native';
 
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import Checkbox from 'expo-checkbox';
+import axios from "axios"
+import url from "@/constants/url.json"
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const CodesAccessScreen = () => {
   const { type } = useLocalSearchParams();
 
@@ -19,26 +22,14 @@ const CodesAccessScreen = () => {
   const [nombre, setNombre] = useState('');
   const [fechaExpiracion, setFechaExpiracion] = useState('');
   const [empresa, setEmpresa] = useState('');
+  const [documento, setDocumento] = useState("")
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isDateEnabled, setIsDateEnabled] = useState(true); // E
   // Function to handle code generation
-  const handleGenerateCode = () => {
-   
 
-    const newCode = {
-      id: (accessCodes.length + 1).toString(),
-      codigo: Math.random().toString(36).substring(2, 8).toUpperCase(), // Random 6-digit code
-      propietario: nombre,
-      expiracion: fechaExpiracion,
-      empresa: empresa
-    };
+  
 
-    setAccessCodes([...accessCodes, newCode]);
-    setNombre(''); // Clear fields after generating the code
-    setFechaExpiracion('');
-    setEmpresa('');
-  };
 
   // Function to handle the date picker change
   const onChangeDate = (event:any, selectedDate:any) => {
@@ -47,8 +38,8 @@ const CodesAccessScreen = () => {
     setSelectedDate(currentDate);
 
     // Format the date as dd/mm/yyyy
-    const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}/${
-      (currentDate.getMonth() + 1).toString().padStart(2, '0')}/${currentDate.getFullYear()}`;
+    const formattedDate = `${currentDate.getDate().toString().padStart(2, '0')}-${
+      (currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getFullYear()}`;
     setFechaExpiracion(formattedDate);
   };
 
@@ -68,6 +59,52 @@ const CodesAccessScreen = () => {
       setFechaExpiracion(''); // Reiniciar la fecha si se deshabilita
     }
   };
+
+
+  const handleGenerateCode = async () => {
+    try {
+      // Obtener el código del hospital de AsyncStorage
+      const codigoHospital = await AsyncStorage.getItem("codigoHospital");
+      
+      // Crear el objeto con los datos
+      const codigo = {
+        nombre: nombre,
+        fechaExpiracion: fechaExpiracion,
+        empresa: empresa,
+        documento: documento,
+        codigoHospital: codigoHospital,
+        fechaExpiracionEstado: isDateEnabled,
+      };
+  
+      // Obtener el token de acceso
+      const token = await AsyncStorage.getItem("access_token");
+      if (!token) {
+        throw new Error('Token de acceso no encontrado');
+      }
+  
+    
+
+      const response = await axios.post(`${url.url}/${type}`, codigo, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      // Mostrar el mensaje de éxito
+      Alert.alert('Success', response.data.msg);
+      router.push("/(tabs)/Areas");
+      
+    } catch (error) {
+      // Manejar el error de manera más robusta
+      const errorMessage = error.response 
+        ? error.response.data.msg 
+        : error.message || 'Error al crear el técnico';
+        
+      Alert.alert('Error', errorMessage);
+    }
+  };
+  
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -89,12 +126,19 @@ const CodesAccessScreen = () => {
           onChangeText={setNombre}
         />
 <TextInput
+
   style={styles.input}
   placeholder="Fecha de expiración"
   value={fechaExpiracion}
   editable={isDateEnabled} // Agrega esta línea
   onFocus={() => isDateEnabled && setShowDatePicker(true)} // Cambia esto también
 />
+<TextInput
+          style={styles.input}
+          placeholder="Documento"
+          value={documento}
+          onChangeText={setDocumento}
+        />
 
 
         {showDatePicker && (
@@ -160,7 +204,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   header: {
-    marginTop: "10%",
+    marginTop: "15%",
     marginBottom: 20,
     alignItems: 'center',
   },

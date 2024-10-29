@@ -138,7 +138,14 @@ const EquipoDetail = () => {
             <Pressable
               style={styles.botonmantenimiento}
               onPress={() => {
-                router.push("/Escaner/NfcReader");
+                router.push({
+                  pathname: "screens/mantenimiento/Preventivo",
+                  params: {
+                    tipo: equipo.Tipo,
+                    marca: equipo.Marca,
+                    modelo: equipo.Modelo,
+                  },
+                });
               }}
             >
               <Text style={styles.textboton}>Preventivo</Text>
@@ -146,7 +153,14 @@ const EquipoDetail = () => {
             <Pressable
               style={styles.botonmantenimiento}
               onPress={() => {
-                router.push("/Escaner/NfcReader");
+                router.push({
+                  pathname: "screens/mantenimiento/Correctivo",
+                  params: {
+                    tipo: equipo.Tipo,
+                    marca: equipo.Marca,
+                    modelo: equipo.Modelo,
+                  },
+                });
               }}
             >
               <Text style={styles.textboton}>Correctivo</Text>

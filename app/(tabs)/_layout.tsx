@@ -1,11 +1,21 @@
-import React, { useEffect, useRef } from 'react';
-import { Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native';
-import * as Animatable from 'react-native-animatable';
-import { router, Tabs } from 'expo-router';
-
-const animate1 = { 0: { scale: 0.5, translateY: 7 }, 0.92: { translateY: -34 }, 1: { scale: 1.2, translateY: -24 } };
-const animate2 = { 0: { scale: 1.2, translateY: -24 }, 1: { scale: 1, translateY: 7 } };
-const animateToLeft = { 0: { translateX: 0 }, 1: { translateX: -50, opacity: 0.5 } };
+import React, { useEffect, useRef } from "react";
+import { Text, TouchableOpacity, View, StyleSheet, Image } from "react-native";
+import * as Animatable from "react-native-animatable";
+import { router, Tabs } from "expo-router";
+import { useUserContext } from "../UserContext";
+const animate1 = {
+  0: { scale: 0.5, translateY: 7 },
+  0.92: { translateY: -34 },
+  1: { scale: 1.2, translateY: -24 },
+};
+const animate2 = {
+  0: { scale: 1.2, translateY: -24 },
+  1: { scale: 1, translateY: 7 },
+};
+const animateToLeft = {
+  0: { translateX: 0 },
+  1: { translateX: -50, opacity: 0.5 },
+};
 
 const TabButton = ({ route, focused, onPress, imageSource, title }) => {
   const viewRef = useRef(null);
@@ -36,12 +46,15 @@ const TabButton = ({ route, focused, onPress, imageSource, title }) => {
         duration={1000}
         style={[
           styles.iconContainer,
-          { backgroundColor: focused ? '#050259' : 'transparent' }, // Fondo dinámico cuando está seleccionado
+          { backgroundColor: focused ? "#050259" : "transparent" }, // Fondo dinámico cuando está seleccionado
         ]}
       >
-        <Image source={imageSource} style={[styles.image, { tintColor: focused ? "#A0A4F2" : "#050259" }]} />
+        <Image
+          source={imageSource}
+          style={[styles.image, { tintColor: focused ? "#A0A4F2" : "#050259" }]}
+        />
       </Animatable.View>
-      <Animatable.Text 
+      <Animatable.Text
         ref={textRef}
         style={[
           styles.text,
@@ -55,48 +68,51 @@ const TabButton = ({ route, focused, onPress, imageSource, title }) => {
 };
 
 export default function TabLayout() {
-
+  const { userType } = useUserContext();
 
   return (
     <Tabs
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused }) => (
           <TabButton
-          route={route}
-          focused={focused}
-          onPress={() => router.push(`/(tabs)/${route.name}`)}
-          imageSource={
-            route.name === 'Areas'
-              ? require('../../assets/images/areaIcon.png')  // Icono para "Areas"
-              : route.name === 'Escaner'
-              ? require('../../assets/images/escanerIcon.png')  // Icono para "Escáner"
-              : route.name === 'Codigos'
-              ? require('../../assets/images/codigosIcon.png')  // Icono para "Códigos"
-              : require('../../assets/images/perfilIcon.png')  // Icono para "Perfil"
-          }
-          title={
-            route.name === 'Areas'
-              ? 'Areas'
-              : route.name === 'Escaner'
-              ? 'Escáner'
-              : route.name === 'Codigos'
-              ? 'Códigos'
-              : 'Perfil'
-          }
-        />
-      ),
-      tabBarShowLabel: false,
-      tabBarStyle: styles.tabBar,
-      headerShown: false,
-    })}
-  >
+            route={route}
+            focused={focused}
+            onPress={() => router.push(`/(tabs)/${route.name}`)}
+            imageSource={
+              route.name === "Areas"
+                ? require("../../assets/images/areaIcon.png") // Icono para "Areas"
+                : route.name === "Escaner"
+                ? require("../../assets/images/escanerIcon.png") // Icono para "Escáner"
+                : route.name === "Codigos"
+                ? require("../../assets/images/codigosIcon.png") // Icono para "Códigos"
+                : route.name === "Pendientes"
+                ? require("../../assets/images/pendientesIcon.png")
+                : require("../../assets/images/perfilIcon.png") // Icono para "Perfil"
+            }
+            title={
+              route.name === "Areas"
+                ? "Areas"
+                : route.name === "Escaner"
+                ? "Escáner"
+                : route.name === "Codigos"
+                ? "Códigos"
+                : route.name === "Pendientes"  // Nueva condición
+                ? "Pendientes"  // Título para "Pendientes"
+                : "Perfil"
+            }
+            
+          />
+        ),
+        tabBarShowLabel: false,
+        tabBarStyle: styles.tabBar,
+        headerShown: false,
+      })}
+    >
+     
+        <Tabs.Screen name="Areas" options={{ headerShown: false }} />
+
+
       <Tabs.Screen
-        name="Areas"
-        options={{
-          headerShown: false,
-        }}
-      />
-        <Tabs.Screen
         name="Escaner"
         options={{
           headerShown: false,
@@ -106,6 +122,14 @@ export default function TabLayout() {
         name="Codigos"
         options={{
           headerShown: false,
+          href: String(userType) !== "admin" ? null : "../(tabs)/Codigos.tsx",
+        }}
+      />
+         <Tabs.Screen
+        name="Pendientes"
+        options={{
+          headerShown: false,
+          href: String(userType) !== "jefeArea" ? null : "../(tabs)/Pendientes.tsx",
         }}
       />
       <Tabs.Screen
@@ -121,19 +145,19 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   iconContainer: {
     width: 50,
     height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 25,
   },
   tabBar: {
     height: 70,
-    position: 'absolute',
+    position: "absolute",
     margin: 16,
     paddingBottom: 0,
     borderRadius: 16,
@@ -141,11 +165,11 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 13,
     color: "#050259",
-    fontWeight: '500',
+    fontWeight: "500",
   },
   image: {
     width: 24,
     height: 24,
-    resizeMode: 'contain',  // Asegura que la imagen se ajuste al contenedor
+    resizeMode: "contain", // Asegura que la imagen se ajuste al contenedor
   },
 });

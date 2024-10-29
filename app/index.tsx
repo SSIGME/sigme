@@ -1,5 +1,4 @@
-
-import React, { useCallback } from 'react';
+import React, { useCallback } from "react";
 import {
   SafeAreaView,
   View,
@@ -11,12 +10,19 @@ import {
   ScrollView,
   StatusBar,
 } from "react-native";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from "@react-navigation/native";
+import { useUserContext } from "./UserContext";
 
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
+
 export default function HomeScreen() {
   const router = useRouter();
+  const { setUserType } = useUserContext();
+
+  const handleUserTypeChange = (type: string, route: string) => {
+    setUserType(type); // Cambia el userType en el contexto
+    router.push(route); // Navega a la ruta deseada
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -36,7 +42,7 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={styles.container}>
         <TouchableOpacity
           style={[styles.option, { backgroundColor: "#BDCAEF" }]}
-          onPress={() => router.push("/screens/login/admin")}
+          onPress={() => handleUserTypeChange("admin", "/screens/login/admin")}
         >
           <Image
             source={require("../assets/images/admin.png")}
@@ -47,7 +53,8 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={[styles.option, { backgroundColor: "#A4B1E3" }]}
-          onPress={() => router.push("/screens/login/tecnico")}
+          onPress={() => handleUserTypeChange("tecnico", "/screens/login/tecnico")}
+        
         >
           <Image
             source={require("../assets/images/tecnico.png")}
@@ -58,7 +65,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={[styles.option, { backgroundColor: "#6E7DD0" }]}
-          onPress={() => router.push("/screens/login/jefeArea")}
+          onPress={() => handleUserTypeChange("jefeArea", "/screens/login/jefeArea")}
         >
           <Image
             source={require("../assets/images/jefeArea.png")}
@@ -69,7 +76,7 @@ export default function HomeScreen() {
 
         <TouchableOpacity
           style={[styles.option, { backgroundColor: "#3C497A" }]}
-          onPress={() => router.push("/screens/login/medico")}
+          onPress={() => handleUserTypeChange("medico", "/screens/login/medico")}
         >
           <Image
             source={require("../assets/images/medico.png")}
@@ -79,7 +86,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.option, { backgroundColor: "#1C2D63" }]}
-          onPress={() => router.push("/screens/login/secretaria")}
+          onPress={() => handleUserTypeChange("secretaria", "/screens/login/secretaria")}
         >
           <Image
             source={require("../assets/images/secretaria.png")}

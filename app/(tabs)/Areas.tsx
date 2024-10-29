@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -16,7 +16,8 @@ import { Dimensions } from "react-native";
 import { ActivityIndicator } from "react-native";
 import { useFonts } from "expo-font";
 import { useNavigation } from "@react-navigation/native";
-
+import { useFocusEffect } from "@react-navigation/native";
+import { Container } from "@shopify/react-native-skia/lib/typescript/src/renderer/Container";
 const { width, height } = Dimensions.get("window");
 const Areas = () => {
   const router = useRouter();
@@ -27,7 +28,7 @@ const Areas = () => {
     responsableArea: string;
     cantidadEquipos?: number;
   }
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();
   const [areas, setAreas] = useState<Area[]>([]);
   const [search, setSearch] = useState("");
   const [areaSearch, setAreaSearch] = useState("");
@@ -78,32 +79,23 @@ const Areas = () => {
   const filteredAreas = areas.filter((area) =>
     area.nombre.toLowerCase().includes(search.toLowerCase())
   );
-  useEffect(() => {
-    navigation.setOptions({
-      headerShown: false,
-    });
-  }, []);
-  useEffect(() => {
-    getAreas();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getAreas();
+      setIsLoading(true);
+    }, [])
+  );
 
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        backgroundColor: "white",
-/*         backgroundColor: "rgba(0, 175, 255, 0.125)",
- */      }}
-    >
+    <View style={styles.container}>
       <TextInput
         placeholder="Busca el área"
         value={search}
         style={{
-          marginTop: "10%",
+          marginTop: "15%",
           fontSize: 20,
           left: "10%",
           width: "80%",
@@ -121,7 +113,10 @@ const Areas = () => {
         }}
       />
 
-      <ScrollView contentContainerStyle={styles.divareas}>
+      <ScrollView
+        contentContainerStyle={[styles.divareas, { paddingBottom: 20 }]}
+        scrollEnabled={true}
+      >
         {search !== ""
           ? filteredAreas.map((area, index) => (
               <Pressable
@@ -206,28 +201,22 @@ const Areas = () => {
   );
 };
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+    paddingBottom: "20%",
+  },
   divareas: {
-    backgroundColor: "light-gray",
     width: width,
-    height: height * 0.8,
-    display: "flex",
-    alignContent: "space-around",
     alignItems: "center",
   },
   boton: {
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 12,
-    },
-    shadowOpacity: 0.58,
-    shadowRadius: 16.0,
-    elevation: 0.1,
+    elevation:8,
     display: "flex",
     alignItems: "center",
     flexDirection: "row",
     width: width * 0.85,
-    height: "20%",
+    height: height * 0.15,
     backgroundColor: "rgba(0, 0, 98, 0.75)", // Fondo del botón
     borderRadius: 9,
     marginBottom: "10%",

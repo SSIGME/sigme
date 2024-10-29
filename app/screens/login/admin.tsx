@@ -8,9 +8,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
-
+import axios from "axios" 
+import url from "@/constants/url.json";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const AdminLoginScreen = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
@@ -57,16 +60,38 @@ const AdminLoginScreen = () => {
       code3Ref.current.focus(); // Move back to the second input if deleting
     }
   };
-
-  const handleLogin = () => {
-    // Combine the code inputs into one string if needed
+  
+  const handleLogin = async () => {
     const hospitalCode = `${code1}${code2}${code3}${code4}`;
 
-    console.log("Logging in with:", { username, password, hospitalCode });
-    router.push("/(tabs)/Codigos"); // Example screen
+    try {
+      const response = await axios.post(`${url.url}/login`, {
+        usuario: username,
+        contrasena: password,
+        codigoHospital: hospitalCode,
+      });
+      
+      if (response.status === 200
+        
+       ) {
+        await AsyncStorage.setItem('codigoHospital', hospitalCode);
+        router.push("/(tabs)/Areas"); 
+        await AsyncStorage.setItem('access_token', response.data.access_token);
+    
+      } else {
+        Alert.alert("Acceso denegado", "No tienes permisos de administrador.");
+ 
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Hubo un problema con el inicio de sesión.");
+    }
   };
-
+  
+  
   return (
+
+
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#BDCAEF" />
       <View style={styles.topContainer}>

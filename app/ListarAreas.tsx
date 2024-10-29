@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import url from "@/constants/url.json";
 import axios from "axios";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { Dimensions } from "react-native";
 import { ActivityIndicator } from "react-native";
 import { useFonts } from "expo-font";
@@ -76,9 +76,12 @@ const ListarAreas = () => {
   const filteredAreas = areas.filter((area) =>
     area.nombre.toLowerCase().includes(search.toLowerCase())
   );
-  useEffect(() => {
-    getAreas();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getAreas();
+      setIsLoading(true);
+    }, [])
+  );
 
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" color="#0000ff" />;
