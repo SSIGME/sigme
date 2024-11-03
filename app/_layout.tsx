@@ -187,6 +187,18 @@ export default function Layout() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="screens/codigos/crearTecnico"
+          options={{
+            headerShown: false,
+          }}
+        />
+               <Stack.Screen
+          name="screens/codigos/listaCodigos"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </UserProvider>
   );

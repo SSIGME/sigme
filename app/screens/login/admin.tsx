@@ -11,10 +11,18 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
-import axios from "axios" 
+import axios from "axios"; 
 import url from "@/constants/url.json";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const AdminLoginScreen = () => {
+import SigmeModal from "../../componets/SigmeModal"; // Ensure the path is correct
+
+const AdminLoginScreen: React.FC = () => {
+  const [modal, setModal] = useState({
+    isVisible: false,
+    title: "",
+    message: "",
+    type: "success" // Default type, you can change this based on login outcome
+  });
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -28,15 +36,16 @@ const AdminLoginScreen = () => {
   const code2Ref = useRef(null);
   const code3Ref = useRef(null);
   const code4Ref = useRef(null);
+
   // Function to handle input change and focus movement
-  const handleCode1Change = (text) => {
+  const handleCode1Change = (text: string) => {
     setCode1(text.toUpperCase());
     if (text.length === 1) {
       code2Ref.current.focus(); // Move to the second input
     }
   };
 
-  const handleCode2Change = (text) => {
+  const handleCode2Change = (text: string) => {
     setCode2(text.toUpperCase());
     if (text.length === 1) {
       code3Ref.current.focus(); // Move to the third input
@@ -45,22 +54,22 @@ const AdminLoginScreen = () => {
     }
   };
 
-  const handleCode3Change = (text) => {
+  const handleCode3Change = (text: string) => {
     setCode3(text.toUpperCase());
     if (text.length === 1) {
-      code4Ref.current.focus(); // Move back to the second input if deleting
+      code4Ref.current.focus(); // Move to the fourth input
     } else if (text.length === 0) {
-      code2Ref.current.focus(); // Move back to the first input if deleting
+      code2Ref.current.focus(); // Move back to the second input if deleting
     }
   };
 
-  const handleCode4Change = (text) => {
+  const handleCode4Change = (text: string) => {
     setCode4(text.toUpperCase());
     if (text.length === 0) {
-      code3Ref.current.focus(); // Move back to the second input if deleting
+      code3Ref.current.focus(); // Move back to the third input if deleting
     }
   };
-  
+
   const handleLogin = async () => {
     const hospitalCode = `${code1}${code2}${code3}${code4}`;
 
@@ -71,27 +80,35 @@ const AdminLoginScreen = () => {
         codigoHospital: hospitalCode,
       });
       
-      if (response.status === 200
-        
-       ) {
+      if (response.status === 200) {
         await AsyncStorage.setItem('codigoHospital', hospitalCode);
-        router.push("/(tabs)/Areas"); 
         await AsyncStorage.setItem('access_token', response.data.access_token);
-    
+   
+        router.push("/(tabs)/Areas"); 
       } else {
-        Alert.alert("Acceso denegado", "No tienes permisos de administrador.");
- 
+        setModal({
+          isVisible: true,
+          title: "Acceso denegado",
+          message: "No tienes permisos de administrador.",
+          type: "error"
+        });
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "Hubo un problema con el inicio de sesión.");
+      setModal({
+        isVisible: true,
+        title: "Inicio sesión",
+        message: "Ocurrió un error al intentar iniciar sesión.",
+        type: "error"
+      });
     }
   };
-  
-  
+
+  const closeModal = () => {
+    setModal({ ...modal, isVisible: false });
+  };
+
   return (
-
-
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#BDCAEF" />
       <View style={styles.topContainer}>
@@ -102,7 +119,7 @@ const AdminLoginScreen = () => {
           <Image
             source={require("../../../assets/images/back.png")}
             style={styles.backButton}
-          ></Image>
+          />
         </TouchableOpacity>
 
         <View
@@ -121,7 +138,6 @@ const AdminLoginScreen = () => {
       </View>
 
       <View style={styles.formContainer}>
-        {/* Input fields */}
         <Text style={styles.label}>
           Ingresa tus{"\n"}
           <Text style={[styles.label, { fontWeight: "bold" }]}>
@@ -163,7 +179,7 @@ const AdminLoginScreen = () => {
           />
           <TextInput
             style={styles.codeInput}
-            ref={code4Ref} // Reference to the third input
+            ref={code4Ref} // Reference to the fourth input
             maxLength={1}
             value={code4}
             onChangeText={handleCode4Change}
@@ -195,9 +211,22 @@ const AdminLoginScreen = () => {
           <Text style={styles.loginButtonText}>Iniciar</Text>
         </TouchableOpacity>
       </View>
+      
+      {/* SigmeModal for displaying messages */}
+      <SigmeModal 
+        isVisible={modal.isVisible}
+        message={modal.message}
+        title={modal.title}
+        type={modal.type}
+        onClose={closeModal}
+        onConfirm={closeModal}
+      />
     </SafeAreaView>
   );
 };
+
+  
+
 
 const styles = StyleSheet.create({
   container: {

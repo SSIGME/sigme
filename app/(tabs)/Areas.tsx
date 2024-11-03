@@ -129,7 +129,7 @@ const Areas = () => {
                     marginLeft: "5%",
                     justifyContent: "center",
                     alignItems: "center",
-                    backgroundColor: "rgba(189, 202, 239, 1)",
+                    backgroundColor: "#ffffff",
                     borderRadius: 9,
                     width: 80,
                     height: 82,
@@ -211,21 +211,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   boton: {
-    elevation:8,
     display: "flex",
     alignItems: "center",
     flexDirection: "row",
     width: width * 0.85,
     height: height * 0.15,
-    backgroundColor: "rgba(0, 0, 98, 0.75)", // Fondo del botón
+    backgroundColor: "#050259", // Fondo del botón
     borderRadius: 9,
     marginBottom: "10%",
+    // Agregar sombra para iOS
+    shadowColor: "#00aeff",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    opacity:0.99,
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    // Agregar sombra para Android
+    elevation: 8,
   },
   whitetext: {
     marginBottom: 5,
     color: "white",
-    fontWeight: "400",
-    fontFamily: "Kanit-Regular",
+    fontWeight: "300",
+    
     fontSize: 16,
   },
 });

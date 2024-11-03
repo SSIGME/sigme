@@ -33,7 +33,7 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <StatusBar barStyle="light-content" backgroundColor="black" />
+      <StatusBar barStyle="light-content" backgroundColor="#050259" />
       <Text style={styles.title}>
         Elije tu tipo{"\n"}de
         {/* Esto fuerza un salto de línea */}
@@ -58,9 +58,9 @@ export default function HomeScreen() {
         >
           <Image
             source={require("../assets/images/tecnico.png")}
-            style={[styles.image, { width: "60%", height: "107%" }]}
+            style={[styles.image, {  height: "130%",width:"40%",    resizeMode: "", }]}
           />
-          <Text style={[styles.optionText, { marginLeft: "3%" }]}>Técnico</Text>
+          <Text style={[styles.optionText, { }]}>Técnico</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
   },
   image: {
     height: "130%",
+    resizeMode: "contain",
     width: "32%", // Establece una altura fija
     marginTop: -35, // Desplaza la imagen hacia arriba
     marginBottom: 0, // Ajusta la parte inferior

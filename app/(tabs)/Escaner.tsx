@@ -21,12 +21,7 @@ export default function ScanScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" /> 
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <Image
-          source={require("../../assets/images/back.png")}
-          style={styles.backIcon}
-        />
-      </TouchableOpacity>
+
 
       <Text style={styles.title}>
         Escanear <Text style={styles.boldText}>con</Text>
@@ -77,7 +72,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "300",
     textAlign: "center",
-    marginTop: 20,
+    marginTop: 50,
     color: "#3C3C3C",
   },
   boldText: {

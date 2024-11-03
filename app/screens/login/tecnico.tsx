@@ -14,11 +14,17 @@ import { useRouter } from "expo-router";
 import axios from "axios" 
 import url from "@/constants/url.json";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SigmeModal from "../../componets/SigmeModal"; 
 const TecnicoLoginScreen = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+  const [modal, setModal] = useState({
+    isVisible: false,
+    title: "",
+    message: "",
+    type: "success" // Default type, you can change this based on login outcome
+  });
   // State for the three inputs of the "Código"
   const [code1, setCode1] = useState("");
   const [code2, setCode2] = useState("");
@@ -87,15 +93,27 @@ const TecnicoLoginScreen = () => {
        
         }
       } else {
-        Alert.alert("Acceso denegado", "No tienes permisos de administrador.");
+        setModal({
+          isVisible: true,
+          title: "Acceso denegado",
+          message: "No tienes permisos de técnico.",
+          type: "error"
+        });
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "Hubo un problema con el inicio de sesión.");
+      setModal({
+        isVisible: true,
+        title: "Inicio sesión",
+        message: "Ocurrió un error al intentar iniciar sesión.",
+        type: "error"
+      });
     }
   };
   
-  
+  const closeModal = () => {
+    setModal({ ...modal, isVisible: false });
+  };
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#A4B1E3" />
@@ -191,6 +209,14 @@ const TecnicoLoginScreen = () => {
           <Text style={styles.loginButtonText}>Iniciar</Text>
         </TouchableOpacity>
       </View>
+      <SigmeModal 
+        isVisible={modal.isVisible}
+        message={modal.message}
+        title={modal.title}
+        type={modal.type}
+        onClose={closeModal}
+        onConfirm={closeModal}
+      />
     </SafeAreaView>
   );
 };
@@ -210,7 +236,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: "57%",
-    height: "48%",
+    height: "78%",
     marginBottom: 0,
     marginTop: "auto",
   },

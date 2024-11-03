@@ -1,30 +1,55 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Alert, StyleSheet, FlatList, SafeAreaView } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { View, Text, TouchableOpacity,Image, Alert, StyleSheet, FlatList, SafeAreaView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import axios from "axios";
 import url from "@/constants/url.json";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import SigmeModal from "../../componets/SigmeModal";
+import * as Clipboard from 'expo-clipboard';
 const CodesAccessScreen = () => {
   const { type } = useLocalSearchParams();
+  const [modal, setModal] = useState({
+    isVisible: false,
+    title: "",
+    message: "",
+    type: "success" // Default type, you can change this based on login outcome
+  });
   const [activeTab, setActiveTab] = useState('activos');
   const [accessCodes, setAccessCodes] = useState([]);
   const [access, setAccess] =useState("")
   const renderAccessCode = ({ item }) => (
     <View style={[styles.codeCard, item.estado ? styles.activeCodeCard : styles.inactiveCodeCard]}>
+      <View style={{gap:4}}>
+      <TouchableOpacity  onPress={() => handleCopyCode(item.codigo)}> 
       <Text style={styles.codeText}>CÓDIGO: {item.codigo}</Text>
+  
       <Text style={styles.ownerText}>Pertenece a: {item.nombre}</Text>
       <Text style={styles.durationText}>
+        
         {item.fechaExpiracion === true 
           ? "Sin expiración" 
           : `Expira el: ${item.fechaExpiracion}`}
       </Text>
+      </TouchableOpacity>
+      </View>
       <TouchableOpacity onPress={() => handleDesactivateCode(item.codigo)} style={item.estado ? styles.deleteButton : styles.inactiveButton}>
-        <Text style={styles.deleteButtonText}>X</Text>
+      <Image
+            source={require("../../../assets/images/trash.png")}
+            style={styles.image}
+          />
       </TouchableOpacity>
     </View>
   );
-  
+  const handleCopyCode = async (codigo) => {
+    await Clipboard.setStringAsync(codigo); // Copiar el código al portapapeles
+    setModal({
+      isVisible: true,
+      title: "Código Copiado",
+      message: `El código ${codigo} ha sido copiado al portapapeles.`,
+      type: "success"
+    });
+  };
   const handleGetCodes = async () => {
     try {
       const codigoHospital = await AsyncStorage.getItem("codigoHospital");
@@ -48,7 +73,12 @@ const CodesAccessScreen = () => {
       const errorMessage = error.response 
         ? error.response.data.msg 
         : error.message || 'Error al crear el técnico';
-      Alert.alert('Error', errorMessage);
+        setModal({
+          isVisible: true,
+          title: error.response.data.msg ,
+          message: errorMessage,
+          type: "error"
+        });
     }
   };
 
@@ -68,31 +98,48 @@ const CodesAccessScreen = () => {
       });
   
       if (response && response.data) {
-        Alert.alert("Código desactivado");
+        setModal({
+          isVisible: true,
+          title: "Código" ,
+          message: "Código desactivado exitosamente",
+          type: "success"
+        });
         handleGetCodes(); // Actualizar la lista de códigos después de desactivar
       }
     } catch (error) {
       const errorMessage = error.response 
         ? error.response.data.msg 
         : error.message || 'Error al desactivar el código';
-      Alert.alert('Error', errorMessage);
+        setModal({
+          isVisible: true,
+          title: error.response.data.msg ,
+          message: errorMessage,
+          type: "error"
+        });
     }
   };
   
 
 
-  useEffect(() => {
-    handleGetCodes();
-  }, []);
+    useFocusEffect(
+    React.useCallback(() => {
+      handleGetCodes();
+    }, [])
+  );
 
   // Filtrar códigos de acceso según el estado de activeTab
   const filteredCodes = accessCodes.filter(code => 
     activeTab === 'activos' ? code.estado === true : code.estado === false
   );
-
+  const closeModal = () => {
+    setModal({ ...modal, isVisible: false });
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
+      <TouchableOpacity onPress={() => router.push('/(tabs)/Codigos')} style={styles.backButton}>
+          <Image source={require("../../../assets/images/back.png")} style={styles.backIcon} />
+        </TouchableOpacity>
         <Text style={styles.headerText}>
           {type === 'profesional' ? 'Profesionales' : 
            type === 'encargado' ? 'Encargados' : 
@@ -100,7 +147,7 @@ const CodesAccessScreen = () => {
            type === 'tecnico' ? 'Técnicos' : 
            'Códigos'}
         </Text>
-        <Text style={styles.subHeaderText}>CÓDIGOS DE ACCESO</Text>
+        <Text style={styles.subHeaderText}>CÓDIGOS DE <Text style={{fontWeight:'900'}}>ACCESO</Text> </Text>
       </View>
 
       <View style={styles.tabContainer}>
@@ -113,15 +160,27 @@ const CodesAccessScreen = () => {
       </View>
 
       <FlatList
-        data={filteredCodes}
+       data={filteredCodes.reverse()} 
         renderItem={renderAccessCode}
         keyExtractor={(item) => item.id}
         style={styles.codeList}
       />
 
-      <TouchableOpacity onPress={() => {router.push(`/screens/codigos/crearTecnico?type=${type}`)}} style={styles.generateButton}>
-        <Text style={styles.generateButtonText}>Generar código de acceso</Text>
-      </TouchableOpacity>
+{type !== 'jefeArea' && (
+  <TouchableOpacity onPress={() => { router.push(`/screens/codigos/crearTecnico?type=${type}`); }} style={styles.generateButton}>
+    <Text style={styles.generateButtonText}>Generar código de acceso</Text>
+  </TouchableOpacity>
+)}
+
+      <SigmeModal 
+        isVisible={modal.isVisible}
+        message={modal.message}
+        title={modal.title}
+        type={modal.type}
+        onClose={closeModal}
+        onConfirm={closeModal}
+      />
+      
     </SafeAreaView>
   );
 };
@@ -134,33 +193,52 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FAFC',
     paddingHorizontal: 0,
   },
+
+  
+  backButton: {
+    position: 'absolute',
+    left: 20,
+    top: 30,
+  },
+  backIcon: {
+    width: 35,
+    height: 35,
+    resizeMode: 'contain',
+  },
   header: {
-    marginTop: 60,
+    marginTop: 30,
     marginBottom: 20,
     alignItems: 'center',
   },
   headerText: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#050259',
+    marginTop:50,
   },
   subHeaderText: {
     fontSize: 18,
-    color: '#333',
+    color: '#050259',
+    marginTop:20,
   },
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 20,
+    marginTop: "10%",
   },
   tab: {
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 50,
     borderRadius: 10,
-    backgroundColor: '#D6D7F2',
+    backgroundColor: '#e7e7ee',
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 10,
   },
   activeTab: {
-    backgroundColor: '#001366',
+    backgroundColor: '#050259',
   },
   tabText: {
     fontSize: 16,
@@ -171,19 +249,21 @@ const styles = StyleSheet.create({
   },
   codeList: {
     flexGrow: 0,
-    marginBottom: 60,
+    marginBottom: 80,
   },
   codeCard: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#D6D7F2',
     padding: 15,
     borderRadius: 10,
+    marginHorizontal:'5%',
     marginBottom: 30,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
     height:150,
-    flexDirection: 'column',
+    flexDirection: 'row',
+    paddingHorizontal:'5%',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
@@ -191,6 +271,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#001366',
+    marginBottom:10
   },
   ownerText: {
     fontSize: 14,
@@ -201,9 +282,13 @@ const styles = StyleSheet.create({
     color: '#001366',
   },
   deleteButton: {
-    backgroundColor: '#ffffff',
+   
     borderRadius: 20,
     padding: 5,
+  },
+  image: {
+ width:50,
+ resizeMode: "contain",
   },
   deleteButtonText: {
     fontSize: 23,
