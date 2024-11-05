@@ -5,6 +5,7 @@ import {
   Text,
   TextInput,
   View,
+  ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
@@ -12,6 +13,7 @@ import { useRouter } from "expo-router";
 import axios from "axios";
 import url from "@/constants/url.json";
 import { Picker } from "@react-native-picker/picker";
+import { CheckBox } from "react-native-elements";
 const Correctivo = () => {
   interface Pregunta {
     id: number;
@@ -24,13 +26,23 @@ const Correctivo = () => {
     respuesta: string;
   }
   const router = useRouter();
-  const { tipo, marca, modelo } = useLocalSearchParams();
+  const [isAccepted, setIsAccepted] = useState(false);
+  const { tipo, marca, modelo, serie, area } = useLocalSearchParams();
   const [isModalVisible, setIsModalVisible] = useState(true);
   const [preguntas, setPreguntas] = useState<Pregunta[]>([]);
   const [respuestas, setRespuestas] = useState<Respuesta[]>([]);
   const [timer, setTimer] = useState(0);
   const [hours, setHours] = useState(0);
-  const saveAnswer = (id: number, respuesta: string) => {};
+  const saveAnswer = (id: number, respuesta: string) => {
+    setRespuestas((prevRespuestas) => {
+      const respuestaExists = prevRespuestas.find((r) => r.id === id);
+      if (respuestaExists) {
+        return prevRespuestas.map((r) => (r.id === id ? { id, respuesta } : r));
+      } else {
+        return [...prevRespuestas, { id, respuesta }];
+      }
+    });
+  };
   const startTimer = () => {
     const startTime = Date.now();
     const updateElapsedTime = () => {
@@ -67,10 +79,12 @@ const Correctivo = () => {
               opciones: string[];
               texto: string;
               tipo: string;
+              id: number;
             }) => ({
               opciones: pregunta.opciones,
               tipo: pregunta.tipo,
               texto: pregunta.texto,
+              id: pregunta.id,
             })
           )
         );
@@ -105,10 +119,21 @@ const Correctivo = () => {
               <Text>
                 Pregunta Cerrada: <Text>{pregunta.texto}</Text>
               </Text>
-              <Picker selectedValue={""} onValueChange={(itemValue) => {}}>
+              <Picker
+                selectedValue={
+                  respuestas.find((r) => r.id === pregunta.id)?.respuesta || ""
+                }
+                onValueChange={(itemValue) =>
+                  saveAnswer(pregunta.id, itemValue)
+                }
+              >
                 <Picker.Item label="Selecciona una opción" value="" />
-                {pregunta.opciones.map((opcion, index) => (
-                  <Picker.Item key={index} label={opcion} value={opcion} />
+                {pregunta.opciones.map((opcion, opcionIndex) => (
+                  <Picker.Item
+                    key={opcionIndex}
+                    label={opcion}
+                    value={opcion}
+                  />
                 ))}
               </Picker>
             </View>
@@ -118,17 +143,26 @@ const Correctivo = () => {
                 Pregunta Abierta: <Text>{pregunta.texto}</Text>
               </Text>
               <TextInput
-                placeholder="Escribe tu respuesta"
+                placeholder="Escribe tu respuesta aquí"
+                value={
+                  respuestas.find((r) => r.id === pregunta.id)?.respuesta || ""
+                }
+                onChangeText={(text) => saveAnswer(pregunta.id, text)}
                 style={{
-                  height: 40,
                   borderColor: "gray",
                   borderWidth: 1,
-                  width: "100%",
+                  padding: 8,
+                  marginVertical: 10,
                 }}
               />
             </View>
           )}
         </View>
+      ))}
+      {respuestas.map((respuesta, index) => (
+        <Text key={index}>
+          {respuesta.id}: {respuesta.respuesta}
+        </Text>
       ))}
       <Modal
         animationType="slide"
@@ -138,29 +172,103 @@ const Correctivo = () => {
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
-            <Text style={{ textAlign: "center" }}>
-              Estas a punto de iniciar el mantenimiento al presionar el boton
-              iniciar mantenimiento aceptas los terminos y condiciones:
-            </Text>
-            <Text>
-              Eres el encargado de mantenimiento: <Text>Benito Maltinez</Text>
-            </Text>
-            <Text>
-              Cuando presiones el boton de iniciar mantenimiento se iniciara un
-              temporizador el cual medira el tiempo de mantenimiento del equipo
-              y este tiempo se sumara a la hoja de vida del equipo
-            </Text>
-            <Pressable
-              onPress={() => {
-                toggleModal();
-                startTimer();
-              }}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContentContainer}
             >
-              <Text style={styles.closeButton}>Iniciar Mantenimiento</Text>
-            </Pressable>
+              <Text style={styles.modalTitle}>
+                Aceptación de Términos y Condiciones para el Mantenimiento
+              </Text>
+              <Text style={styles.bulletPoint}>
+                •{" "}
+                <Text style={styles.modalText}>
+                  Al aceptar los terminos y condiciones para iniciar el
+                  mantenimiento, confirmas que eres la persona registrada bajo
+                  el nombre:{" "}
+                  <Text style={{ fontWeight: "bold" }}>Benito Martínez</Text>.
+                </Text>
+              </Text>
+              <Text style={styles.bulletPoint}>
+                •{" "}
+                <Text style={styles.modalText}>
+                  Te comprometes a llenar cada campo de manera concienzuda y
+                  completa, responsabilizándote tanto por la veracidad de los
+                  datos ingresados como por el estado del equipo en el cual
+                  realizas el mantenimiento.
+                </Text>
+              </Text>
+              <Text style={styles.bulletPoint}>
+                •{" "}
+                <Text style={styles.modalText}>
+                  Ten en cuenta que si el dispositivo se apaga, el temporizador
+                  se reiniciará y todas las respuestas registradas hasta el
+                  momento se eliminarán, por lo que deberás iniciar el proceso
+                  desde el principio.
+                </Text>
+              </Text>
+              <Text style={styles.bulletPoint}>
+                •{" "}
+                <Text style={styles.modalText}>
+                  Una vez presiones “Iniciar Mantenimiento,” el tiempo de
+                  servicio comenzará a registrarse automáticamente y quedará
+                  almacenado en la hoja de vida de mantenimientos del equipo
+                  junto con tu nombre como responsable del mantenimiento.
+                </Text>
+              </Text>
+              <Text style={styles.bulletPoint}>
+                •{" "}
+                <Text style={styles.modalText}>
+                  Finalmente, al darle “Guardar Mantenimiento” y posteriormente
+                  “Enviar,” aceptas que el mantenimiento quedará disponible para
+                  revisión por el Responsable de Área, quien se encargará de
+                  verificar y aprobar el registro para su almacenamiento
+                  definitivo en la hoja de vida del equipo.
+                </Text>
+              </Text>
+
+              <CheckBox
+                title="He leido y acepto los terminos y condiciones para este y futuros mantenimientos"
+                checked={isAccepted} // Set the initial state of the checkbox
+                onPress={() => {
+                  setIsAccepted(!isAccepted);
+                }} // Add an onPress handler to handle checkbox state changes
+              />
+              {isAccepted ? (
+                <Pressable
+                  style={styles.enabledboton}
+                  onPress={() => (startTimer(), toggleModal())}
+                >
+                  <Text style={{ color: "white" }}>Iniciar Mantenimiento</Text>
+                </Pressable>
+              ) : (
+                <Pressable style={styles.disabledboton}>
+                  <Text style={{ color: "#A9A9A9" }}>
+                    Iniciar Mantenimiento
+                  </Text>
+                </Pressable>
+              )}
+            </ScrollView>
           </View>
         </View>
       </Modal>
+      <Pressable
+        onPress={() => {
+          router.push({
+            pathname: "/screens/mantenimiento/Preview",
+            params: {
+              tipo,
+              marca,
+              modelo,
+              serie,
+              area,
+              respuestas: JSON.stringify(respuestas),
+            },
+          });
+        }}
+        style={styles.guadarboton}
+      >
+        <Text style={{ color: "white" }}>Guardar Mantenimiento</Text>
+      </Pressable>
     </View>
   );
 };
@@ -178,19 +286,70 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  bulletPoint: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 10,
+  },
+  scrollContentContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    flexGrow: 1,
+    paddingBottom: 20, // espacio inferior para el botón de cerrar
+  },
   modalContainer: {
-    width: "80%", // Ancho del modal
-    padding: 20,
+    margin: 20,
+    width: "85%",
+    maxHeight: "90%",
+    paddingLeft: "3%",
+    paddingRight: "2%",
+    paddingTop: 20,
+    paddingBottom: 10,
     backgroundColor: "white",
     borderRadius: 10,
-    alignItems: "center",
+  },
+  modalTitle: {
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 18,
+    padding: "5%",
   },
   modalText: {
-    marginBottom: 10, // Espaciado entre los textos
+    fontSize: 14,
+    color: "#333",
   },
   closeButton: {
-    color: "blue", // Color del botón de cerrar
-    marginTop: 10, // Espaciado superior del botón
+    color: "white", // Color del botón de cerrar
+  },
+  disabledboton: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: "6%",
+    width: "70%",
+    borderRadius: 10,
+    backgroundColor: "#D3D3D3",
+    color: "white",
+    marginTop: "5%",
+  },
+  enabledboton: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: "6%",
+    width: "70%",
+    borderRadius: 10,
+    backgroundColor: "blue",
+    color: "white",
+    marginTop: "5%",
+  },
+  guadarboton: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: "6%",
+    width: "70%",
+    borderRadius: 10,
+    backgroundColor: "#050259",
+    color: "white",
+    marginTop: "5%",
   },
 });
 

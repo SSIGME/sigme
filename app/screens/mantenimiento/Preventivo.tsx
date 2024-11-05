@@ -1,9 +1,17 @@
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import url from "@/constants/url.json";
+import { CheckBox } from "react-native-elements";
 
 const Preventivo = () => {
   interface Pregunta {
@@ -12,9 +20,10 @@ const Preventivo = () => {
     tipo: string;
   }
   const router = useRouter();
-  const { tipo, marca, modelo } = useLocalSearchParams();
+  const { tipo, marca, modelo, serie, area } = useLocalSearchParams();
   const [isModalVisible, setIsModalVisible] = useState(true);
   const [preguntas, setPreguntas] = useState<Pregunta[]>([]);
+  const [isAccepted, setIsAccepted] = useState(false);
   const getRutina = async () => {
     try {
       const response = await axios.get(
@@ -80,29 +89,85 @@ const Preventivo = () => {
         animationType="slide"
         transparent={true} // Permite que el fondo se vea
         visible={isModalVisible}
-        onRequestClose={toggleModal}
+        onRequestClose={() => {
+          router.back();
+        }}
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
-            <Text style={{ textAlign: "center" }}>
-              Estas a punto de iniciar el mantenimiento al presionar el boton
-              iniciar mantenimiento aceptas los terminos y condiciones:
-            </Text>
-            <Text>
-              Eres el encargado de mantenimiento: <Text>Benito Maltinez</Text>
-            </Text>
-            <Text>
-              Cuando presiones el boton de iniciar mantenimiento se iniciara un
-              temporizador el cual medira el tiempo de mantenimiento del equipo
-              y este tiempo se sumara a la hoja de vida del equipo
-            </Text>
-            <Pressable
-              onPress={() => {
-                toggleModal();
-              }}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContentContainer}
             >
-              <Text style={styles.closeButton}>Iniciar Mantenimiento</Text>
-            </Pressable>
+              <Text style={styles.modalTitle}>
+                Aceptación de Términos y Condiciones para el Mantenimiento
+              </Text>
+              <Text style={styles.bulletPoint}>
+                •{" "}
+                <Text style={styles.modalText}>
+                  Al aceptar los terminos y condiciones para iniciar el
+                  mantenimiento, confirmas que eres la persona registrada bajo
+                  el nombre:{" "}
+                  <Text style={{ fontWeight: "bold" }}>Benito Martínez</Text>.
+                </Text>
+              </Text>
+              <Text style={styles.bulletPoint}>
+                •{" "}
+                <Text style={styles.modalText}>
+                  Te comprometes a llenar cada campo de manera concienzuda y
+                  completa, responsabilizándote tanto por la veracidad de los
+                  datos ingresados como por el estado del equipo en el cual
+                  realizas el mantenimiento.
+                </Text>
+              </Text>
+              <Text style={styles.bulletPoint}>
+                •{" "}
+                <Text style={styles.modalText}>
+                  Ten en cuenta que si el dispositivo se apaga, el temporizador
+                  se reiniciará y todas las respuestas registradas hasta el
+                  momento se eliminarán, por lo que deberás iniciar el proceso
+                  desde el principio.
+                </Text>
+              </Text>
+              <Text style={styles.bulletPoint}>
+                •{" "}
+                <Text style={styles.modalText}>
+                  Una vez presiones “Iniciar Mantenimiento,” el tiempo de
+                  servicio comenzará a registrarse automáticamente y quedará
+                  almacenado en la hoja de vida de mantenimientos del equipo
+                  junto con tu nombre como responsable del mantenimiento.
+                </Text>
+              </Text>
+              <Text style={styles.bulletPoint}>
+                •{" "}
+                <Text style={styles.modalText}>
+                  Finalmente, al darle “Guardar Mantenimiento” y posteriormente
+                  “Enviar,” aceptas que el mantenimiento quedará disponible para
+                  revisión por el Responsable de Área, quien se encargará de
+                  verificar y aprobar el registro para su almacenamiento
+                  definitivo en la hoja de vida del equipo.
+                </Text>
+              </Text>
+
+              <CheckBox
+                title="He leido y acepto los terminos y condiciones para este y futuros mantenimientos"
+                checked={isAccepted} // Set the initial state of the checkbox
+                onPress={() => {
+                  setIsAccepted(!isAccepted);
+                }} // Add an onPress handler to handle checkbox state changes
+              />
+              {isAccepted ? (
+                <Pressable style={styles.enabledboton} onPress={toggleModal}>
+                  <Text style={{ color: "white" }}>Iniciar Mantenimiento</Text>
+                </Pressable>
+              ) : (
+                <Pressable style={styles.disabledboton} onPress={toggleModal}>
+                  <Text style={{ color: "#A9A9A9" }}>
+                    Iniciar Mantenimiento
+                  </Text>
+                </Pressable>
+              )}
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -123,19 +188,59 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  bulletPoint: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 10,
+  },
+  scrollContentContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    flexGrow: 1,
+    paddingBottom: 20, // espacio inferior para el botón de cerrar
+  },
   modalContainer: {
-    width: "80%", // Ancho del modal
-    padding: 20,
+    width: "85%",
+    height: "90%",
+    paddingLeft: "3%",
+    paddingRight: "2%",
+    paddingTop: '5%' ,
+    paddingBottom: 20,
     backgroundColor: "white",
     borderRadius: 10,
-    alignItems: "center",
+  },
+  modalTitle: {
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 18,
+    padding: '5%',
   },
   modalText: {
-    marginBottom: 10, // Espaciado entre los textos
+    fontSize: 14,
+    color: "#333",
   },
   closeButton: {
-    color: "blue", // Color del botón de cerrar
-    marginTop: 10, // Espaciado superior del botón
+    color: "white", // Color del botón de cerrar
+  },
+  disabledboton: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: "6%",
+    width: "70%",
+    borderRadius: 10,
+    backgroundColor: "#D3D3D3",
+    color: "white",
+    marginTop: "5%",
+  },
+  enabledboton: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: "6%",
+    width: "70%",
+    borderRadius: 10,
+    backgroundColor: "blue",
+    color: "white",
+    marginTop: "5%",
   },
 });
 

@@ -11,7 +11,8 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useFonts } from "expo-font";
 import axios from "axios";
 import url from "@/constants/url.json";
-
+import { useUserContext } from "../UserContext";
+import ModalAlert from "../componets/ModalAlert";
 interface Equipo {
   codigoIdentificacion: string;
   Imagen: string;
@@ -24,7 +25,9 @@ interface Equipo {
   area: string;
 }
 const EquipoDetail = () => {
+  const { userType } = useUserContext();
   const [equipo, setEquipo] = React.useState<Equipo | null>(null);
+  const [modalVisible, setModalVisible] = React.useState<boolean>(false);
   const [fontsLoaded] = useFonts({
     "Kanit-Regular": require("../../assets/fonts/Kanit/Kanit-Regular.ttf"),
     "Kanit-Medium": require("../../assets/fonts/Kanit/Kanit-Medium.ttf"),
@@ -55,6 +58,9 @@ const EquipoDetail = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
   };
   const checkParams = () => {
     if (
@@ -134,131 +140,124 @@ const EquipoDetail = () => {
           <Text style={styles.parametro}>
             Ubicacion <Text style={styles.parametroinfo}> {area}</Text>
           </Text>
-          <View style={styles.cajamantenimientos}>
-            <Pressable
-              style={styles.botonmantenimiento}
-              onPress={() => {
-                router.push({
-                  pathname: "screens/mantenimiento/Preventivo",
-                  params: {
-                    tipo: equipo.Tipo,
-                    marca: equipo.Marca,
-                    modelo: equipo.Modelo,
-                  },
-                });
-              }}
-            >
-              <Text style={styles.textboton}>Preventivo</Text>
+
+          {userType !== "tecnico" ? (
+            <></>
+          ) : (
+            <View style={styles.cajamantenimientos}>
+              <Pressable
+                style={styles.botonmantenimiento}
+                onPress={() => {
+                  router.push({
+                    pathname: "screens/mantenimiento/Preventivo",
+                    params: {
+                      tipo: equipo.Tipo,
+                      marca: equipo.Marca,
+                      modelo: equipo.Modelo,
+                      serie: equipo.Serie,
+                      area: equipo.area,
+                    },
+                  });
+                }}
+              >
+                <Text style={styles.textboton}>Preventivo</Text>
+              </Pressable>
+              <Pressable
+                style={styles.botonmantenimiento}
+                onPress={() => {
+                  router.push({
+                    pathname: "screens/mantenimiento/Correctivo",
+                    params: {
+                      tipo: equipo.Tipo,
+                      marca: equipo.Marca,
+                      modelo: equipo.Modelo,
+                      serie: equipo.Serie,
+                      area: equipo.area,
+                    },
+                  });
+                }}
+              >
+                <Text style={styles.textboton}>Correctivo</Text>
+              </Pressable>
+            </View>
+          )}
+        </View>
+        {userType !== "tecnico" ? (
+          <View style={[styles.botonesrapidos, { top: "45%" }]}>
+            <Pressable style={styles.botonrapido}>
+              <Image
+                source={require("../../assets/images/manual.png")}
+                style={{ width: 30, height: 30 }}
+              />
+              <Text style={{ position: "absolute", bottom: "-40%" }}>
+                Manual
+              </Text>
             </Pressable>
-            <Pressable
-              style={styles.botonmantenimiento}
-              onPress={() => {
-                router.push({
-                  pathname: "screens/mantenimiento/Correctivo",
-                  params: {
-                    tipo: equipo.Tipo,
-                    marca: equipo.Marca,
-                    modelo: equipo.Modelo,
-                  },
-                });
-              }}
-            >
-              <Text style={styles.textboton}>Correctivo</Text>
+            <Pressable onPress={toggleModal} style={styles.botonrapido}>
+              <Image
+                source={require("../../assets/images/uso.png")}
+                style={{ width: 30, height: 30 }}
+              />
+              <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
+            </Pressable>
+            <Pressable style={styles.botonrapido}>
+              <Image
+                source={require("../../assets/images/guiarapida.png")}
+                style={{ width: 30, height: 30 }}
+              />
+              <Text
+                style={{
+                  position: "absolute",
+                  bottom: "-40%",
+                  width: "150%",
+                  textAlign: "center",
+                }}
+              >
+                Guia Rapida
+              </Text>
             </Pressable>
           </View>
-        </View>
-        <View style={styles.botonesrapidos}>
-          <Pressable style={styles.botonrapido}>
-            <Image
-              source={require("../../assets/images/manual.png")}
-              style={{ width: 30, height: 30 }}
-            />
-            <Text style={{ position: "absolute", bottom: "-40%" }}>Manual</Text>
-          </Pressable>
-          <Pressable style={styles.botonrapido}>
-            <Image
-              source={require("../../assets/images/uso.png")}
-              style={{ width: 30, height: 30 }}
-            />
-            <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
-          </Pressable>
-          <Pressable style={styles.botonrapido}>
-            <Image
-              source={require("../../assets/images/guiarapida.png")}
-              style={{ width: 30, height: 30 }}
-            />
-            <Text
-              style={{
-                position: "absolute",
-                bottom: "-40%",
-                width: "150%",
-                textAlign: "center",
-              }}
-            >
-              Guia Rapida
-            </Text>
-          </Pressable>
-          <Pressable style={styles.botonrapido}>
-            <Image
-              source={require("../../assets/images/manual.png")}
-              style={{ width: 30, height: 30 }}
-            />
-            <Text style={{ position: "absolute", bottom: "-40%" }}>Manual</Text>
-          </Pressable>
-          <Pressable style={styles.botonrapido}>
-            <Image
-              source={require("../../assets/images/uso.png")}
-              style={{ width: 30, height: 30 }}
-            />
-            <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
-          </Pressable>
-          <Pressable style={styles.botonrapido}>
-            <Image
-              source={require("../../assets/images/guiarapida.png")}
-              style={{ width: 30, height: 30 }}
-            />
-            <Text
-              style={{
-                position: "absolute",
-                bottom: "-40%",
-                width: "150%",
-                textAlign: "center",
-              }}
-            >
-              Guia Rapida
-            </Text>
-          </Pressable>
-          <Pressable style={styles.botonrapido}>
-            <Image
-              source={require("../../assets/images/manual.png")}
-              style={{ width: 30, height: 30 }}
-            />
-            <Text style={{ position: "absolute", bottom: "-40%" }}>Manual</Text>
-          </Pressable>
-          <Pressable style={styles.botonrapido}>
-            <Image
-              source={require("../../assets/images/uso.png")}
-              style={{ width: 30, height: 30 }}
-            />
-            <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
-          </Pressable>
-          <Pressable style={styles.botonrapido}>
-            <Image
-              source={require("../../assets/images/guiarapida.png")}
-              style={{ width: 30, height: 30 }}
-            />
-            <Text
-              style={{
-                position: "absolute",
-                bottom: "-40%",
-                width: "150%",
-                textAlign: "center",
-              }}
-            >
-              Guia Rapida
-            </Text>
-          </Pressable>
-        </View>
+        ) : (
+          <View style={styles.botonesrapidos}>
+            <Pressable style={styles.botonrapido}>
+              <Image
+                source={require("../../assets/images/manual.png")}
+                style={{ width: 30, height: 30 }}
+              />
+              <Text style={{ position: "absolute", bottom: "-40%" }}>
+                Manual
+              </Text>
+            </Pressable>
+            <Pressable onPress={()=>{router.push("Equipo/HojaVida")}} style={styles.botonrapido}>
+              <Image
+                source={require("../../assets/images/uso.png")}
+                style={{ width: 30, height: 30 }}
+              />
+              <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
+            </Pressable>
+            <Pressable style={styles.botonrapido}>
+              <Image
+                source={require("../../assets/images/guiarapida.png")}
+                style={{ width: 30, height: 30 }}
+              />
+              <Text
+                style={{
+                  position: "absolute",
+                  bottom: "-40%",
+                  width: "150%",
+                  textAlign: "center",
+                }}
+              >
+                Guia Rapida
+              </Text>
+            </Pressable>
+          </View>
+        )}
+        <ModalAlert
+          visible={modalVisible}
+          message="¿Desea reportar un problema con este equipo?"
+          hideModal={toggleModal}
+        />
       </View>
     );
   }

@@ -199,7 +199,32 @@ export default function Layout() {
             headerShown: false,
           }}
         />
+                   <Stack.Screen
+          name="Equipo/HojaVida"
+          options={{
+            headerShown: false,
+          }}
+        />
+            <Stack.Screen
+          name="screens/mantenimiento/Preview"
+         options={{
+            headerShadowVisible: false,
+            headerTitle: "",
+            headerStyle: {
+              backgroundColor: "#050259",
+            },
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Image
+                  source={require("../assets/images/backarrow.png")}
+                  style={{ width: 40, height: 20, marginLeft: 1 }}
+                />
+              </TouchableOpacity>
+            ),
+          }} 
+        />
       </Stack>
+  
     </UserProvider>
   );
 }

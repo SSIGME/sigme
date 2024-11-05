@@ -54,7 +54,6 @@ export default function HomeScreen() {
         <TouchableOpacity
           style={[styles.option, { backgroundColor: "#A4B1E3" }]}
           onPress={() => handleUserTypeChange("tecnico", "/screens/login/tecnico")}
-        
         >
           <Image
             source={require("../assets/images/tecnico.png")}
