@@ -193,21 +193,21 @@ export default function Layout() {
             headerShown: false,
           }}
         />
-               <Stack.Screen
+        <Stack.Screen
           name="screens/codigos/listaCodigos"
           options={{
             headerShown: false,
           }}
         />
-                   <Stack.Screen
+        <Stack.Screen
           name="Equipo/HojaVida"
           options={{
             headerShown: false,
           }}
         />
-            <Stack.Screen
+        <Stack.Screen
           name="screens/mantenimiento/Preview"
-         options={{
+          options={{
             headerShadowVisible: false,
             headerTitle: "",
             headerStyle: {
@@ -221,10 +221,49 @@ export default function Layout() {
                 />
               </TouchableOpacity>
             ),
-          }} 
+          }}
+        />
+        <Stack.Screen
+          name="screens/mantenimiento/Correctivo"
+          options={{
+            headerShadowVisible: false,
+            headerTitle: "",
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Image
+                  source={require("../assets/images/backarrowblue.png")}
+                  style={{
+                    width: 35,
+                    height: 17,
+                    marginLeft: 5,
+                    marginTop: 15,
+                  }}
+                />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <Stack.Screen
+          name="screens/mantenimiento/Preventivo"
+          options={{
+            headerShadowVisible: false,
+            headerTitle: "",
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Image
+                  source={require("../assets/images/backarrowblue.png")}
+                  style={{
+                    width: 35,
+                    height: 17,
+                    marginLeft: 5,
+                    marginTop: 15,
+                  }}
+                />
+              </TouchableOpacity>
+            ),
+          }}
         />
       </Stack>
-  
     </UserProvider>
   );
 }

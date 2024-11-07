@@ -41,7 +41,7 @@ export default () => {
 
       // Crear el objeto con los datos
       const data = {
-        firma: `<path d="${svgData}" stroke="#000000" fill="none" stroke-width="2"/>`,
+        firma: `${svgData}`,
         codigo: codigo,
         codigoHospital: codigoHospital,
       };

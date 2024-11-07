@@ -12,7 +12,8 @@ import { useFonts } from "expo-font";
 import axios from "axios";
 import url from "@/constants/url.json";
 import { useUserContext } from "../UserContext";
-import ModalAlert from "../componets/ModalAlert";
+import ModalAlert from "@/app/componets/ModalAlert";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 interface Equipo {
   codigoIdentificacion: string;
   Imagen: string;
@@ -48,8 +49,9 @@ const EquipoDetail = () => {
 
   const getEquipo = async (codigoIdentificacion: string) => {
     try {
+      const codigoHospital = await AsyncStorage.getItem("codigoHospital");
       const response = await axios.get(
-        `${url.url}/getequipo/${codigoIdentificacion}`
+        `${url.url}/getequipo/${codigoHospital}/${codigoIdentificacion}`
       );
       if (response.status === 200) {
         console.log(response.data);
@@ -151,6 +153,7 @@ const EquipoDetail = () => {
                   router.push({
                     pathname: "screens/mantenimiento/Preventivo",
                     params: {
+                      IdEquipo: equipo.codigoIdentificacion,
                       tipo: equipo.Tipo,
                       marca: equipo.Marca,
                       modelo: equipo.Modelo,
@@ -168,6 +171,7 @@ const EquipoDetail = () => {
                   router.push({
                     pathname: "screens/mantenimiento/Correctivo",
                     params: {
+                      IdEquipo: equipo.codigoIdentificacion,
                       tipo: equipo.Tipo,
                       marca: equipo.Marca,
                       modelo: equipo.Modelo,
@@ -200,7 +204,22 @@ const EquipoDetail = () => {
               />
               <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
             </Pressable>
-            <Pressable style={styles.botonrapido}>
+            <Pressable onPress={() => {
+                  router.push({
+                    pathname: "Equipo/HojaVida",
+                    params: {
+                      tipo: equipo.Tipo,
+                      marca: equipo.Marca,
+                      modelo: equipo.Modelo,
+                      serie: equipo.Serie,
+                      area: equipo.area,
+                      Imagen: equipo.Imagen,
+             
+                      codigoIdentificacion:equipo.codigoIdentificacion
+                    },
+                  });
+                }}
+                    >
               <Image
                 source={require("../../assets/images/guiarapida.png")}
                 style={{ width: 30, height: 30 }}
@@ -228,14 +247,30 @@ const EquipoDetail = () => {
                 Manual
               </Text>
             </Pressable>
-            <Pressable onPress={()=>{router.push("Equipo/HojaVida")}} style={styles.botonrapido}>
+            <Pressable style={styles.botonrapido}>
               <Image
                 source={require("../../assets/images/uso.png")}
                 style={{ width: 30, height: 30 }}
               />
               <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
             </Pressable>
-            <Pressable style={styles.botonrapido}>
+            <Pressable  onPress={() => {
+                  router.push({
+                    pathname: "Equipo/HojaVida",
+                    params: {
+                      tipo: equipo.Tipo,
+                      marca: equipo.Marca,
+                      modelo: equipo.Modelo,
+                      serie: equipo.Serie,
+                      area: equipo.area,
+                      Imagen: equipo.Imagen,
+                
+                      codigoIdentificacion:equipo.codigoIdentificacion
+                      
+
+                    },
+                  });
+                }} style={styles.botonrapido}>
               <Image
                 source={require("../../assets/images/guiarapida.png")}
                 style={{ width: 30, height: 30 }}

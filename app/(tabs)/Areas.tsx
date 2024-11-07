@@ -18,7 +18,9 @@ import { useFonts } from "expo-font";
 import { useNavigation } from "@react-navigation/native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Container } from "@shopify/react-native-skia/lib/typescript/src/renderer/Container";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width, height } = Dimensions.get("window");
+
 const Areas = () => {
   const router = useRouter();
   interface Area {
@@ -48,8 +50,9 @@ const Areas = () => {
   };
 
   const getAreas = async () => {
+    const codigoHospital = await AsyncStorage.getItem("codigoHospital");
     try {
-      const response = await axios.get(`${url.url}/getareas`);
+      const response = await axios.get(`${url.url}/getareas/${codigoHospital}`);
       if (response.status === 200) {
         console.log(response.data);
         setAreas(

@@ -1,70 +1,82 @@
-import React, { useState } from 'react';
+
+import React, { useEffect , useState} from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet, FlatList, SafeAreaView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import SigmeModal from "../componets/SigmeModal";
 import url from "@/constants/url.json";
-
+import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const CodesAccessScreen = () => {
-  const { type } = useLocalSearchParams();
+
+  const { tipo, marca, modelo,   codigoIdentificacion,serie, area, HojaVida, Imagen } = useLocalSearchParams();
   const [modal, setModal] = useState({
     isVisible: false,
     title: "",
     message: "",
     type: "success"
   });
-  const [activeTab, setActiveTab] = useState('Preventivos');
-  const [accessCodes, setAccessCodes] = useState([
-    {
-      tecnico: "Juan Pérez",
-      ubicacion: "Edificio A, Piso 3",
-      fecha: "2024-11-04",
-      estado: "Activo",
-      numeroReporte: "12345",
-      tipo: "Preventivo"
-    },
-    {
-      tecnico: "María López",
-      ubicacion: "Edificio B, Piso 1",
-      fecha: "2024-10-30",
-      estado: "Inactivo",
-      numeroReporte: "67890",
-      tipo: "Correctivo"
-    },
-    {
-      tecnico: "Carlos García",
-      ubicacion: "Edificio C, Piso 2",
-      fecha: "2024-10-25",
-      estado: "Activo",
-      numeroReporte: "54321",
-      tipo: "Preventivo"
-    }
+  const [activeTab, setActiveTab] = useState('preventivo');
+  const [equipo, setEquipo] = useState([
+ 
   ]);
-  
-
-  const renderAccessCode = ({ item }) => (
-    <View style={[styles.codeCard, item.estado === "Activo" ? styles.activeCodeCard : styles.inactiveCodeCard]}>
-    <View style={{ gap: 4 }}>
-      <TouchableOpacity>
-        <Text style={styles.ownerText}><Text style={styles.labelText}>Técnico:</Text> {item.tecnico}</Text>
-        <Text style={styles.ownerText}><Text style={styles.labelText}>Ubicación:</Text> {item.ubicacion}</Text>
-        <Text style={styles.ownerText}><Text style={styles.labelText}>Fecha:</Text> {item.fecha}</Text>
-        <Text style={styles.ownerText}><Text style={styles.labelText}>Estado:</Text> {item.estado}</Text>
-        <Text style={styles.ownerText}><Text style={styles.labelText}>Número de Reporte:</Text> {item.numeroReporte}</Text>
-        <Text style={styles.ownerText}><Text style={styles.labelText}>Tipos:</Text> {item.tipo}</Text>
-      </TouchableOpacity>
+  const getEquipo = async (codigoIdentificacion: string) => {
+    try {
+      const codigoHospital = await AsyncStorage.getItem("codigoHospital");
+      const response = await axios.get(
+        `${url.url}/getequipo/${codigoHospital}/${codigoIdentificacion}`
+      );
+      if (response.status === 200) {
+        console.log(response.data);
+        setEquipo(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }; 
+  const renderEquipo = ({ item }) => (
+    <View style={[styles.codeCard, item.tipoMantenimiento === "preventivo" ? styles.activeCodeCard : styles.inactiveCodeCard]}>
+      <View style={{ gap: 4 }}>
+        <TouchableOpacity        onPress={() => {
+          router.push({
+            pathname: "/screens/mantenimiento/Preview",
+            params: {
+              tipo,
+              marca,
+              modelo,
+              serie,
+              area,
+              respuestas: JSON.stringify(equipo.respuestas),
+            },
+          });
+        }}>
+          <Text style={styles.ownerText}><Text style={styles.labelText}>Técnico:</Text> {item.tecnico}</Text>
+          <Text style={styles.ownerText}><Text style={styles.labelText}>Ubicación:</Text> {item.ubicacion}</Text>
+          <Text style={styles.ownerText}><Text style={styles.labelText}>Fecha:</Text> {item.fecha}</Text>
+          <Text style={styles.ownerText}><Text style={styles.labelText}>Estado:</Text> {item.estado}</Text>
+          <Text style={styles.ownerText}><Text style={styles.labelText}>Número de Reporte:</Text> {item.idMantenimiento}</Text>
+          <Text style={styles.ownerText}><Text style={styles.labelText}>Tipo:</Text> {item.tipoMantenimiento}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
-  </View>
-  
   );
-  const filteredCodes = accessCodes.filter(code => 
-    activeTab === 'Correctivo' ? code.tipo === 'Correctivo' : code.tipo === 'Preventivo'
-  );
+ 
+
+  useEffect(() => {
+    getEquipo(codigoIdentificacion);
+  }, []);
   const closeModal = () => setModal({ ...modal, isVisible: false });
+  
+  const filteredCodes = Array.isArray(equipo.HojaVida)
+  ? equipo.HojaVida.filter(equipo => 
+      activeTab === 'correctivo' ? equipo.tipoMantenimiento === 'correctivo' : equipo.tipoMantenimiento === 'preventivo'
+    )
+  : [];
+
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.push('/(tabs)/Codigos')} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Image source={require("../../assets/images/back.png")} style={styles.backIcon} />
         </TouchableOpacity>
         <Text style={styles.headerText}>
@@ -72,30 +84,44 @@ const CodesAccessScreen = () => {
         </Text>
       </View>
       
+      <View style={styles.fototipo}>
+        {Imagen === "" ? (
+          <Image
+            source={require("../../assets/images/tenso.jpg")}
+            style={styles.image}
+          />
+        ) : (
+          <Image
+            style={styles.image}
+            source={{ uri: Array.isArray(Imagen) ? Imagen[0] : Imagen }}
+          />
+        )}
+      </View>
+
       <View style={styles.cajaparametros}>
-        <Text style={styles.parametro}>Modelo: <Text style={styles.parametroinfo}>sdf</Text></Text>
-        <Text style={styles.parametro}>Marca: <Text style={styles.parametroinfo}>sdf</Text></Text>
-        <Text style={styles.parametro}>Serie: <Text style={styles.parametroinfo}>zfgzfg</Text></Text>
-        <Text style={styles.parametro}>Ubicación: <Text style={styles.parametroinfo}>dfgz</Text></Text>
+        <Text style={styles.parametro}>Modelo: <Text style={styles.parametroinfo}>{modelo}</Text></Text>
+        <Text style={styles.parametro}>Marca: <Text style={styles.parametroinfo}>{marca}</Text></Text>
+        <Text style={styles.parametro}>Serie: <Text style={styles.parametroinfo}>{serie}</Text></Text>
+        <Text style={styles.parametro}>Ubicación: <Text style={styles.parametroinfo}>{area}</Text></Text>
       </View>
 
       <View style={styles.tabContainer}>
-        <TouchableOpacity onPress={() => setActiveTab('Preventivo')} style={[styles.tab, activeTab === 'Preventivo' && styles.activeTab]}>
-          <Text style={[styles.tabText, activeTab === 'Preventivo' && styles.activeTabText]}>Preventivos</Text>
+        <TouchableOpacity onPress={() =>  {    setActiveTab('preventivo'); 
+  console.log(equipo)
+}} style={[styles.tab, activeTab === 'preventivo' && styles.activeTab]}>
+          <Text style={[styles.tabText, activeTab === 'preventivo' && styles.activeTabText]}>Preventivos</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setActiveTab('Correctivo')} style={[styles.tab, activeTab === 'Correctivo' && styles.activeTab]}>
-          <Text style={[styles.tabText, activeTab === 'Correctivo' && styles.activeTabText]}>Correctivos</Text>
+        <TouchableOpacity onPress={() => setActiveTab('correctivo')} style={[styles.tab, activeTab === 'correctivo' && styles.activeTab]}>
+          <Text style={[styles.tabText, activeTab === 'correctivo' && styles.activeTabText]}>Correctivos</Text>
         </TouchableOpacity>
       </View>
 
       <FlatList
-        data={filteredCodes.reverse()}
-        renderItem={renderAccessCode}
-        keyExtractor={(item) => item.numeroReporte.toString()}
+        data={filteredCodes}
+        renderItem={renderEquipo}
+        keyExtractor={(item) => item.idMantenimiento}
         style={styles.codeList}
       />
-
-
 
       <SigmeModal
         isVisible={modal.isVisible}
@@ -119,29 +145,44 @@ const styles = StyleSheet.create({
     left: 20,
     top: 30,
   },
-
+  fototipo: {
+    width: "40%",
+    height: "25%",
+    marginHorizontal:"auto",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: 150,
+    height: 150,
+    borderRadius: 20,
+  },
   labelText: {
-    fontWeight: '600', // Hace que el subtítulo esté en negrita
+    fontWeight: '600',
     color: '#03396e',
   },
   parametroinfo: {
     color: "rgba(0, 0, 0, 0.3)",
     fontFamily: "Kanit-Light",
-    fontSize:18,
+    fontSize: 18,
+    marginHorizontal: "auto",
   },
   cajaparametros: {
-    padding: "5%",
+    paddingHorizontal: "5%",
     justifyContent: "center",
     alignItems: "center",
+    alignSelf:"center",
     flexDirection: "row",
     flexWrap: "wrap",
     width: "100%",
-    marginHorizontal:"auto"
+    marginHorizontal: "auto",
+    textAlign:"center",
   },
   parametro: {
     width: "50%",
-    fontSize:17,
-    fontWeight:'400',
+    fontSize: 17,
+    fontWeight: '400',
+
     fontFamily: "Kanit-Light",
   },
   backIcon: {
@@ -185,41 +226,12 @@ const styles = StyleSheet.create({
   },
   codeList: {
     flexGrow: 0,
-
   },
-
-
   ownerText: {
     fontSize: 16,
     fontWeight: '300',
     color: '#000000',
     marginBottom: 4,
-  },
-  durationText: {
-    fontSize: 14,
-    color: '#001366',
-  },
-  deleteButton: {
-    borderRadius: 20,
-    padding: 5,
-  },
-  generateButton: {
-    backgroundColor: '#001366',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: 0,
-    height: "10%",
-    justifyContent: 'center',
-    width: '100%',
-  },
-  generateButtonText: {
-    fontSize: 18,
-    color: '#FFF',
-    fontWeight: '300',
-  },
-  
-  inactiveButton: {
-    display: "none",
   },
   codeCard: {
     backgroundColor: '#FFFFFF',
@@ -230,27 +242,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 5 },
     shadowRadius: 10,
-    marginHorizontal:"5%",
+    marginHorizontal: "5%",
     elevation: 5,
     flexDirection: 'column',
-  },  codeText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#34495E',
-    marginBottom: 8,
   },
-
   activeCodeCard: {
     borderLeftWidth: 5,
-    borderLeftColor: '#2ECC71', // Verde para indicar código activo
+    borderLeftColor: '#2ECC71',
   },
-
   inactiveCodeCard: {
     borderLeftWidth: 5,
-    borderLeftColor: '#E74C3C', // Rojo para indicar código inactivo
-    // Para dar un efecto visual de inactividad
+    borderLeftColor: '#052386',
   },
-  
 });
 
 export default CodesAccessScreen;

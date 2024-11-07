@@ -16,6 +16,7 @@ import url from "../../constants/url.json";
 import { useRouter } from "expo-router";
 import { useFonts } from "expo-font";
 import { Dimensions } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 interface Area {
   codigoIdentificacion: string;
   nombre: string;
@@ -79,9 +80,10 @@ const AreaDetail = () => {
     equipo.Tipo.toLowerCase().includes(search.toLowerCase())
   );
   const getEquipos = async () => {
+    const codigoHospital = await AsyncStorage.getItem("codigoHospital");
     try {
       const response = await axios.get(
-        `${url.url}/getequipos/${codigoIdentificacion}`
+        `${url.url}/getequipos/${codigoHospital}/${codigoIdentificacion}`
       );
       if (response.status === 200) {
         console.log(response.data);
@@ -93,9 +95,10 @@ const AreaDetail = () => {
     }
   };
   const getArea = async () => {
+    const codigoHospital = await AsyncStorage.getItem("codigoHospital");
     try {
       const response = await axios.get(
-        `${url.url}/getarea/${codigoIdentificacion}`
+        `${url.url}/getarea/${codigoHospital}/${codigoIdentificacion}`
       );
       if (response.status === 200) {
         console.log(response.data);
