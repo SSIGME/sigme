@@ -23,14 +23,6 @@ export default function HomeScreen() {
     setUserType(type); // Cambia el userType en el contexto
     router.push(route); // Navega a la ruta deseada
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      StatusBar.setBarStyle("light-content");
-      StatusBar.setBackgroundColor("#050259");
-    }, [])
-  );
-
   return (
     <View style={{ flex: 1 }}>
       <StatusBar barStyle="light-content" backgroundColor="#050259" />

@@ -20,6 +20,8 @@ export const UserProvider: React.FC = ({ children }) => {
   );
 };
 
+export default UserProvider;
+
 export const useUserContext = () => {
   const context = useContext(UserContext);
   if (!context) {
