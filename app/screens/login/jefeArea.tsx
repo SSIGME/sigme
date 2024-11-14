@@ -66,7 +66,7 @@ const JefeAreaLoginScreen = () => {
         codigo: username,
         contrasena: password,
         codigoHospital: hospitalCode,
-        tipo: "jefeArea"
+        tipo: "responsableArea"
       });
       
       if (response.status === 200) {
@@ -167,7 +167,7 @@ const JefeAreaLoginScreen = () => {
 
         <TextInput
           style={styles.input}
-          placeholder="Código de mantenimiento"
+          placeholder="Código de acceso"
           value={username}
           onChangeText={setUsername}
           placeholderTextColor="#888"

@@ -15,6 +15,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { Dimensions } from "react-native";
 import { ActivityIndicator } from "react-native";
 import { useFonts } from "expo-font";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width, height } = Dimensions.get("window");
 const ListarAreas = () => {
@@ -45,8 +46,9 @@ const ListarAreas = () => {
   };
 
   const getAreas = async () => {
+    const codigoHospital = await AsyncStorage.getItem("codigoHospital");
     try {
-      const response = await axios.get(`${url.url}/getareas`);
+      const response = await axios.get(`${url.url}/getareas/${codigoHospital}`);
       if (response.status === 200) {
         console.log(response.data);
         setAreas(

@@ -48,7 +48,7 @@ export default function HomeScreen() {
             source={require("../assets/images/admin.png")}
             style={styles.image}
           />
-          <Text style={styles.optionText}>Administrador</Text>
+          <Text style={styles.optionText}>  Encargado</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -85,7 +85,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.option, { backgroundColor: "#1C2D63" }]}
-          onPress={() => handleUserTypeChange("secretaria", "/screens/login/secretaria")}
+          onPress={() => handleUserTypeChange("secretaria", "CrearEquipo")}
         >
           <Image
             source={require("../assets/images/secretaria.png")}

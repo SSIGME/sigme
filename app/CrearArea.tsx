@@ -6,24 +6,36 @@ import axios from "axios";
 import url from "../constants/url.json";
 import { Alert } from "react-native";
 import { useLayoutEffect, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+interface Responsable {
+  nombre: string;
+  documento: string;
+}
 export default function CrearArea() {
+  const [codigoHospital, setCodigoHospital] = useState("ISAK");
   const [nombreArea, setNombreArea] = useState("");
-  const [responsable, setResponsable] = useState("");
-  const [profesionales, setProfesionales] = useState([]);
+  const [responsable, setResponsable] = useState<Responsable>({
+    nombre: "",
+    documento: "",
+  });
+  const [profesionales, setProfesionales] = useState<
+    { nombre: string; documento: string }[]
+  >([]);
   const [areas, setAreas] = useState([]);
   const [searchQueryProfesional, setSearchQueryProfesional] = useState("");
   const [searchQueryArea, setSearchQueryArea] = useState("");
 
   const crearArea = async () => {
-    console.log("corriendo");
+    console.log("corriendo", responsable.documento);
     try {
       const response = await axios.post(`${url.url}/area`, {
+        codigoHospital: codigoHospital,
         nombre: nombreArea,
-        responsableArea: responsable,
-        documentoResponsableArea: "123456",
+        responsableArea: responsable.nombre,
+        documentoResponsableArea: responsable.documento,
       });
-      console.log(response.data);
-      if (response.data.msg === "Area creada") {
+      console.log("nombres", response.data);
+      if (response.status === 201) {
         Alert.alert("Area creada correctamente");
       } else {
         Alert.alert("Ha habido un error", response.data.msg);
@@ -33,36 +45,45 @@ export default function CrearArea() {
       console.error(error);
     }
   };
+  const filteredProfesionales = profesionales.filter((profesional) =>
+    profesional.nombre
+      ?.toLowerCase()
+      .includes(searchQueryProfesional.toLowerCase())
+  );
+  console.log("Profesionales:", profesionales);
+  console.log("Search Query:", searchQueryProfesional);
+  console.log("Filtered Profesionales:", filteredProfesionales);
+  const filteredAreas = areas.filter((area: string) =>
+    area.toLowerCase().includes(searchQueryArea.toLowerCase())
+  );
   const fetchAreas = async () => {
     try {
-      const response = await axios.get(`${url.url}/getareas`);
+      const response = await axios.get(`${url.url}/getareas/${codigoHospital}`);
       console.log(response.data);
       setAreas(response.data.map((area: { nombre: string }) => area.nombre));
     } catch (error) {
       console.error(error);
     }
   };
-
-  const filteredProfesionales = profesionales.filter((profesional:string) =>
-    profesional.toLowerCase().includes(searchQueryProfesional.toLowerCase())
-  );
-  const filteredAreas = areas.filter((area:string) =>
-    area.toLowerCase().includes(searchQueryArea.toLowerCase())
-  );
   const fetchResponsables = async () => {
     try {
-      const response = await axios.get(`${url.url}/getprofesionales`);
-      console.log(response.data);
-      setProfesionales(
-        response.data.map(
-          (profesional: { nombre: string }) => profesional.nombre
-        )
+      const response = await axios.get(
+        `${url.url}/getprofesionales/${codigoHospital}`
       );
-      console.log(profesionales);
+      console.log("Profesionales", response.data);
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        // Mapea solo los campos 'documento' y 'nombre' y los guarda en el estado
+        const profesionalesData = response.data.map((profesional) => ({
+          documento: profesional.documento,
+          nombre: profesional.nombre,
+        }));
+        setProfesionales(profesionalesData);
+      }
     } catch (error) {
       console.error(error);
     }
   };
+
   useEffect(() => {
     fetchAreas();
     fetchResponsables();
@@ -95,7 +116,7 @@ export default function CrearArea() {
                 setSearchQueryArea("");
               }}
               key={index}
-              style={{color: "red"}}
+              style={{ color: "red" }}
             >
               Area existente con el nombre: {area}
             </Text>
@@ -106,9 +127,9 @@ export default function CrearArea() {
         <TextInput
           style={styles.inputs}
           placeholder={
-            responsable === ""
+            responsable.nombre === "" && responsable.documento === ""
               ? "Introduce el responsable del Area"
-              : "Responsable seleccionado: " + responsable
+              : "Responsable seleccionado: " + responsable.nombre
           }
           value={searchQueryProfesional}
           onChangeText={setSearchQueryProfesional}
@@ -121,9 +142,8 @@ export default function CrearArea() {
                 setSearchQueryProfesional("");
               }}
               key={index}
-              style={styles.whitetext}
             >
-              {profesional}
+              {profesional.nombre}: {profesional.documento}
             </Text>
           ))
         ) : (

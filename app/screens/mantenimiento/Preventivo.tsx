@@ -135,7 +135,6 @@ const Preventivo = () => {
     return Math.floor(Math.random() * 1000000);
   }
   const checkSaved = async () => {
-
     const codigoHospital = await AsyncStorage.getItem("codigoHospital");
     try {
       const response = await axios.get(

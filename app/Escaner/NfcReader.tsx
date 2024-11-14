@@ -14,7 +14,11 @@ import NfcManager, { NfcTech, Ndef } from "react-native-nfc-manager";
 import React from "react";
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
+import { useUserContext } from "@/app/UserContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const NfcReader = () => {
+  const { userType } = useUserContext();
+
   const router = useRouter();
   const [fontsLoaded] = useFonts({
     "Kanit-Regular": require("../../assets/fonts/Kanit/Kanit-Regular.ttf"),
@@ -31,6 +35,7 @@ const NfcReader = () => {
       await NfcManager.start();
       setNfcSupported(true);
       console.log("NFC está soportado");
+      readNFC();
     } catch (ex) {
       console.warn("NFC no está soportado:", ex);
     }
@@ -68,6 +73,7 @@ const NfcReader = () => {
   };
   const readNFC = async () => {
     try {
+      const codigoHospital = await AsyncStorage.getItem("codigoHospital");
       console.log("Iniciando lectura de NFC");
       Alert.alert("Iniciando lectura de NFC");
       await NfcManager.requestTechnology(NfcTech.Ndef);
@@ -82,6 +88,7 @@ const NfcReader = () => {
             router.push({
               pathname: "/Equipo/EquipoDetail",
               params: {
+                codigoHospital: codigoHospital,
                 codigoIdentificacion: text,
               },
             });
@@ -115,25 +122,75 @@ const NfcReader = () => {
             source={require("../../assets/images/nfc.png")}
             style={{ width: 150, height: 50 }}
           />
-
-          <Pressable
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              position: "absolute",
-              bottom: 20,
-              backgroundColor: "#f0f0f0",
-              padding: 10,
-              borderRadius: 5,
-            }}
-            onPress={() => {
-              router.push("/Escaner/NfcWrite");
-            }}
-          >
-            <Text style={[styles.textbold, { color: "black" }]}>
-              Escribir NFC
-            </Text>
-          </Pressable>
+          {userType === "admin" ? (
+            <View
+              style={{
+                position: "absolute",
+                bottom: "2%",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "20%",
+                width: "40%",
+              }}
+            >
+              <Pressable
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  position: "absolute",
+                  top: 0,
+                  backgroundColor: "#f0f0f0",
+                  padding: 10,
+                  borderRadius: 5,
+                }}
+                onPress={() => {
+                  router.push("/Escaner/NfcWrite");
+                }}
+              >
+                <Text style={[styles.textbold, { color: "black" }]}>
+                  Escribir NFC
+                </Text>
+              </Pressable>
+              <Pressable
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  position: "absolute",
+                  bottom: 20,
+                  backgroundColor: "#f0f0f0",
+                  padding: 10,
+                  borderRadius: 5,
+                }}
+                onPress={() => {
+                  readNFC();
+                }}
+              >
+                <Text style={[styles.textbold, { color: "black" }]}>
+                  Leer NFC
+                </Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                position: "absolute",
+                bottom: 20,
+                backgroundColor: "#f0f0f0",
+                padding: 10,
+                borderRadius: 5,
+              }}
+              onPress={() => {
+                router.push("/Escaner/NfcWrite");
+              }}
+            >
+              <Text style={[styles.textbold, { color: "black" }]}>
+                Leer NFC
+              </Text>
+            </Pressable>
+          )}
         </View>
       );
     } else {

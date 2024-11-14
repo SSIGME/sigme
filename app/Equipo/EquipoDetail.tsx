@@ -108,14 +108,14 @@ const EquipoDetail = () => {
   } else {
     return (
       <View style={styles.container}>
-        <View style={styles.fototipo}>
+         <View style={styles.fototipo}>
           {Imagen === "" ? (
             <Image
               source={require("../../assets/images/tenso.jpg")}
               style={{
                 width: 100,
                 height: 100,
-                borderRadius: 20,
+                borderRadius: 150,
               }}
             />
           ) : (
@@ -123,7 +123,7 @@ const EquipoDetail = () => {
               style={{
                 width: 150,
                 height: 150,
-                borderRadius: 20,
+                borderRadius: 150,
               }}
               source={{ uri: Array.isArray(Imagen) ? Imagen[0] : Imagen }}
             />
@@ -186,57 +186,8 @@ const EquipoDetail = () => {
             </View>
           )}
         </View>
-        {userType !== "tecnico" ? (
-          <View style={[styles.botonesrapidos, { top: "45%" }]}>
-            <Pressable style={styles.botonrapido}>
-              <Image
-                source={require("../../assets/images/manual.png")}
-                style={{ width: 30, height: 30 }}
-              />
-              <Text style={{ position: "absolute", bottom: "-40%" }}>
-                Manual
-              </Text>
-            </Pressable>
-            <Pressable onPress={toggleModal} style={styles.botonrapido}>
-              <Image
-                source={require("../../assets/images/uso.png")}
-                style={{ width: 30, height: 30 }}
-              />
-              <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
-            </Pressable>
-            <Pressable onPress={() => {
-                  router.push({
-                    pathname: "Equipo/HojaVida",
-                    params: {
-                      tipo: equipo.Tipo,
-                      marca: equipo.Marca,
-                      modelo: equipo.Modelo,
-                      serie: equipo.Serie,
-                      area: equipo.area,
-                      Imagen: equipo.Imagen,
-             
-                      codigoIdentificacion:equipo.codigoIdentificacion
-                    },
-                  });
-                }}
-                    >
-              <Image
-                source={require("../../assets/images/guiarapida.png")}
-                style={{ width: 30, height: 30 }}
-              />
-              <Text
-                style={{
-                  position: "absolute",
-                  bottom: "-40%",
-                  width: "150%",
-                  textAlign: "center",
-                }}
-              >
-                Guia Rapida
-              </Text>
-            </Pressable>
-          </View>
-        ) : (
+  
+      
           <View style={styles.botonesrapidos}>
             <Pressable style={styles.botonrapido}>
               <Image
@@ -247,12 +198,25 @@ const EquipoDetail = () => {
                 Manual
               </Text>
             </Pressable>
-            <Pressable style={styles.botonrapido}>
+            <Pressable onPress={() => {
+                  router.push({
+                    pathname: "Equipo/PeticionMantenimiento",
+                    params: {
+                      tipo: equipo.Tipo,
+                      marca: equipo.Marca,
+                      modelo: equipo.Modelo,
+                      serie: equipo.Serie,
+                      area: equipo.area,
+                    },
+                  });
+                }}  style={styles.botonrapido}>
               <Image
-                source={require("../../assets/images/uso.png")}
+                source={require("../../assets/images/manual.png")}
                 style={{ width: 30, height: 30 }}
               />
-              <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
+              <Text style={{ position: "absolute", bottom: "-40%" }}>
+                Mantenimiento
+              </Text>
             </Pressable>
             <Pressable  onPress={() => {
                   router.push({
@@ -264,13 +228,20 @@ const EquipoDetail = () => {
                       serie: equipo.Serie,
                       area: equipo.area,
                       Imagen: equipo.Imagen,
-                
+                      HojaVida:equipo.HojaVida,
                       codigoIdentificacion:equipo.codigoIdentificacion
                       
 
                     },
                   });
                 }} style={styles.botonrapido}>
+              <Image
+                source={require("../../assets/images/uso.png")}
+                style={{ width: 30, height: 30 }}
+              />
+              <Text style={{ position: "absolute", bottom: "-40%" }}>Uso</Text>
+            </Pressable>
+            <Pressable onPress={()=>{console.log(equipo.HojaVida )}} style={styles.botonrapido}>
               <Image
                 source={require("../../assets/images/guiarapida.png")}
                 style={{ width: 30, height: 30 }}
@@ -287,7 +258,7 @@ const EquipoDetail = () => {
               </Text>
             </Pressable>
           </View>
-        )}
+     
         <ModalAlert
           visible={modalVisible}
           message="¿Desea reportar un problema con este equipo?"

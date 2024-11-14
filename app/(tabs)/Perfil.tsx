@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, Dimensions, Pressable } from 'react-native';
 import { SafeAreaView } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import url from "../../constants/url.json";
 import axios from "axios";
 import * as Animatable from 'react-native-animatable';
 import { useFocusEffect } from '@react-navigation/native';
-
+import React, { useState } from 'react';
+import {router, useRouter} from 'expo-router';  
 const { width } = Dimensions.get('window'); 
 
 const HospitalInfoScreen = () => {
+  const route = useRouter();
   const [hospitalData, setHospitalData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -33,7 +34,17 @@ const HospitalInfoScreen = () => {
       setLoading(false);
     }
   };
-
+  const logout = async () => {
+    try {
+      await AsyncStorage.removeItem('access_token');
+      await AsyncStorage.removeItem('codigoHospital');
+      await AsyncStorage.removeItem('codigoUsuario');
+      await AsyncStorage.removeItem('rol');
+      route.replace('/');
+    } catch (error) {
+      console.error(error);
+    }
+  }
   useFocusEffect(
     React.useCallback(() => {
       setLoading(true);
@@ -125,6 +136,11 @@ const HospitalInfoScreen = () => {
         </View>
    
       </Animatable.View>
+      <Pressable 
+        onPress={() => logout()}
+      style={styles.logoutButton}>
+        <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
+      </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
@@ -136,6 +152,19 @@ const styles = StyleSheet.create({
     paddingBottom: '30%',
     padding: 20,
     backgroundColor: '#F2F2F2',
+  },
+  logoutButton: {
+    backgroundColor: '#021342',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  logoutButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   header: {
     fontSize: 30,

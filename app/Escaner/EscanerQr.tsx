@@ -22,7 +22,7 @@ import { ThemedButton } from "react-native-really-awesome-button";
 import url from "@/constants/url.json";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { Canvas, DiffRect, rect, rrect } from "@shopify/react-native-skia";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width, height } = Dimensions.get("window");
 const innerDimension = 300;
 
@@ -48,9 +48,10 @@ export default function Home() {
   const [modalType, setModalType] = useState("");
 
   const getEquipo = async (codigoIdentificacion) => {
+    const codigoHospital = await AsyncStorage.getItem("codigoHospital");
     try {
       const response = await axios.get(
-        `${url.url}/getequipo/${codigoIdentificacion}`
+        `${url.url}/getequipo/${codigoHospital}/${codigoIdentificacion}`
       );
       if (response.status === 200) {
         setModalMessage("Se encontro un equipo que conside con el QR");

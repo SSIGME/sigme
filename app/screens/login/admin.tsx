@@ -133,7 +133,7 @@ const AdminLoginScreen: React.FC = () => {
             source={require("../../../assets/images/admin.png")}
             style={styles.image}
           />
-          <Text style={styles.title}>Administrador</Text>
+          <Text style={styles.title}>Encargado</Text>
         </View>
       </View>
 

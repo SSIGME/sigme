@@ -138,6 +138,14 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
+            <Tabs.Screen
+        name="Pendientes2"
+        options={{
+          headerShown: false,
+          href: (String(userType) !== "jefeArsea" && String(userType) !== "admin") ? null : "../(tabs)/Pendientes2.tsx",
+
+        }}
+      />
     </Tabs>
   );
 }

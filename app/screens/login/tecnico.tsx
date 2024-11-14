@@ -8,13 +8,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  Alert
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
-import axios from "axios" 
+import axios from "axios";
 import url from "@/constants/url.json";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import SigmeModal from "../../componets/SigmeModal"; 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import SigmeModal from "../../componets/SigmeModal";
 const TecnicoLoginScreen = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
@@ -23,7 +23,7 @@ const TecnicoLoginScreen = () => {
     isVisible: false,
     title: "",
     message: "",
-    type: "success" // Default type, you can change this based on login outcome
+    type: "success", // Default type, you can change this based on login outcome
   });
   // State for the three inputs of the "Código"
   const [code1, setCode1] = useState("");
@@ -67,37 +67,36 @@ const TecnicoLoginScreen = () => {
     }
   };
 
-
   const handleLogin = async () => {
     const hospitalCode = `${code1}${code2}${code3}${code4}`;
-  
+
     try {
       const response = await axios.post(`${url.url}/login/code`, {
         codigo: username,
         contrasena: password,
         codigoHospital: hospitalCode,
-        tipo: "tecnico"
+        tipo: "tecnico",
       });
-      
+
       if (response.status === 200) {
-        await AsyncStorage.setItem('codigoHospital', hospitalCode);
-        await AsyncStorage.setItem('access_token', response.data.access_token);
-        await AsyncStorage.setItem('codigo', username);
-        
-        console.log(response.data.firmaEstado)
+        await AsyncStorage.setItem("codigoHospital", hospitalCode);
+        await AsyncStorage.setItem("access_token", response.data.access_token);
+        await AsyncStorage.setItem("codigo", username);
+
+        console.log(response.data.firmaEstado);
         if (response.data.firmaEstado) {
           router.push("/(tabs)/Areas");
-          
         } else {
           router.push("/screens/terminos/terminos");
-       
         }
-      } else {
+      }
+      if (response.status === 401) {
+        console.log("mostrando modal");
         setModal({
           isVisible: true,
           title: "Acceso denegado",
           message: "No tienes permisos de técnico.",
-          type: "error"
+          type: "error",
         });
       }
     } catch (error) {
@@ -106,11 +105,11 @@ const TecnicoLoginScreen = () => {
         isVisible: true,
         title: "Inicio sesión",
         message: "Ocurrió un error al intentar iniciar sesión.",
-        type: "error"
+        type: "error",
       });
     }
   };
-  
+
   const closeModal = () => {
     setModal({ ...modal, isVisible: false });
   };
@@ -176,7 +175,7 @@ const TecnicoLoginScreen = () => {
           />
           <TextInput
             style={styles.codeInput}
-            ref={code3Ref} 
+            ref={code3Ref}
             value={code3}
             onChangeText={handleCode3Change}
             keyboardType="default"
@@ -205,11 +204,11 @@ const TecnicoLoginScreen = () => {
         />
 
         {/* Login button */}
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin} >
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginButtonText}>Iniciar</Text>
         </TouchableOpacity>
       </View>
-      <SigmeModal 
+      <SigmeModal
         isVisible={modal.isVisible}
         message={modal.message}
         title={modal.title}

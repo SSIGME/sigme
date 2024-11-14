@@ -40,6 +40,7 @@ const Areas = () => {
   });
 
   const gotoArea = (area: Area, nombre: string) => () => {
+    console.log("gOING TO AREA", area);
     router.push({
       pathname: `/Area/AreaDetail`,
       params: {
@@ -55,21 +56,20 @@ const Areas = () => {
       const response = await axios.get(`${url.url}/getareas/${codigoHospital}`);
       if (response.status === 200) {
         console.log(response.data);
-        setAreas(
-          response.data.map(
-            (area: {
-              codigoIdentificacion: string;
-              nombre: string;
-              responsableArea: string;
-              idEquipos: string[];
-            }) => ({
-              codigoIdentificacion: area.codigoIdentificacion,
-              nombre: area.nombre,
-              responsableArea: area.responsableArea,
-              cantidadEquipos: area.idEquipos.length,
-            })
-          )
+        const areasData = response.data.map(
+          (area: {
+            codigoIdentificacion: string;
+            nombre: string;
+            responsableArea: string;
+            idEquipos: string[];
+          }) => ({
+            codigoIdentificacion: area.codigoIdentificacion,
+            nombre: area.nombre,
+            responsableArea: area.responsableArea,
+            cantidadEquipos: area.idEquipos.length,
+          })
         );
+        setAreas(areasData);
       } else {
         Alert.alert("Error", "No se pudo obtener las areas");
       }
@@ -79,6 +79,7 @@ const Areas = () => {
       console.log("Finalizado");
     }
   };
+
   const filteredAreas = areas.filter((area) =>
     area.nombre.toLowerCase().includes(search.toLowerCase())
   );
@@ -88,6 +89,7 @@ const Areas = () => {
       setIsLoading(true);
     }, [])
   );
+  console.log("Filtered Areas:", filteredAreas);
 
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -123,7 +125,7 @@ const Areas = () => {
         {search !== ""
           ? filteredAreas.map((area, index) => (
               <Pressable
-                onPress={gotoArea(area, area.nombre)}
+                onPress={gotoArea(area, area.nombre)} // Cambia esto a una función anónima
                 style={styles.boton}
                 key={index}
               >
@@ -162,7 +164,7 @@ const Areas = () => {
             ))
           : areas.map((area, index) => (
               <Pressable
-                onPress={gotoArea(area, area.nombre)}
+                onPress={gotoArea(area, area.nombre)} // Cambia esto a una función anónima
                 style={styles.boton}
                 key={index}
               >
@@ -228,7 +230,7 @@ const styles = StyleSheet.create({
       width: 0,
       height: 1,
     },
-    opacity:0.99,
+    opacity: 0.99,
     shadowOpacity: 0.3,
     shadowRadius: 4,
     // Agregar sombra para Android
@@ -238,7 +240,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: "white",
     fontWeight: "300",
-    
+
     fontSize: 16,
   },
 });

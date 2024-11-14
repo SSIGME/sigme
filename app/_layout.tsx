@@ -199,8 +199,21 @@ export default function Layout() {
             headerShown: false,
           }}
         />
+ 
         <Stack.Screen
           name="Equipo/HojaVida"
+          options={{
+            headerShown: false,
+          }}
+        />
+                     <Stack.Screen
+          name="Equipo/ViewPeticion"
+          options={{
+            headerShown: false,
+          }}
+        />
+            <Stack.Screen
+          name="Equipo/PeticionMantenimiento"
           options={{
             headerShown: false,
           }}
