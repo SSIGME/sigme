@@ -17,14 +17,28 @@
       "supportsTablet": true
     },
     "android": {
+      "permissions":[
+        "CAMERA",
+        "NFC",
+        "INTERNET"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.sigme.sigme"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-router", "expo-font"]
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e30e35e2-d764-46df-8c01-1a419340623a"
+      }
+    }
   }
 }
