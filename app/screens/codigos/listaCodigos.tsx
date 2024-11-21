@@ -9,6 +9,7 @@ import SigmeModal from "../../componets/SigmeModal";
 import * as Clipboard from 'expo-clipboard';
 const CodesAccessScreen = () => {
   const { type } = useLocalSearchParams();
+  const typeString = String(type);
   const [modal, setModal] = useState({
     isVisible: false,
     title: "",
@@ -121,11 +122,10 @@ const CodesAccessScreen = () => {
   
 
 
-    useFocusEffect(
-    React.useCallback(() => {
-      handleGetCodes();
-    }, [])
-  );
+  useEffect(() => {
+    handleGetCodes();
+  }, [typeString]);
+  
 
   // Filtrar códigos de acceso según el estado de activeTab
   const filteredCodes = accessCodes.filter(code => 

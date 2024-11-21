@@ -64,7 +64,7 @@ const CodesAccessScreen = () => {
 
   const closeModal = () => {
     setModal({ ...modal, isVisible: false });
-    router.back();
+    router.push(`/screens/codigos/listaCodigos?type=${type}`)
   };
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -82,7 +82,7 @@ const CodesAccessScreen = () => {
   }, []);
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+      <TouchableOpacity onPress={() =>  router.push(`/screens/codigos/listaCodigos?type=${type}`)} style={styles.backButton}>
         <Image source={require("../../../assets/images/back.png")} style={styles.backIcon} />
       </TouchableOpacity>
       <View style={styles.header}>
@@ -198,9 +198,9 @@ const CodesAccessScreen = () => {
 
 const styles = StyleSheet.create({
   backButton: {
-    position: 'absolute',
-    left: 20,
-    top: 60,
+   
+    marginLeft: -0,
+    marginTop: -60,
   },
   logoC:{
     zIndex:-99,

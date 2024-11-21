@@ -4,14 +4,15 @@ import * as Animatable from "react-native-animatable";
 import { router, Tabs } from "expo-router";
 import { useUserContext } from "../UserContext";
 const animate1 = {
-  0: { scale: 0.5, translateY: 7 },
-  0.92: { translateY: -34 },
-  1: { scale: 1.2, translateY: -24 },
+  0: { scale: 0.8, translateY: 0 },
+  0.92: { translateY: -10 },
+  1: { scale: 1.2, translateY: -25 },
 };
 const animate2 = {
-  0: { scale: 1.2, translateY: -24 },
-  1: { scale: 1, translateY: 7 },
+  0: { scale: 1.2, translateY: 0 },
+  1: { scale: 1, translateY: 0 },
 };
+
 const animateToLeft = {
   0: { translateX: 0 },
   1: { translateX: -50, opacity: 0.5 },
@@ -46,7 +47,7 @@ const TabButton = ({ route, focused, onPress, imageSource, title }) => {
         duration={1000}
         style={[
           styles.iconContainer,
-          { backgroundColor: focused ? "#050259" : "transparent" }, // Fondo dinámico cuando está seleccionado
+          { padding: 0, backgroundColor: focused ? "#050259" : "transparent" }, // Fondo dinámico cuando está seleccionado
         ]}
       >
         <Image
@@ -58,7 +59,10 @@ const TabButton = ({ route, focused, onPress, imageSource, title }) => {
         ref={textRef}
         style={[
           styles.text,
-          { opacity: focused ? 1 : 0, marginTop: focused ? -20 : 0 }, // Cambiar el marginTop según el estado
+          {
+            opacity: focused ? 1 : 0,
+            marginTop: focused ? -20 : 0, // Subir texto cuando está enfocado
+          },
         ]}
       >
         {title}
@@ -86,6 +90,8 @@ export default function TabLayout() {
                 : route.name === "Codigos"
                 ? require("../../assets/images/codigosIcon.png") // Icono para "Códigos"
                 : route.name === "Pendientes"
+                ? require("../../assets/images/codigosIcon.png") // Icono para "Códigos"
+                : route.name === "Pendientes2"
                 ? require("../../assets/images/pendientesIcon.png")
                 : require("../../assets/images/perfilIcon.png") // Icono para "Perfil"
             }
@@ -96,11 +102,10 @@ export default function TabLayout() {
                 ? "Escáner"
                 : route.name === "Codigos"
                 ? "Códigos"
-                : route.name === "Pendientes"  // Nueva condición
-                ? "Pendientes"  // Título para "Pendientes"
+                : route.name === "Pendientes" // Nueva condición
+                ? "Pendientes" // Título para "Pendientes"
                 : "Perfil"
             }
-            
           />
         ),
         tabBarShowLabel: false,
@@ -108,9 +113,7 @@ export default function TabLayout() {
         headerShown: false,
       })}
     >
-     
-        <Tabs.Screen name="Areas" options={{ headerShown: false }} />
-
+      <Tabs.Screen name="Areas" options={{ headerShown: false }} />
 
       <Tabs.Screen
         name="Escaner"
@@ -125,11 +128,22 @@ export default function TabLayout() {
           href: String(userType) !== "admin" ? null : "../(tabs)/Codigos.tsx",
         }}
       />
-         <Tabs.Screen
+      <Tabs.Screen
         name="Pendientes"
         options={{
           headerShown: false,
-          href: String(userType) !== "jefeArea" ? null : "../(tabs)/Pendientes.tsx",
+          href:
+            String(userType) !== "jefeArea" ? null : "../(tabs)/Pendientes.tsx",
+        }}
+      />
+           <Tabs.Screen
+        name="Pendientes2"
+        options={{
+          headerShown: false,
+          href:
+            String(userType) !== "jefeArsea" && String(userType) !== "admin"
+              ? null
+              : "../(tabs)/Pendientes2.tsx",
         }}
       />
       <Tabs.Screen
@@ -138,46 +152,48 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
-            <Tabs.Screen
-        name="Pendientes2"
-        options={{
-          headerShown: false,
-          href: (String(userType) !== "jefeArsea" && String(userType) !== "admin") ? null : "../(tabs)/Pendientes2.tsx",
-
-        }}
-      />
+ 
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    width: 80,
+    height: 80,
     justifyContent: "center",
     alignItems: "center",
   },
   iconContainer: {
     width: 50,
     height: 50,
+    padding: 30,
     justifyContent: "center",
     alignItems: "center",
+
     borderRadius: 25,
+    backgroundColor: "transparent", // Fondo predeterminado
   },
   tabBar: {
     height: 70,
     position: "absolute",
     margin: 16,
-    paddingBottom: 0,
-    borderRadius: 16,
+
+    paddingTop: 20,
+    borderRadius: 26,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f9f9f9",
   },
   text: {
-    fontSize: 13,
+    fontSize: 12,
     color: "#050259",
     fontWeight: "500",
+    paddingBottom: "10%",
   },
   image: {
-    width: 24,
-    height: 24,
-    resizeMode: "contain", // Asegura que la imagen se ajuste al contenedor
+    width: 25,
+    height: 25,
+    resizeMode: "contain",
   },
 });

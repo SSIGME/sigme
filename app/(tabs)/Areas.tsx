@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from "react-native";
 import url from "../../constants/url.json";
+import { useIsFocused } from '@react-navigation/native';
 import axios from "axios";
 import { useRouter } from "expo-router";
 import { Dimensions } from "react-native";
@@ -22,6 +23,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width, height } = Dimensions.get("window");
 
 const Areas = () => {
+
+
   const router = useRouter();
   interface Area {
     icono: string;
@@ -30,7 +33,7 @@ const Areas = () => {
     responsableArea: string;
     cantidadEquipos?: number;
   }
-  const navigation = useNavigation();
+
   const [areas, setAreas] = useState<Area[]>([]);
   const [search, setSearch] = useState("");
   const [areaSearch, setAreaSearch] = useState("");
@@ -83,12 +86,13 @@ const Areas = () => {
   const filteredAreas = areas.filter((area) =>
     area.nombre.toLowerCase().includes(search.toLowerCase())
   );
-  useFocusEffect(
-    useCallback(() => {
-      getAreas();
+  useEffect(() => {
+    if (true) {
       setIsLoading(true);
-    }, [])
-  );
+      getAreas();
+    }
+  }, []);
+
   console.log("Filtered Areas:", filteredAreas);
 
   if (!fontsLoaded) {

@@ -13,12 +13,7 @@ import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 export default function CodesScreen() {
   const router = useRouter();
-  useFocusEffect(
-    useCallback(() => {
-      StatusBar.setBarStyle("light-content");
-      StatusBar.setBackgroundColor("#050259");
-    }, [])
-  );
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>

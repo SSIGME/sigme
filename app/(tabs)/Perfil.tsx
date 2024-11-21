@@ -1,11 +1,11 @@
-import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, Dimensions, Pressable } from 'react-native';
+import { View, Text, Image ,StyleSheet, ScrollView, ActivityIndicator, Dimensions, Pressable } from 'react-native';
 import { SafeAreaView } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import url from "../../constants/url.json";
 import axios from "axios";
 import * as Animatable from 'react-native-animatable';
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useState, useEffect  } from 'react';
 import {router, useRouter} from 'expo-router';  
 const { width } = Dimensions.get('window'); 
 
@@ -45,12 +45,11 @@ const HospitalInfoScreen = () => {
       console.error(error);
     }
   }
-  useFocusEffect(
-    React.useCallback(() => {
-      setLoading(true);
-      fetchHospitalData();
-    }, [])
-  );
+  useEffect(() => {
+    setLoading(true);
+    fetchHospitalData();
+  }, []);
+  
 
   if (loading) {
     return <ActivityIndicator size="large" color="#6200EE" style={{ flex: 1, justifyContent: 'center' }} />;
@@ -154,7 +153,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F2F2F2',
   },
   logoutButton: {
-    backgroundColor: '#021342',
+    backgroundColor: '#ee3d3d',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 10,

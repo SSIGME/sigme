@@ -1,4 +1,4 @@
-import React, {  useCallback , useState } from 'react';
+import React, {  useCallback ,useEffect, useState } from 'react';
 import { View, Text, StatusBar,FlatList, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useFocusEffect } from "@react-navigation/native";
@@ -22,14 +22,12 @@ const ReportListScreen = () => {
       useNativeDriver: true,
     }).start(()=>{router.push("Equipo/ViewPeticion")});
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      ObtenerReportes(); 
-      StatusBar.setBarStyle("light-content");
-      StatusBar.setBackgroundColor("#050259");
-    }, [])
-  );
+  useEffect(() => {
+    // Esta lógica se ejecuta cuando el componente se monta
+    ObtenerReportes();
+    StatusBar.setBarStyle("light-content");
+    StatusBar.setBackgroundColor("#050259");
+  }, []); 
 
   const renderItem = ({ item }) => (
     <Animated.View style={[styles.card, { transform: [{ scale: scaleAnim }] }]}>
