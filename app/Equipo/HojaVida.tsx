@@ -45,6 +45,7 @@ const CodesAccessScreen = () => {
               modelo,
               serie,
               area,
+              codigoIdentificacion,
               respuestas: JSON.stringify(equipo.respuestas),
             },
           });

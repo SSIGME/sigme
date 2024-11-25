@@ -57,38 +57,36 @@ const CodesAccessScreen = () => {
       if (!codigoHospital) throw new Error('Código de hospital no encontrado');
   
       const token = await AsyncStorage.getItem("access_token");
-      
-      if (!token) throw new Error('Token de acceso no encontrado');
-      
+      if (!token || token.trim() === '') throw new Error('Token de acceso no encontrado');
+  
       const response = await axios.get(`${url.url}/get/users/${codigoHospital}/${type}`, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token.trim()}`
         }
       });
   
-      if (response && response.data) {
+      if (response?.data) {
         setAccessCodes(response.data);
       }
     } catch (error) {
-      const errorMessage = error.response 
-        ? error.response.data.msg 
-        : error.message || 'Error al crear el técnico';
-        setModal({
-          isVisible: true,
-          title: error.response.data.msg ,
-          message: errorMessage,
-          type: "error"
-        });
+      const errorMessage = error.response?.data?.msg || error.message || 'Error desconocido';
+      setModal({
+        isVisible: true,
+        title: 'Error',
+        message: errorMessage,
+        type: "error"
+      });
     }
   };
-
+  
   const handleDesactivateCode = async (codigo) => {
     try {
       const codigoHospital = await AsyncStorage.getItem("codigoHospital");
       if (!codigoHospital) throw new Error('Código de hospital no encontrado');
   
       const token = await AsyncStorage.getItem("access_token");
+
       if (!token) throw new Error('Token de acceso no encontrado');
   
       const response = await axios.put(`${url.url}/usuario/${codigoHospital}/${codigo}`, {}, {

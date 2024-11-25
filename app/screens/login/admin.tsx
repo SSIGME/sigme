@@ -60,6 +60,8 @@ const AdminLoginScreen: React.FC = () => {
       code4Ref.current.focus(); // Move to the fourth input
     } else if (text.length === 0) {
       code2Ref.current.focus(); // Move back to the second input if deleting
+    } else if (text.length === 2) {
+      code4Ref.current.focus(); // Move back to the second input if deleting
     }
   };
 
@@ -110,7 +112,7 @@ const AdminLoginScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#BDCAEF" />
+      <StatusBar barStyle="light-content" backgroundColor="#7e9ef7" />
       <View style={styles.topContainer}>
         <TouchableOpacity
           style={styles.backButton}
@@ -119,6 +121,7 @@ const AdminLoginScreen: React.FC = () => {
           <Image
             source={require("../../../assets/images/back.png")}
             style={styles.backButton}
+            tintColor={"#ffff"}
           />
         </TouchableOpacity>
 
@@ -133,7 +136,7 @@ const AdminLoginScreen: React.FC = () => {
             source={require("../../../assets/images/admin.png")}
             style={styles.image}
           />
-          <Text style={styles.title}>Encargado</Text>
+          <Text style={styles.title}>Encargado{"\n"}Mantenimiento</Text>
         </View>
       </View>
 
@@ -251,7 +254,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: "14%",
     marginLeft: "6%",
-    color: "#000000",
+    color: "#ffffff",
     marginTop: "auto",
   },
   label: {
@@ -311,7 +314,7 @@ const styles = StyleSheet.create({
     fontWeight: "300",
   },
   topContainer: {
-    backgroundColor: "#BDCAEF",
+    backgroundColor: "#7e9ef7",
     height: "35%",
     borderBottomLeftRadius: 23,
     borderBottomRightRadius: 23,

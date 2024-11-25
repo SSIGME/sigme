@@ -81,7 +81,7 @@ export default function ReporteEquipoScreen() {
       serie,
       area,
       tipo,
-      IdEquipo
+      IdEquipo,
 
     };
   
@@ -163,29 +163,52 @@ export default function ReporteEquipoScreen() {
 
       {/* Impacto en el funcionamiento */}
       <Text style={styles.encabezado}>Impacto en el funcionamiento</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="¿El equipo está completamente fuera de servicio o funciona parcialmente?"
-        value={equipoFueraServicio}
-        onChangeText={setEquipoFueraServicio}
-        multiline
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="¿Qué funciones o características del equipo están afectadas?"
-        value={funcionesAfectadas}
-        onChangeText={setFuncionesAfectadas}
-        multiline
-      />
-      <View style={styles.checkboxContainer}>
-        <CheckBox
-          value={afectaSeguridad}
-          onValueChange={setAfectaSeguridad}
-          style={styles.checkbox}
-          color={afectaSeguridad ? color: undefined}
-        />
-        <Text style={styles.label}>¿Este problema afecta la seguridad del paciente o del personal?</Text>
-      </View>
+      <Text style={{marginBottom:20,fontSize:17,}}>¿Cuál es el estado actual del equipo?</Text>
+<View style={styles.checkboxGroup}>
+  <View style={styles.checkboxContainer}>
+    <CheckBox
+      value={equipoFueraServicio=== 'Fuera de servicio'}
+      onValueChange={() => setEquipoFueraServicio('Fuera de servicio')}
+      style={styles.checkbox}
+      color={equipoFueraServicio === 'Fuera de servicio' ? color : undefined}
+    />
+    <Text style={styles.label}>Fuera de servicio</Text>
+  </View>
+  <View style={styles.checkboxContainer}>
+    <CheckBox
+      value={equipoFueraServicio === 'parcialmente fuera de servicio'}
+      onValueChange={() => setEquipoFueraServicio('parcialmente fuera de servicio')}
+      style={styles.checkbox}
+      color={equipoFueraServicio === 'parcialmente fuera de servicio' ? color : undefined}
+    />
+    <Text style={styles.label}>Parcialmente fuera de servicio</Text>
+  </View>
+  <View style={styles.checkboxContainer}>
+    <CheckBox
+      value={equipoFueraServicio === 'Funcionando'}
+      onValueChange={() => setEquipoFueraServicio('Funcionando')}
+      style={styles.checkbox}
+      color={equipoFueraServicio=== 'Funcionando' ? color : undefined}
+    />
+    <Text style={styles.label}>Funcionando</Text>
+  </View>
+</View>
+<TextInput
+  style={styles.input}
+  placeholder="¿Qué funciones o características del equipo están afectadas?"
+  value={funcionesAfectadas}
+  onChangeText={setFuncionesAfectadas}
+  multiline
+/>
+<View style={styles.checkboxContainer}>
+  <CheckBox
+    value={afectaSeguridad}
+    onValueChange={setAfectaSeguridad}
+    style={styles.checkbox}
+    color={afectaSeguridad ? color : undefined}
+  />
+  <Text style={styles.label}>¿Este problema afecta la seguridad del paciente o del personal?</Text>
+</View>
 
       {/* Ubicación y entorno de uso */}
       <Text style={styles.encabezado}>Ubicación y entorno de uso</Text>

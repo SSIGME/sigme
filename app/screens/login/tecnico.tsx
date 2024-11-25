@@ -50,16 +50,14 @@ const TecnicoLoginScreen = () => {
       code1Ref.current.focus(); // Move back to the first input if deleting
     }
   };
-
-  const handleCode3Change = (text) => {
+  const handleCode3Change = (text: string) => {
     setCode3(text.toUpperCase());
     if (text.length === 1) {
-      code4Ref.current.focus(); // Move back to the second input if deleting
+      code4Ref.current.focus(); // Move to the fourth input
     } else if (text.length === 0) {
-      code2Ref.current.focus(); // Move back to the first input if deleting
+      code2Ref.current.focus(); // Move back to the second input if deleting
     }
   };
-
   const handleCode4Change = (text) => {
     setCode4(text.toUpperCase());
     if (text.length === 0) {
@@ -124,6 +122,7 @@ const TecnicoLoginScreen = () => {
           <Image
             source={require("../../../assets/images/back.png")}
             style={styles.backButton}
+            tintColor={"#ffff"}
           ></Image>
         </TouchableOpacity>
 
@@ -173,9 +172,10 @@ const TecnicoLoginScreen = () => {
             placeholder="-"
             placeholderTextColor="#888"
           />
-          <TextInput
+            <TextInput
             style={styles.codeInput}
-            ref={code3Ref}
+            ref={code3Ref} // Reference to the third input
+            maxLength={1}
             value={code3}
             onChangeText={handleCode3Change}
             keyboardType="default"
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: "12%",
     marginLeft: "6%",
-    color: "#000000",
+    color: "#ffffff",
     marginTop: "auto",
   },
   label: {
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     fontWeight: "300",
   },
   topContainer: {
-    backgroundColor: "#A4B1E3",
+    backgroundColor: "#6a7ebe",
     height: "35%",
     borderBottomLeftRadius: 23,
     borderBottomRightRadius: 23,

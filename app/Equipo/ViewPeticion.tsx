@@ -1,15 +1,19 @@
 import React, { useState, useRef } from 'react';
 import { View, Image,Text, ScrollView, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { useFonts } from "expo-font";
-
+import { useLocalSearchParams } from "expo-router";
 import { useRouter } from "expo-router";
 export default function ReporteEquipoViewScreen() {
   const router = useRouter();
+  const { reporte } = useLocalSearchParams();
+  const parsedReporte = JSON.parse(reporte);
   const scaleValue = useRef(new Animated.Value(1)).current;
   const [fontsLoaded] = useFonts({
     "Kanit-Regular": require("@/assets/fonts/Kanit/Kanit-Regular.ttf"),
     "Kanit-Medium": require("@/assets/fonts/Kanit/Kanit-Medium.ttf"),
     "Kanit-Light": require("@/assets/fonts/Kanit/Kanit-Light.ttf"),
+    "Kanit-Thin": require("@/assets/fonts/Kanit/Kanit-Thin.ttf"),
+    "Kanit-Bold": require("../../assets/fonts/Kanit/Kanit-Regular.ttf"),
   });
   const handlePressIn = () => {
     Animated.spring(scaleValue, {
@@ -26,38 +30,16 @@ export default function ReporteEquipoViewScreen() {
   };
 
   // Datos iniciales con todos los campos
-  const datosReporte = {
-    _id: "6733e26393f4f50bcd972508",
-    descripcionProblema: "Este es problema del equipo",
-    esPrimeraVez: true,
-    impactoFuncionamiento: "",
-    equipoFueraServicio: "Fuera de servicio",
-    funcionesAfectadas: "Todas",
-    afectaSeguridad: true,
-    ubicacionEquipo: "",
-    cambioRecienteUbicacion: false,
-    exposicionCondiciones: "Ninguna",
-    frecuenciaUso: "2 o 3 veces",
-    usoIntensivo: true,
-    mensajeError: "Dos numeross",
-    senalAlarma: "Luces muchass",
-    sonidoInusual: "Ninguna cosa rara",
-    marca: "Welch",
-    modelo: "ModeloX",
-    serie: "1343366XZ",
-    area: "Consulta General",
-    tipo: "Tensiometro",
-    fecha: "2024-11-12",
-  };
+ 
 
   const manejarEnvio = () => {
-    console.log('Datos del reporte:', datosReporte);
+    console.log('Datos del parsedReporte:', parsedReporte);
   };
 
   return (
     <View style={styles.contenedor}>
           <View style={styles.header}>
-      <TouchableOpacity onPress={() => router.push('/(tabs)/Codigos')} style={styles.backButton}>
+      <TouchableOpacity onPress={() => {router.push('/(tabs)/Pendientes2');}} style={styles.backButton}>
           <Image source={require("../../assets/images/back.png")} style={styles.backIcon} />
         </TouchableOpacity>
         <Text style={styles.headerText}>
@@ -66,63 +48,70 @@ export default function ReporteEquipoViewScreen() {
         <Text style={styles.subHeaderText}>REPORTE DE <Text style={{    fontFamily: "Kanit-Medium",}}>EQUIPO</Text> </Text>
         <View style={styles.cajaparametros}>
           <Text style={styles.parametro}>
-            Modelo <Text style={styles.parametroinfo}> {datosReporte.modelo}</Text>
+            Modelo <Text style={styles.parametroinfo}> {parsedReporte.modelo}</Text>
           </Text>
           <Text style={styles.parametro}>
-            Marca <Text style={styles.parametroinfo}> {datosReporte.marca}</Text>
+            Marca <Text style={styles.parametroinfo}> {parsedReporte.marca}</Text>
           </Text>
           <Text style={styles.parametro}>
-            Serie <Text style={styles.parametroinfo}> {datosReporte.serie}</Text>
+            Serie <Text style={styles.parametroinfo}> {parsedReporte.serie}</Text>
           </Text>
           <Text style={styles.parametro}>
-            Ubicacion <Text style={styles.parametroinfo}> {datosReporte.area}</Text>
+            Ubicacion <Text style={styles.parametroinfo}> {parsedReporte.area}</Text>
           </Text>
         </View>
         
       </View>
-      
-      <ScrollView style={styles.scrollView}>
 
       <Animated.View style={[styles.botonContainer, { transform: [{ scale: scaleValue }] }]}>
             <TouchableOpacity
-             onPress={()=>{router.push("Equipo/Pdf")}}
+             onPress={()=>{router.push({pathname:"Equipo/Pdf", params:{reporte:JSON.stringify(reporte), url:"http://192.168.20.119:5005/generate_pdf" }});manejarEnvio()}}
               style={styles.boton}
             >
-              <Text style={styles.botonTexto}>Ver Documento</Text>
+              <Text style={styles.botonTexto}>Ver documento</Text>
             </TouchableOpacity>
           </Animated.View>
+      <View style={{backgroundColor:"#182c6e", height:2, width:"100%"  ,marginLeft:"auto", }}></View>
+      <ScrollView style={styles.scrollView}>
+
         <View style={styles.caja}>
 
 
           <Text style={styles.encabezado}>Descripción del Problema</Text>
-          <Text style={styles.texto}>{datosReporte.descripcionProblema}</Text>
+          <Text style={[styles.textoValor,{fontSize:18, fontWeight:300}]}>{parsedReporte.descripcionProblema}</Text>
+          <Text style={styles.texto}>Es la primera ve que ocurre: {"\n"}<Text style={styles.textoValor}>{parsedReporte.esPrimeraVez? 'Sí' : 'No'}</Text></Text>
+
+
         </View>
 
         <View style={styles.caja}>
           <Text style={styles.encabezado}>Detalles del Impacto</Text>
-          <Text style={styles.texto}>Impacto en Funcionamiento:{"\n"} <Text style={styles.textoValor}>{datosReporte.impactoFuncionamiento}</Text></Text>
-          <Text style={styles.texto}>Equipo Fuera de Servicio: {"\n"}<Text style={styles.textoValor}>{datosReporte.equipoFueraServicio}</Text></Text>
-          <Text style={styles.texto}>Funciones Afectadas:{"\n"} <Text style={styles.textoValor}>{datosReporte.funcionesAfectadas}</Text></Text>
+        
+          <Text style={styles.texto}>Equipo Fuera de Servicio: {"\n"}<Text style={styles.textoValor}>{parsedReporte.equipoFueraServicio}</Text></Text>
+          <Text style={styles.texto}>Funciones Afectadas:{"\n"} <Text style={styles.textoValor}>{parsedReporte.funcionesAfectadas}</Text></Text>
+          <Text style={styles.texto}>Afecta la seguridad del paciente o del personal: {"\n"}<Text style={styles.textoValor}>{parsedReporte.afectaSeguridad? 'Sí' : 'No'}</Text></Text>
+
+          
         </View>
 
         <View style={styles.caja}>
           <Text style={styles.encabezado}>Ubicación y Condiciones</Text>
        
-          <Text style={styles.texto}>Cambio Reciente de Ubicación: {"\n"}<Text style={styles.textoValor}>{datosReporte.cambioRecienteUbicacion ? 'Sí' : 'No'}</Text></Text>
-          <Text style={styles.texto}>Exposición a Condiciones Especiales:{"\n"} <Text style={styles.textoValor}>{datosReporte.exposicionCondiciones}</Text></Text>
+          <Text style={styles.texto}>Cambio Reciente de Ubicación: {"\n"}<Text style={styles.textoValor}>{parsedReporte.cambioRecienteUbicacion ? 'Sí' : 'No'}</Text></Text>
+          <Text style={styles.texto}>Exposición a Condiciones Especiales:{"\n"} <Text style={styles.textoValor}>{parsedReporte.exposicionCondiciones}</Text></Text>
         </View>
 
         <View style={styles.caja}>
           <Text style={styles.encabezado}>Uso y Frecuencia</Text>
-          <Text style={styles.texto}>Frecuencia de Uso: {"\n"}<Text style={styles.textoValor}>{datosReporte.frecuenciaUso}</Text></Text>
-          <Text style={styles.texto}>Uso Intensivo: {"\n"}<Text style={styles.textoValor}>{datosReporte.usoIntensivo ? 'Sí' : 'No'}</Text></Text>
+          <Text style={styles.texto}>Frecuencia de Uso: {"\n"}<Text style={styles.textoValor}>{parsedReporte.frecuenciaUso}</Text></Text>
+          <Text style={styles.texto}>Uso Intensivo o inusual: {"\n"}<Text style={styles.textoValor}>{parsedReporte.usoIntensivo ? 'Sí' : 'No'}</Text></Text>
         </View>
 
         <View style={styles.caja}>
           <Text style={styles.encabezado}>Alertas y Señales</Text>
-          <Text style={styles.texto}>Mensaje de Error:{"\n"} <Text style={styles.textoValor}>{datosReporte.mensajeError}</Text></Text>
-          <Text style={styles.texto}>Señal de Alarma:{"\n"} <Text style={styles.textoValor}>{datosReporte.senalAlarma}</Text></Text>
-          <Text style={styles.texto}>Sonido Inusual:{"\n"} <Text style={styles.textoValor}>{datosReporte.sonidoInusual}</Text></Text>
+          <Text style={styles.texto}>Mensaje de Error:{"\n"} <Text style={styles.textoValor}>{parsedReporte.mensajeError}</Text></Text>
+          <Text style={styles.texto}>Señal de Alarma:{"\n"} <Text style={styles.textoValor}>{parsedReporte.senalAlarma}</Text></Text>
+          <Text style={styles.texto}>Sonido Inusual:{"\n"} <Text style={styles.textoValor}>{parsedReporte.sonidoInusual}</Text></Text>
         </View>
 
 
@@ -140,7 +129,7 @@ const styles = StyleSheet.create({
   scrollView: {
 
     width:'100%',
-    marginVertical: 20,
+    marginVertical: 0,
     paddingTop:'0%',
   },
   caja: {
@@ -162,21 +151,25 @@ const styles = StyleSheet.create({
   highlightText: {
     fontWeight: 'bold',
     color: '#3754a4',
+    fontFamily: "Kanit-Medium",
   },
 
 
   texto: {
     fontSize: 17,
-    color: '#010131',
+    color: '#060688',
     marginVertical: 5,
     lineHeight: 22,
+    fontFamily: "Kanit-Bold",
     fontWeight: '400',
+    
   },
   textoValor: {
     fontSize: 16
     ,
     fontWeight: '200',
-    color: '#3a3a55',
+    fontFamily: "Kanit-Light",
+    color: '#6f6f77',
   },
 
   boton: {
@@ -184,17 +177,20 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 50,
     borderRadius: 15,
-    marginBottom: 15, // Spacing between buttons
+    marginBottom: 15, 
+    margin:0// Spacing between buttons
   },
   botonTexto: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '400',
+    fontFamily: "Kanit-Thin",
   },
   backButton: {
     position: 'absolute',
     left: 5,
     top: 30,
+    zIndex:99
   },
   backIcon: {
     width: 35,
@@ -211,7 +207,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 34,
-    fontFamily: "Kanit-Medium",
+    fontFamily: "Kanit-Bold",
     color: '#050259',
     marginTop:30,
     marginRight:"auto",
@@ -227,16 +223,17 @@ const styles = StyleSheet.create({
   },
   encabezado: {
     fontSize: 20,
-    fontWeight: 'bold',
-    marginVertical: 20,
+   
+    marginVertical: 10,
     marginTop:'7%',
-    color:'#011631'
+    color:'#022e68',
+    fontFamily: "Kanit-Medium",
   },
 
 
 
   botonContainer: {
-    marginTop: 20,
+    marginTop: 0,
 
     alignItems:'center',
   },
@@ -245,11 +242,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "absolute",
-    top: "70%",
+    top: "65%",
     flexDirection: "row",
     flexWrap: "wrap",
-    height: "45%",
-    borderBottomWidth: 1,
+   
+    height: 200,
+    borderBottomWidth: 0,
     borderBottomColor: '#0c45c2',
     width: "85%",
     marginHorizontal:'auto',
@@ -259,10 +257,11 @@ const styles = StyleSheet.create({
     fontFamily: "Kanit-Medium",
     width: "50%",
     fontSize:16,
-  
+
   },
   parametroinfo: {
     color: "#3a3a3a",
     fontFamily: "Kanit-Light",
+    height:100
   },
 });

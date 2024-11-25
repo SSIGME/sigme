@@ -213,6 +213,12 @@ export default function Layout() {
             headerShown: false,
           }}
         />
+                          <Stack.Screen
+          name="Equipo/Pdf"
+          options={{
+            headerShown: false,
+          }}
+        />
             <Stack.Screen
           name="Equipo/PeticionMantenimiento"
           options={{

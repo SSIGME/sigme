@@ -35,8 +35,8 @@ const CodesAccessScreen = () => {
 
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
-    setIsDateEnabled(!isChecked); // Cambia el estado del input de fecha
-    if (isChecked) {
+    setIsDateEnabled(isChecked); // Cambia el estado del input de fecha
+    if (!isChecked) {
       setFechaExpiracion(''); // Reiniciar la fecha si se deshabilita
     }
   };
@@ -121,6 +121,7 @@ const CodesAccessScreen = () => {
             value={selectedDate}
             mode="date"
             display="default"
+            minimumDate={new Date(new Date().setDate(new Date().getDate() + 1))}
             onChange={onChangeDate}
           />
         )}

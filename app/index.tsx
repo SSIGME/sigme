@@ -27,24 +27,24 @@ export default function HomeScreen() {
     <View style={{ flex: 1 }}>
       <StatusBar barStyle="light-content" backgroundColor="#050259" />
       <Text style={styles.title}>
-        Elije tu tipo{"\n"}de
+      elige tu tipo{"\n"}de
         {/* Esto fuerza un salto de línea */}
         <Text style={styles.highlight}> usuario</Text>
       </Text>
       <ScrollView contentContainerStyle={styles.container}>
         <TouchableOpacity
-          style={[styles.option, { backgroundColor: "#BDCAEF" }]}
+          style={[styles.option, { backgroundColor: "#7e9ef7" }]}
           onPress={() => handleUserTypeChange("admin", "/screens/login/admin")}
         >
           <Image
             source={require("../assets/images/admin.png")}
             style={styles.image}
           />
-          <Text style={styles.optionText}>  Encargado</Text>
+          <Text style={styles.optionText}>Encargado{"\n"}Mantenimiento</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.option, { backgroundColor: "#A4B1E3" }]}
+          style={[styles.option, { backgroundColor: "#6a7ebe" }]}
           onPress={() => handleUserTypeChange("tecnico", "/screens/login/tecnico")}
         >
           <Image
@@ -55,7 +55,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.option, { backgroundColor: "#6E7DD0" }]}
+          style={[styles.option, { backgroundColor: "#3f58a8" }]}
           onPress={() => handleUserTypeChange("jefeArea", "/screens/login/jefeArea")}
         >
           <Image
@@ -73,7 +73,7 @@ export default function HomeScreen() {
             source={require("../assets/images/medico.png")}
             style={[styles.image, {}]}
           />
-          <Text style={styles.optionText1}>Médico</Text>
+          <Text style={styles.optionText1}>Profesional</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.option, { backgroundColor: "#1C2D63" }]}
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
 
   optionText: {
     fontSize: 26,
-    color: "#000000",
+    color: "#ffffff",
     marginTop: "5%",
     fontWeight: "500",
     marginLeft: "10%",

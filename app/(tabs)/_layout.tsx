@@ -103,7 +103,9 @@ export default function TabLayout() {
                 : route.name === "Codigos"
                 ? "Códigos"
                 : route.name === "Pendientes" // Nueva condición
-                ? "Pendientes" // Título para "Pendientes"
+                ? "Pendientes"
+                : route.name === "Pendientes2" // Nueva condición
+                ? "Pendientes"  // Título para "Pendientes"
                 : "Perfil"
             }
           />

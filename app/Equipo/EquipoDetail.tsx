@@ -202,6 +202,7 @@ const EquipoDetail = () => {
                   router.push({
                     pathname: "Equipo/PeticionMantenimiento",
                     params: {
+                      IdEquipo: equipo.codigoIdentificacion,
                       tipo: equipo.Tipo,
                       marca: equipo.Marca,
                       modelo: equipo.Modelo,

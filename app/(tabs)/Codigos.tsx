@@ -53,7 +53,7 @@ export default function CodesScreen() {
               style={styles.image}
             />
           </TouchableOpacity>
-          <Text style={styles.optionText}>Médico</Text>
+          <Text style={styles.optionText}>Profesional</Text>
         </View>
 
         <View style={styles.optionContainer}>

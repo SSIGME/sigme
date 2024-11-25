@@ -113,7 +113,7 @@ const MedicoLoginScreen = () => {
         
         <View style={{ height: "100%", flexDirection: "row", paddingHorizontal: "5%" }}>
           <Image source={require('../../../assets/images/medico.png')} style={styles.image} />
-          <Text style={styles.title}>Medico</Text>
+          <Text style={styles.title}>Profesional</Text>
         </View>
       </View>
 
@@ -143,15 +143,16 @@ const MedicoLoginScreen = () => {
         placeholder="-"
         placeholderTextColor="#888"
       />
-      <TextInput
-        style={styles.codeInput}
-        value={code3}
-        ref={code3Ref} 
-        onChangeText={handleCode3Change}
-        keyboardType="default"
-        placeholder="-"
-        placeholderTextColor="#888"
-      />
+         <TextInput
+            style={styles.codeInput}
+            ref={code3Ref} // Reference to the third input
+            maxLength={1}
+            value={code3}
+            onChangeText={handleCode3Change}
+            keyboardType="default"
+            placeholder="-"
+            placeholderTextColor="#888"
+          />
               <TextInput
         style={styles.codeInput}
         ref={code4Ref}  // Reference to the third input

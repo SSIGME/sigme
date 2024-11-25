@@ -143,15 +143,16 @@ const JefeAreaLoginScreen = () => {
         placeholder="-"
         placeholderTextColor="#888"
       />
-      <TextInput
-        style={styles.codeInput}
-        value={code3}
-        ref={code3Ref} 
-        onChangeText={handleCode3Change}
-        keyboardType="default"
-        placeholder="-"
-        placeholderTextColor="#888"
-      />
+          <TextInput
+            style={styles.codeInput}
+            ref={code3Ref} // Reference to the third input
+            maxLength={1}
+            value={code3}
+            onChangeText={handleCode3Change}
+            keyboardType="default"
+            placeholder="-"
+            placeholderTextColor="#888"
+          />
         <TextInput
         style={styles.codeInput}
         ref={code4Ref}  // Reference to the third input
@@ -274,7 +275,7 @@ const styles = StyleSheet.create({
     fontWeight: '300',
   },
   topContainer: {
-    backgroundColor: '#6E7DD0',
+    backgroundColor: '#3f58a8',
     height: "35%",
     borderBottomLeftRadius: 23,
     borderBottomRightRadius: 23,
