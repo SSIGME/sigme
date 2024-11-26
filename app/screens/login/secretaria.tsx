@@ -113,7 +113,7 @@ const SecretariaLoginScreen = () => {
         
         <View style={{ height: "100%", flexDirection: "row", paddingHorizontal: "5%" }}>
           <Image source={require('../../../assets/images/secretaria.png')} style={styles.image} />
-          <Text style={styles.title}>Secretaria</Text>
+          <Text style={styles.title}>Secretaría {"\n"}de Salud</Text>
         </View>
       </View>
 

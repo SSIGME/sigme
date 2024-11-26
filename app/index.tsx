@@ -27,7 +27,7 @@ export default function HomeScreen() {
     <View style={{ flex: 1 }}>
       <StatusBar barStyle="light-content" backgroundColor="#050259" />
       <Text style={styles.title}>
-      elige tu tipo{"\n"}de
+      Elige tu tipo{"\n"}de
         {/* Esto fuerza un salto de línea */}
         <Text style={styles.highlight}> usuario</Text>
       </Text>
@@ -77,14 +77,14 @@ export default function HomeScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.option, { backgroundColor: "#1C2D63" }]}
-          onPress={() => handleUserTypeChange("secretaria", "CrearEquipo")}
+          onPress={() => handleUserTypeChange("secretaria", "/screens/login/secretaria")}
         >
           <Image
             source={require("../assets/images/secretaria.png")}
             style={[styles.image, { width: "57%", height: "125%" }]}
           />
           <Text style={[styles.optionText1, { marginLeft: 0 }]}>
-            Secretaria
+            Secretaría {"\n"}de Salud
           </Text>
         </TouchableOpacity>
       </ScrollView>

@@ -23,8 +23,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const { width, height } = Dimensions.get("window");
 
 const Areas = () => {
-
-
   const router = useRouter();
   interface Area {
     icono: string;
@@ -40,6 +38,8 @@ const Areas = () => {
   const [isloading, setIsLoading] = useState(true);
   const [fontsLoaded] = useFonts({
     "Kanit-Regular": require("../../assets/fonts/Kanit/Kanit-Regular.ttf"),
+    "Kanit-Medium": require("../../assets/fonts/Kanit/Kanit-Medium.ttf"),
+    "Kanit-Light": require("../../assets/fonts/Kanit/Kanit-Thin.ttf"),
   });
 
   const gotoArea = (area: Area, nombre: string) => () => {
@@ -104,6 +104,7 @@ const Areas = () => {
         placeholder="Busca el área"
         value={search}
         style={{
+          fontFamily:'Kanit-Light',
           marginTop: "15%",
           fontSize: 20,
           left: "10%",
@@ -243,8 +244,7 @@ const styles = StyleSheet.create({
   whitetext: {
     marginBottom: 5,
     color: "white",
-    fontWeight: "300",
-
+    fontFamily:"Kanit-Light",
     fontSize: 16,
   },
 });
