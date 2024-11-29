@@ -39,7 +39,7 @@ const Areas = () => {
   const [fontsLoaded] = useFonts({
     "Kanit-Regular": require("../../assets/fonts/Kanit/Kanit-Regular.ttf"),
     "Kanit-Medium": require("../../assets/fonts/Kanit/Kanit-Medium.ttf"),
-    "Kanit-Light": require("../../assets/fonts/Kanit/Kanit-Thin.ttf"),
+    "Kanit-Light": require("../../assets/fonts/Kanit/Kanit-ExtraLight.ttf"),
   });
 
   const gotoArea = (area: Area, nombre: string) => () => {

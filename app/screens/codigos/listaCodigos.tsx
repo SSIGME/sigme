@@ -85,7 +85,8 @@ const CodesAccessScreen = () => {
       const codigoHospital = await AsyncStorage.getItem("codigoHospital");
       if (!codigoHospital) throw new Error('Código de hospital no encontrado');
   
-      const token = await AsyncStorage.getItem("access_token");
+      const token = await AsyncStorage.getItem("access_token")
+      console.log(token)
 
       if (!token) throw new Error('Token de acceso no encontrado');
   

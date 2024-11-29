@@ -136,10 +136,23 @@ const HospitalInfoScreen = () => {
    
       </Animatable.View>
       <Pressable 
+           onPress={() => {
+            router.push({
+              pathname: "Equipo/Pdf",
+              params: {
+                url: `${url.url2}/informe/${hospitalData.codigoIdentificacion}`,
+              },
+            });
+          }}
+      style={[styles.logoutButton,{backgroundColor:"#001844"}]}>
+        <Text style={styles.logoutButtonText}>Generar informe</Text>
+      </Pressable>
+      <Pressable 
         onPress={() => logout()}
       style={styles.logoutButton}>
         <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
       </Pressable>
+
       </ScrollView>
     </SafeAreaView>
   );

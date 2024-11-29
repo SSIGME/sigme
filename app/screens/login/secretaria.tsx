@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, {useCallback , useState, useRef } from 'react';
 import { View, StatusBar,Text, TextInput, TouchableOpacity, StyleSheet, Image, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import axios from "axios" 
 import url from "@/constants/url.json";
+import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SigmeModal from "../../componets/SigmeModal"; 
 const SecretariaLoginScreen = () => {
@@ -103,6 +104,12 @@ const SecretariaLoginScreen = () => {
   const closeModal = () => {
     setModal({ ...modal, isVisible: false });
   };
+  useFocusEffect(
+    useCallback(() => {
+  
+      StatusBar.setBarStyle("light-content");
+      StatusBar.setBackgroundColor("#1C2D63");
+    }, []))
   return (
     <SafeAreaView style={styles.container}>
        <StatusBar barStyle="light-content" backgroundColor="#1C2D63" /> 

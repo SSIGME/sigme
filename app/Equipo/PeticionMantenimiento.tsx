@@ -6,10 +6,16 @@ import CheckBox from 'expo-checkbox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import url from "@/constants/url.json";
 import { useFonts } from "expo-font";
-import { useLocalSearchParams } from "expo-router";
+import SigmeModal from "../componets/SigmeModal";
+import { router, useLocalSearchParams } from "expo-router";
 export default function ReporteEquipoScreen() {
   const scaleValue = useRef(new Animated.Value(1)).current;
-
+  const [modal, setModal] = useState({
+    isVisible: false,
+    title: "",
+    message: "",
+    type: "success" // Default type, you can change this based on login outcome
+  });
 
 
   const handlePressIn = () => {
@@ -107,15 +113,34 @@ export default function ReporteEquipoScreen() {
       // Manejo de la respuesta
       if (response.ok) {
         const data = await response.json();
-        console.log("Reporte enviado exitosamente:", data);
+        setModal({
+          isVisible: true,
+          title: "Reporte" ,
+          message: "Reporte enviado",
+          type: "success"
+        });
+
       } else {
-        console.error("Error al enviar el reporte:", response.statusText);
+        setModal({
+          isVisible: true,
+          title: "Reporte" ,
+          message: response.statusText,
+          type: "error"
+        });
       }
     } catch (error) {
-      console.error("Error en la solicitud:", error);
+      setModal({
+        isVisible: true,
+        title: "Reporte" ,
+        message: error,
+        type: "error"
+      });
     }
   };
-  
+    const closeModal = () => {
+    setModal({ ...modal, isVisible: false });
+    router.back()
+  };
   return (
     <View style={styles.contenedor}>
    <View style={styles.header}>
@@ -287,6 +312,14 @@ export default function ReporteEquipoScreen() {
       </Animated.View>
 
       </ScrollView>
+      <SigmeModal 
+        isVisible={modal.isVisible}
+        message={modal.message}
+        title={modal.title}
+        type={modal.type}
+        onClose={closeModal}
+        onConfirm={closeModal}
+      />
     </View>
     
   );

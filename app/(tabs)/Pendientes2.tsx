@@ -43,20 +43,22 @@ const ReportListScreen = () => {
   
     if (item.equipoFueraServicio === "Fuera de servicio") {
       iconColor = "#ff4949"; // Rojo
-      iconName = "exclamation-circle";
+      iconName = "circle";
     } else if (item.equipoFueraServicio === "parcialmente fuera de servicio") {
       iconColor = "#f0b13d"; // Amarillo
-      iconName = "exclamation-circle";
+      iconName = "circle";
     } else if (item.equipoFueraServicio === "Funcionando") {
       iconColor = "#526bf8"; // Azul
-      iconName = "exclamation-circle";
+      iconName = "circle";
     }
   
     return (
       <Animated.View style={[styles.card, { transform: [{ scale: scaleAnim }] }]}>
         <TouchableOpacity
-          onPressIn={handlePressIn}
-          onPressOut={() => handlePressOut(item)}
+        onPress={()=>{  router.push({
+          pathname: "Equipo/ViewPeticion",
+          params: { reporte: JSON.stringify(item) },
+        });}}
           style={styles.touchable}
         >
           <View style={styles.iconContainer}>

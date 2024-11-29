@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useCallback, useState, useRef } from "react";
 import {
   View,
   SafeAreaView,
@@ -13,6 +13,7 @@ import {
 import { useRouter } from "expo-router";
 import axios from "axios";
 import url from "@/constants/url.json";
+import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SigmeModal from "../../componets/SigmeModal";
 const TecnicoLoginScreen = () => {
@@ -111,6 +112,13 @@ const TecnicoLoginScreen = () => {
   const closeModal = () => {
     setModal({ ...modal, isVisible: false });
   };
+
+  useFocusEffect(
+    useCallback(() => {
+  
+      StatusBar.setBarStyle("light-content");
+      StatusBar.setBackgroundColor("#6a7ebe");
+    }, []))
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#A4B1E3" />
@@ -172,7 +180,7 @@ const TecnicoLoginScreen = () => {
             placeholder="-"
             placeholderTextColor="#888"
           />
-            <TextInput
+          <TextInput
             style={styles.codeInput}
             ref={code3Ref} // Reference to the third input
             maxLength={1}

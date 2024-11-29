@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+
+import React, {  useCallback ,useState, useRef } from "react";
 import {
   View,
   SafeAreaView,
@@ -12,6 +13,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios"; 
+import { useFocusEffect } from "@react-navigation/native";
 import url from "@/constants/url.json";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SigmeModal from "../../componets/SigmeModal"; // Ensure the path is correct
@@ -109,6 +111,14 @@ const AdminLoginScreen: React.FC = () => {
   const closeModal = () => {
     setModal({ ...modal, isVisible: false });
   };
+  useFocusEffect(
+    useCallback(() => {
+  
+      StatusBar.setBarStyle("light-content");
+      StatusBar.setBackgroundColor("#7e9ef7");
+    }, [])
+  );
+
 
   return (
     <SafeAreaView style={styles.container}>

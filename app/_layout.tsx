@@ -4,12 +4,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { ImageSourcePropType, Image } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { UserProvider } from "../app/UserContext";
-
+import { NavigationContainer } from '@react-navigation/native';
 import React from "react";
 import { router } from "expo-router";
 export default function Layout() {
   return (
     <UserProvider>
+       <NavigationContainer>
       <Stack>
         <Stack.Screen
           name="index"
@@ -96,7 +97,7 @@ export default function Layout() {
           options={({ route }) => ({
             headerShadowVisible: false,
             headerStyle: {
-              backgroundColor: "#F2F2F2",
+              backgroundColor: "#ffff",
             },
             headerTintColor: "#000",
             headerTitleStyle: {
@@ -213,6 +214,12 @@ export default function Layout() {
             headerShown: false,
           }}
         />
+                        <Stack.Screen
+          name="Equipo/Solicitudes"
+          options={{
+            headerShown: false,
+          }}
+        />
                           <Stack.Screen
           name="Equipo/Pdf"
           options={{
@@ -284,6 +291,7 @@ export default function Layout() {
           }}
         />
       </Stack>
+      </NavigationContainer>
     </UserProvider>
   );
 }

@@ -22,11 +22,11 @@ import { ThemedButton } from "react-native-really-awesome-button";
 import url from "@/constants/url.json";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { Canvas, DiffRect, rect, rrect } from "@shopify/react-native-skia";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const { width, height } = Dimensions.get("window");
 const innerDimension = 300;
 
-const outer = rrect(rect(0, 40, width, height), 10, 10);
+const outer = rrect(rect(0, 0, width, height), 0, 0);
 const inner = rrect(
   rect(
     width / 2 - innerDimension / 2,
@@ -48,10 +48,9 @@ export default function Home() {
   const [modalType, setModalType] = useState("");
 
   const getEquipo = async (codigoIdentificacion) => {
-    const codigoHospital = await AsyncStorage.getItem("codigoHospital");
     try {
       const response = await axios.get(
-        `${url.url}/getequipo/${codigoHospital}/${codigoIdentificacion}`
+        `${url.url}/getequipo/${codigoIdentificacion}`
       );
       if (response.status === 200) {
         setModalMessage("Se encontro un equipo que conside con el QR");
@@ -107,9 +106,14 @@ export default function Home() {
     });
     return () => subscription.remove();
   }, []);
-
+  useFocusEffect(
+    React.useCallback(() => {
+      // Reiniciar qrLock cuando la pantalla está en foco
+      qrLock.current = false;
+    }, [])
+  );
   return (
-    <SafeAreaView style={[StyleSheet.absoluteFillObject,{height:"100%"}]}>
+    <SafeAreaView style={StyleSheet.absoluteFillObject}>
       <Stack.Screen options={{ title: "Overview", headerShown: false }} />
       {Platform.OS === "android" ? <StatusBar hidden /> : null}
       <CameraView
@@ -131,7 +135,7 @@ export default function Home() {
             : StyleSheet.absoluteFillObject
         }
       >
-        <DiffRect inner={inner} outer={outer} color="#040e3b" opacity={0.5} />
+        <DiffRect inner={inner} outer={outer} color="black" opacity={0.5} />
       </Canvas>
       <View style={{ width: "100%", position: "absolute", bottom: 0 }}>
         <Image

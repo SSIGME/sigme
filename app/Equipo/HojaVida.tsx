@@ -8,7 +8,7 @@ import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const CodesAccessScreen = () => {
 
-  const { tipo, marca, modelo,   codigoIdentificacion,serie, area, HojaVida, Imagen } = useLocalSearchParams();
+  const { tipo, marca, modelo,  HojaVida, codigoIdentificacion,serie, area, Imagen } = useLocalSearchParams();
   const [modal, setModal] = useState({
     isVisible: false,
     title: "",
@@ -19,20 +19,7 @@ const CodesAccessScreen = () => {
   const [equipo, setEquipo] = useState([
  
   ]);
-  const getEquipo = async (codigoIdentificacion: string) => {
-    try {
-      const codigoHospital = await AsyncStorage.getItem("codigoHospital");
-      const response = await axios.get(
-        `${url.url}/getequipo/${codigoHospital}/${codigoIdentificacion}`
-      );
-      if (response.status === 200) {
-        console.log(response.data);
-        setEquipo(response.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }; 
+
   const renderEquipo = ({ item }) => (
     <View style={[styles.codeCard, item.tipoMantenimiento === "preventivo" ? styles.activeCodeCard : styles.inactiveCodeCard]}>
       <View style={{ gap: 4 }}>
@@ -51,9 +38,17 @@ const CodesAccessScreen = () => {
           });
         }}>
           <Text style={styles.ownerText}><Text style={styles.labelText}>Técnico:</Text> {item.tecnico}</Text>
-          <Text style={styles.ownerText}><Text style={styles.labelText}>Ubicación:</Text> {item.ubicacion}</Text>
+          <Text style={styles.ownerText}><Text style={styles.labelText}>Ubicación:</Text> {area}</Text>
           <Text style={styles.ownerText}><Text style={styles.labelText}>Fecha:</Text> {item.fecha}</Text>
-          <Text style={styles.ownerText}><Text style={styles.labelText}>Estado:</Text> {item.estado}</Text>
+          <Text style={styles.ownerText}>
+  <Text style={styles.labelText}>Estado:</Text>{' '}
+  {item.finished
+    ? item.firmadoPorRecibidor
+      ? 'Completado'
+      : 'Requiere firma de jefe de área'
+    : 'Mantenimiento incompleto'}
+</Text>
+
           <Text style={styles.ownerText}><Text style={styles.labelText}>Número de Reporte:</Text> {item.idMantenimiento}</Text>
           <Text style={styles.ownerText}><Text style={styles.labelText}>Tipo:</Text> {item.tipoMantenimiento}</Text>
         </TouchableOpacity>
@@ -63,12 +58,12 @@ const CodesAccessScreen = () => {
  
 
   useEffect(() => {
-    getEquipo(codigoIdentificacion);
+    console.log(JSON.parse(HojaVida))
   }, []);
   const closeModal = () => setModal({ ...modal, isVisible: false });
   
-  const filteredCodes = Array.isArray(equipo.HojaVida)
-  ? equipo.HojaVida.filter(equipo => 
+  const filteredCodes = Array.isArray(JSON.parse(HojaVida))
+  ? JSON.parse(HojaVida).filter(equipo => 
       activeTab === 'correctivo' ? equipo.tipoMantenimiento === 'correctivo' : equipo.tipoMantenimiento === 'preventivo'
     )
   : [];
@@ -115,6 +110,7 @@ const CodesAccessScreen = () => {
         <TouchableOpacity onPress={() => setActiveTab('correctivo')} style={[styles.tab, activeTab === 'correctivo' && styles.activeTab]}>
           <Text style={[styles.tabText, activeTab === 'correctivo' && styles.activeTabText]}>Correctivos</Text>
         </TouchableOpacity>
+       
       </View>
 
       <FlatList
@@ -132,6 +128,20 @@ const CodesAccessScreen = () => {
         onClose={closeModal}
         onConfirm={closeModal}
       />
+           <TouchableOpacity
+          onPress={() => {
+            router.push({
+              pathname: "Equipo/Pdf",
+              params: {
+                url: `${url.url2}/equipoDetail/${codigoHospital}/${codigoIdentificacion}`,
+              },
+            });
+            console.log(`${url.url2}/equipoDetail/${codigoHospital}/${codigoIdentificacion}`)
+          }}
+          style={styles.boton}
+        >
+          <Text style={styles.botonTexto}>Ver documento</Text>
+        </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -148,7 +158,7 @@ const styles = StyleSheet.create({
   },
   fototipo: {
     width: "40%",
-    height: "25%",
+    height: "20%",
     marginHorizontal:"auto",
     justifyContent: "center",
     alignItems: "center",
@@ -184,7 +194,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '400',
 
-    fontFamily: "Kanit-Light",
+    fontFamily: "Kanit-Medium",
   },
   backIcon: {
     width: 35,
@@ -206,6 +216,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 20,
+    flexWrap:"wrap",
+    gap:0,
     marginTop: "10%",
   },
   tab: {
@@ -226,7 +238,8 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   codeList: {
-    flexGrow: 0,
+    flexGrow: 3,
+    marginBottom:50
   },
   ownerText: {
     fontSize: 16,
@@ -254,6 +267,23 @@ const styles = StyleSheet.create({
   inactiveCodeCard: {
     borderLeftWidth: 5,
     borderLeftColor: '#052386',
+  },
+  boton: {
+    backgroundColor: "#050259",
+    paddingVertical: 15,
+    paddingHorizontal: 50,
+    borderRadius: 0,
+    marginBottom: 0,
+    bottom: 0,
+    width:'100%',
+    position: "absolute",
+    margin: 0, // Spacing between buttons
+  },
+  botonTexto: {
+    color: "#fff",
+    fontSize: 18,
+    textAlign:"center",
+    fontFamily: "Kanit-Regular",
   },
 });
 

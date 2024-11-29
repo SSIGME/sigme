@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useCallback , useState, useRef, useEffect } from 'react';
 import { SafeAreaView ,View, Text, StatusBar,TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import axios from "axios" 
 import url from "@/constants/url.json";
+import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SigmeModal from "../../componets/SigmeModal"; // 
 const JefeAreaLoginScreen = () => {
@@ -103,9 +104,17 @@ const JefeAreaLoginScreen = () => {
   const closeModal = () => {
     setModal({ ...modal, isVisible: false });
   };
+  useFocusEffect(
+    useCallback(() => {
+  
+      StatusBar.setBarStyle("light-content");
+      StatusBar.setBackgroundColor("#3f58a8");
+    }, [])
+  );
+
   return (
     <SafeAreaView style={styles.container}>
-       <StatusBar barStyle="light-content" backgroundColor="#6E7DD0" /> 
+       <StatusBar barStyle="light-content" backgroundColor="#3f58a8" /> 
       <View style={styles.topContainer}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Image tintColor={"white"} source={require("../../../assets/images/back.png")} style={styles.backButton}></Image>
