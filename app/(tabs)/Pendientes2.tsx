@@ -39,7 +39,7 @@ const ReportListScreen = () => {
   const renderItem = ({ item }) => {
     // Definir los colores y el ícono según el estado
     let iconColor = "#2923ca"; // Azul por defecto
-    let iconName = "infocirlceo"; // Ícono por defecto
+    let iconName = "circle"; // Ícono por defecto
   
     if (item.equipoFueraServicio === "Fuera de servicio") {
       iconColor = "#ff4949"; // Rojo

@@ -10,19 +10,24 @@ import {
   ScrollView,
 } from "react-native";
 import url from "../../constants/url.json";
-import { useIsFocused } from '@react-navigation/native';
 import axios from "axios";
-import { useRouter } from "expo-router";
+import { useRouter, useSegments } from "expo-router";
 import { Dimensions } from "react-native";
 import { ActivityIndicator } from "react-native";
 import { useFonts } from "expo-font";
 import { useNavigation } from "@react-navigation/native";
 import { useFocusEffect } from "@react-navigation/native";
-import { Container } from "@shopify/react-native-skia/lib/typescript/src/renderer/Container";
+import { useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { images, iconos } from "@/app/utils/IconosProvider";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+
 const { width, height } = Dimensions.get("window");
 
 const Areas = () => {
+  const segments = useSegments(); // Obtiene las partes de la URL actual
+
+  const [hasFetched, setHasFetched] = useState(false); // Indica si ya se ha hecho la petición
   const router = useRouter();
   interface Area {
     icono: string;
@@ -32,6 +37,10 @@ const Areas = () => {
     cantidadEquipos?: number;
   }
 
+  if (!iconos || iconos.length === 0) {
+    console.log("NO hay iconos");
+  }
+  const isFocused = useIsFocused(); // Detecta si la pantalla está enfocada
   const [areas, setAreas] = useState<Area[]>([]);
   const [search, setSearch] = useState("");
   const [areaSearch, setAreaSearch] = useState("");
@@ -39,11 +48,10 @@ const Areas = () => {
   const [fontsLoaded] = useFonts({
     "Kanit-Regular": require("../../assets/fonts/Kanit/Kanit-Regular.ttf"),
     "Kanit-Medium": require("../../assets/fonts/Kanit/Kanit-Medium.ttf"),
-    "Kanit-Light": require("../../assets/fonts/Kanit/Kanit-ExtraLight.ttf"),
+    "Kanit-Light": require("../../assets/fonts/Kanit/Kanit-Thin.ttf"),
   });
 
   const gotoArea = (area: Area, nombre: string) => () => {
-    console.log("gOING TO AREA", area);
     router.push({
       pathname: `/Area/AreaDetail`,
       params: {
@@ -61,11 +69,13 @@ const Areas = () => {
         console.log(response.data);
         const areasData = response.data.map(
           (area: {
+            icono: string;
             codigoIdentificacion: string;
             nombre: string;
             responsableArea: string;
             idEquipos: string[];
           }) => ({
+            icono: area.icono,
             codigoIdentificacion: area.codigoIdentificacion,
             nombre: area.nombre,
             responsableArea: area.responsableArea,
@@ -73,6 +83,7 @@ const Areas = () => {
           })
         );
         setAreas(areasData);
+        console.log(areasData);
       } else {
         Alert.alert("Error", "No se pudo obtener las areas");
       }
@@ -82,18 +93,15 @@ const Areas = () => {
       console.log("Finalizado");
     }
   };
+  useEffect(() => {
+    if (segments.slice(1).includes("Areas")) {
+      getAreas();
+    }
+  }, [segments]); // Cambia cuando la URL cambia
 
   const filteredAreas = areas.filter((area) =>
     area.nombre.toLowerCase().includes(search.toLowerCase())
   );
-  useEffect(() => {
-    if (true) {
-      setIsLoading(true);
-      getAreas();
-    }
-  }, []);
-
-  console.log("Filtered Areas:", filteredAreas);
 
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -104,7 +112,7 @@ const Areas = () => {
         placeholder="Busca el área"
         value={search}
         style={{
-          fontFamily:'Kanit-Light',
+          fontFamily: "Kanit-Light",
           marginTop: "15%",
           fontSize: 20,
           left: "10%",
@@ -136,23 +144,21 @@ const Areas = () => {
               >
                 <View
                   style={{
-                    marginLeft: "5%",
                     justifyContent: "center",
                     alignItems: "center",
-                    backgroundColor: "#ffffff",
+                    backgroundColor: "rgba(232, 242, 250, 1)",
                     borderRadius: 9,
-                    width: 80,
-                    height: 82,
+                    width: height * 0.125,
+                    height: height * 0.125,
                   }}
                 >
                   <Image
-                    source={require("../../assets/images/photo.png")}
-                    style={{ width: 70, height: 70 }}
+                    source={images[area.icono]}
+                    style={{ width: "100%", height: "100%" }}
                   />
                 </View>
                 <View
                   style={{
-                    marginLeft: "5%",
                     justifyContent: "center",
                     borderRadius: 9,
                     width: 200,
@@ -163,6 +169,9 @@ const Areas = () => {
                   <Text style={styles.whitetext}>{area.responsableArea}</Text>
                   <Text style={styles.whitetext}>
                     {area.codigoIdentificacion}
+                  </Text>
+                  <Text style={styles.whitetext}>
+                    {area.cantidadEquipos} Equipos
                   </Text>
                 </View>
               </Pressable>
@@ -175,23 +184,21 @@ const Areas = () => {
               >
                 <View
                   style={{
-                    marginLeft: "5%",
                     justifyContent: "center",
                     alignItems: "center",
-                    backgroundColor: "rgba(189, 202, 239, 1)",
+                    backgroundColor: "rgba(232, 242, 250, 1)",
                     borderRadius: 9,
-                    width: 80,
-                    height: 82,
+                    width: height * 0.125,
+                    height: height * 0.125,
                   }}
                 >
                   <Image
-                    source={require("../../assets/images/odo.png")}
-                    style={{ width: 70, height: 70 }}
+                    source={images[area.icono]}
+                    style={{ width: "100%", height: "100%" }}
                   />
                 </View>
                 <View
                   style={{
-                    marginLeft: "5%",
                     justifyContent: "center",
                     borderRadius: 9,
                     width: 200,
@@ -202,6 +209,9 @@ const Areas = () => {
                   <Text style={styles.whitetext}>{area.responsableArea}</Text>
                   <Text style={styles.whitetext}>
                     {area.codigoIdentificacion}
+                  </Text>
+                  <Text style={styles.whitetext}>
+                    {area.cantidadEquipos} Equipos
                   </Text>
                 </View>
               </Pressable>
@@ -221,31 +231,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   boton: {
-    display: "flex",
-    alignItems: "center",
+   
+  
+    shadowOpacity: 0.58,
+    shadowRadius: 16.0,
+  
     flexDirection: "row",
-    width: width * 0.85,
-    height: height * 0.15,
-    backgroundColor: "#050259", // Fondo del botón
-    borderRadius: 9,
-    marginBottom: "10%",
-    // Agregar sombra para iOS
+    padding: "2%",
+    alignItems: "center",
+    justifyContent: "space-around",
+    width: width * 0.9,
+    height: height * 0.16,
+    backgroundColor: "#050259",// Fondo del botón
+    marginBottom: "5%",
+    borderRadius: 9, 
     shadowColor: "#00aeff",
     shadowOffset: {
       width: 0,
-      height: 1,
-    },
-    opacity: 0.99,
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    // Agregar sombra para Android
+      height: 1,},
     elevation: 8,
   },
   whitetext: {
-    marginBottom: 5,
+    marginBottom: 4,
     color: "white",
-    fontFamily:"Kanit-Light",
-    fontSize: 16,
+    fontWeight: "400",
+    fontFamily: "Kanit-Regular",
+    fontSize: width * 0.035, // Tamaño de fuente proporcional al ancho de la pantalla
   },
 });
 export default Areas;

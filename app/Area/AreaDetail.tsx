@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   TextInput,
+  Alert,
 } from "react-native";
 import React from "react";
 import { useEffect, useState } from "react";
@@ -38,6 +39,7 @@ interface Equipo {
 }
 const { width, height } = Dimensions.get("window");
 const AreaDetail = () => {
+  const [codigoHospital, setCodigoHospital] = useState("");
   const router = useRouter();
   const { codigoIdentificacion } = useLocalSearchParams();
   const [area, setArea] = useState<Area | null>(null);
@@ -88,7 +90,7 @@ const AreaDetail = () => {
       if (response.status === 200) {
         console.log(response.data);
         setEquipos(response.data);
-        console.log(equipos.map((equipo) => equipo.Imagen));
+        console.log("Estos son los equipos", equipos);
       }
     } catch (error) {
       console.error(error);
@@ -96,6 +98,12 @@ const AreaDetail = () => {
   };
   const getArea = async () => {
     const codigoHospital = await AsyncStorage.getItem("codigoHospital");
+    if (codigoHospital === null) {
+      Alert.alert("Error", "No se pudo obtener el codigo del hospital");
+      return;
+    } else {
+      setCodigoHospital(codigoHospital);
+    }
     try {
       const response = await axios.get(
         `${url.url}/getarea/${codigoHospital}/${codigoIdentificacion}`
@@ -161,7 +169,7 @@ const AreaDetail = () => {
               paddingLeft: 10,
               fontFamily: "Kanit-Regular",
             }}
-            placeholder="Ej. Tomografo"
+            placeholder="EJ. Tensiometro..."
             placeholderTextColor="lightgray"
             returnKeyType="search"
             onChangeText={(text) => {
@@ -183,7 +191,7 @@ const AreaDetail = () => {
                 onPress={() => {
                   navegarEquipo(
                     equipo.codigoIdentificacion,
-                    equipo.Imagen,
+                    `${url.url}/static_images/${codigoHospital}/${equipo.Imagen}`,
                     equipo.Tipo,
                     equipo.Marca,
                     equipo.Modelo,
@@ -199,32 +207,34 @@ const AreaDetail = () => {
                 <View
                   style={{
                     position: "absolute",
-                    left: "3%",
+                    left: "5%",
                     width: "40%",
                     height: "100%",
                     justifyContent: "center",
                     alignItems: "center",
                   }}
                 >
-                  {equipo.Imagen === "" ? (
-                    <Image
-                      source={require("../../assets/images/tenso.jpg")}
-                      style={{ width: "90%", height: "90%", borderRadius: 20 }}
-                    />
-                  ) : (
-                    <Image
-                      source={{ uri: equipo.Imagen }}
-                      style={{ width: "90%", height: "90%", borderRadius: 20 }}
-                    />
-                  )}
+                  <Image
+                    source={{
+                      uri: `${url.url}/static_images/${codigoHospital}/${equipo.Imagen}`,
+                    }}
+                    style={{
+                      width: "90%",
+                      height: "90%",
+                      borderRadius: 20,
+                    }}
+                  />
                 </View>
                 <View
-                  style={{ position: "absolute", left: "48%", height: "90%" }}
+                  style={{ position: "absolute", left: "48%", height: "95%" }}
                 >
                   <Text style={styles.whitetext}>{equipo.Tipo}</Text>
                   <Text style={styles.whitetext}>{equipo.Marca}</Text>
                   <Text style={styles.whitetext}>{equipo.Modelo}</Text>
                   <Text style={styles.whitetext}>{equipo.Serie}</Text>
+                  <Text style={styles.whitetext}>
+                    {equipo.codigoIdentificacion}
+                  </Text>
                 </View>
               </Pressable>
             ))
@@ -233,7 +243,7 @@ const AreaDetail = () => {
                 onPress={() => {
                   navegarEquipo(
                     equipo.codigoIdentificacion,
-                    equipo.Imagen,
+                    `${url.url}/static_images/${codigoHospital}/${equipo.Imagen}`,
                     equipo.Tipo,
                     equipo.Marca,
                     equipo.Modelo,
@@ -249,32 +259,34 @@ const AreaDetail = () => {
                 <View
                   style={{
                     position: "absolute",
-                    left: "3%",
+                    left: "5%",
                     width: "40%",
                     height: "100%",
                     justifyContent: "center",
                     alignItems: "center",
                   }}
                 >
-                  {equipo.Imagen === "" ? (
-                    <Image
-                      source={require("../../assets/images/tenso.jpg")}
-                      style={{ width: "90%", height: "90%", borderRadius: 20 }}
-                    />
-                  ) : (
-                    <Image
-                      source={{ uri: equipo.Imagen }}
-                      style={{ width: "90%", height: "90%", borderRadius: 20 }}
-                    />
-                  )}
+                  <Image
+                    source={{
+                      uri: `${url.url}/static_images/${codigoHospital}/${equipo.Imagen}`,
+                    }}
+                    style={{
+                      width: "90%",
+                      height: "90%",
+                      borderRadius: 20,
+                    }}
+                  />
                 </View>
                 <View
-                  style={{ position: "absolute", left: "48%", height: "90%" }}
+                  style={{ position: "absolute", left: "48%", height:height*0.16 }}
                 >
                   <Text style={styles.whitetext}>{equipo.Tipo}</Text>
                   <Text style={styles.whitetext}>{equipo.Marca}</Text>
                   <Text style={styles.whitetext}>{equipo.Modelo}</Text>
                   <Text style={styles.whitetext}>{equipo.Serie}</Text>
+                  <Text style={styles.whitetext}>
+                    {equipo.codigoIdentificacion}
+                  </Text>
                 </View>
               </Pressable>
             ))}
@@ -305,8 +317,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   listequipos: {
+    flexGrow: 1,
     paddingTop: "5%",
-    height: height * 0.9,
     width: width,
     alignItems: "center",
     paddingBottom: 20,
@@ -352,7 +364,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "400",
     fontFamily: "Kanit-Regular",
-    fontSize: 16,
+    fontSize: width * 0.035, // Tamaño de fuente proporcional al ancho de la pantalla
   },
   textbold: {
     textAlign: "center",

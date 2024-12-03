@@ -75,7 +75,7 @@ const EquipoDetail = () => {
   const checkParams = () => {
     if (
       !codigoIdentificacion ||
-      !Imagen ||
+
       !Tipo ||
       !Marca ||
       !Modelo ||
@@ -98,7 +98,7 @@ const EquipoDetail = () => {
       console.log("Parametros encontrados");
       setEquipo({
         codigoIdentificacion: codigoIdentificacion as string,
-        Imagen: Imagen as string,
+ 
         Tipo: Tipo as string,
         Marca: Marca as string,
         Modelo: Modelo as string,
@@ -141,7 +141,7 @@ const EquipoDetail = () => {
                   modelo: equipo.Modelo,
                   serie: equipo.Serie,
                   area: equipo.area,
-                  Imagen: equipo.Imagen,
+                  Imagen:   Imagen,
                   HojaVida:JSON.stringify(equipo.HojaVida),
 
                   codigoIdentificacion: equipo.codigoIdentificacion,

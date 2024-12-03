@@ -3,7 +3,7 @@ import { View, Text, StatusBar, StyleSheet, Image, TouchableOpacity } from "reac
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useCameraPermissions } from "expo-camera";
-
+import { useFocusEffect } from "@react-navigation/native";
 export default function ScanScreen() {
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();

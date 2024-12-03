@@ -90,7 +90,7 @@ export default function TabLayout() {
                 : route.name === "Codigos"
                 ? require("../../assets/images/codigosIcon.png") // Icono para "Códigos"
                 : route.name === "Pendientes"
-                ? require("../../assets/images/codigosIcon.png") // Icono para "Códigos"
+                ? require("../../assets/images/pendientesIcon.png")
                 : route.name === "Pendientes2"
                 ? require("../../assets/images/pendientesIcon.png")
                 : require("../../assets/images/perfilIcon.png") // Icono para "Perfil"
@@ -105,7 +105,7 @@ export default function TabLayout() {
                 : route.name === "Pendientes" // Nueva condición
                 ? "Pendientes"
                 : route.name === "Pendientes2" // Nueva condición
-                ? "Pendientes"  // Título para "Pendientes"
+                ? "Pendientes" // Título para "Pendientes"
                 : "Perfil"
             }
           />
@@ -116,7 +116,6 @@ export default function TabLayout() {
       })}
     >
       <Tabs.Screen name="Areas" options={{ headerShown: false }} />
-
       <Tabs.Screen
         name="Escaner"
         options={{
@@ -138,14 +137,12 @@ export default function TabLayout() {
             String(userType) !== "jefeArea" ? null : "../(tabs)/Pendientes.tsx",
         }}
       />
-           <Tabs.Screen
+      <Tabs.Screen
         name="Pendientes2"
         options={{
           headerShown: false,
           href:
-            String(userType) !== "jefeArsea" && String(userType) !== "admin"
-              ? null
-              : "../(tabs)/Pendientes2.tsx",
+            String(userType) !== "admin" ? null : "../(tabs)/Pendientes2.tsx",
         }}
       />
       <Tabs.Screen
@@ -154,7 +151,6 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
- 
     </Tabs>
   );
 }

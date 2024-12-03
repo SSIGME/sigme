@@ -11,7 +11,7 @@ export default function Layout() {
   return (
     <UserProvider>
        <NavigationContainer>
-      <Stack>
+       <Stack>
         <Stack.Screen
           name="index"
           options={{
@@ -32,28 +32,48 @@ export default function Layout() {
           name="CrearEquipo"
           options={{
             headerStyle: {
-              backgroundColor: "rgba(0, 175, 255, 0.125)",
+              backgroundColor: "white",
             },
+            headerShadowVisible: false,
             headerTintColor: "#000",
             headerTitleStyle: {
               color: "#000",
               fontWeight: "bold",
             },
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Image
+                  source={require("../assets/images/backarrowblack.png")}
+                  style={{ width: 40, height: 20, marginLeft: 20 }}
+                />
+              </TouchableOpacity>
+            ),
             headerTitle: "Crear Equipo",
+            headerTitleAlign: 'center'
           }}
         />
         <Stack.Screen
           name="CrearArea"
           options={{
-            headerTitle: "Crear Area",
             headerStyle: {
-              backgroundColor: "rgba(0, 175, 255, 0.125)",
+              backgroundColor: "white",
             },
+            headerShadowVisible: false,
             headerTintColor: "#000",
             headerTitleStyle: {
               color: "#000",
               fontWeight: "bold",
             },
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Image
+                  source={require("../assets/images/backarrowblack.png")}
+                  style={{ width: 40, height: 20, marginLeft: 20 }}
+                />
+              </TouchableOpacity>
+            ),
+            headerTitle: "Crear Area",
+            headerTitleAlign: 'center'
           }}
         />
         <Stack.Screen
@@ -67,43 +87,38 @@ export default function Layout() {
               <TouchableOpacity onPress={() => router.back()}>
                 <Image
                   source={require("../assets/images/backarrowblack.png")}
-                  style={{ width: 40, height: 20, marginLeft: 1 }}
+                  style={{ width: 40, height: 20, marginLeft: 20 }}
                 />
               </TouchableOpacity>
             ),
+            headerTitleAlign: "center",
             headerTitle:
               typeof route.params.nombre === "string"
                 ? route.params.nombre
                 : "Area",
-            headerTitleAlign: "center",
           })}
-        />
-        <Stack.Screen
-          name="ListarEquipos"
-          options={{
-            headerStyle: {
-              backgroundColor: "rgba(0, 175, 255, 0.125)",
-            },
-            headerTintColor: "#000",
-            headerTitleStyle: {
-              color: "#000",
-              fontWeight: "bold",
-            },
-            headerTitle: "Listar Equipos",
-          }}
         />
         <Stack.Screen
           name="Equipo/EquipoDetail"
           options={({ route }) => ({
             headerShadowVisible: false,
             headerStyle: {
-              backgroundColor: "#ffff",
+              backgroundColor: "transparent",
             },
             headerTintColor: "#000",
             headerTitleStyle: {
               color: "#000",
               fontWeight: "bold",
             },
+            headerLeft: () => (
+              <TouchableOpacity onPress={() => router.back()}>
+                <Image
+                  source={require("../assets/images/backarrowblack.png")}
+                  style={{ width: 40, height: 20, marginLeft: 20 }}
+                />
+              </TouchableOpacity>
+            ),
+            headerTitleAlign: 'center',
             headerTitle:
               typeof route.params.title === "string"
                 ? route.params.title
@@ -201,32 +216,26 @@ export default function Layout() {
             headerShown: false,
           }}
         />
- 
+
         <Stack.Screen
           name="Equipo/HojaVida"
           options={{
             headerShown: false,
           }}
         />
-                     <Stack.Screen
+        <Stack.Screen
           name="Equipo/ViewPeticion"
           options={{
             headerShown: false,
           }}
         />
-                        <Stack.Screen
-          name="Equipo/Solicitudes"
-          options={{
-            headerShown: false,
-          }}
-        />
-                          <Stack.Screen
+        <Stack.Screen
           name="Equipo/Pdf"
           options={{
             headerShown: false,
           }}
         />
-            <Stack.Screen
+        <Stack.Screen
           name="Equipo/PeticionMantenimiento"
           options={{
             headerShown: false,
