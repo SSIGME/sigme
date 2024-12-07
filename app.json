@@ -6,13 +6,16 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "sigme",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/iconApp.png",
     "jsEngine": "hermes",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#050259"
+    },
+    "androidStatusBar": {
+      "barStyle": "light-content"
     },
     "ios": {
       "supportsTablet": true
@@ -24,8 +27,8 @@
         "INTERNET"
       ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/iconApp.png",
+        "backgroundColor": "#050259"
       },
       "package": "com.sigme.sigme"
     },
