@@ -1,6 +1,8 @@
 import axios from "axios";
 import { EXPO_PUBLIC_URL_EXTERN_SERVER } from "@env";
 
+
+
 export const checkServerAvailability = async (codeHospital:string): Promise<string> => {
   const urlcompleta = `http://${codeHospital}-server.local:5000`
   try {

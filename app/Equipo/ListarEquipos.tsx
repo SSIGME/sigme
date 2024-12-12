@@ -18,6 +18,7 @@ import { useRouter } from "expo-router";
 import { useFonts } from "expo-font";
 import { Dimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useCodeDeleteStore, useCodeWriteStore } from "@/app/utils/useStore";
 interface Area {
   codigoIdentificacion: string;
   nombre: string;
@@ -26,6 +27,7 @@ interface Area {
   documentoResponsableArea: string;
   responsableArea: string;
 }
+
 interface Equipo {
   area: string;
   UltimoMantenimiento: string;
@@ -38,10 +40,14 @@ interface Equipo {
   Serie: string;
 }
 const { width, height } = Dimensions.get("window");
-const AreaDetail = () => {
+const ListarEquipos = () => {
+  const codeWrite = useCodeWriteStore((state) => state.codeWrite);
+  const setCodeWrite = useCodeWriteStore((state) => state.setCodeWrite);
+  const setCodeDelete = useCodeDeleteStore((state) => state.setCodeDelete);
+  const codeDelete = useCodeDeleteStore((state) => state.codeDelete);
   const [codigoHospital, setCodigoHospital] = useState("");
   const router = useRouter();
-  const { codigoIdentificacion } = useLocalSearchParams();
+  const { codigoIdentificacion, comeback } = useLocalSearchParams();
   const [area, setArea] = useState<Area | null>(null);
   const [equipos, setEquipos] = useState<Equipo[]>([]);
   const [search, setSearch] = useState("");
@@ -50,6 +56,7 @@ const AreaDetail = () => {
     "Kanit-Medium": require("../../assets/fonts/Kanit/Kanit-Medium.ttf"),
     "Kanit-Light": require("../../assets/fonts/Kanit/Kanit-Light.ttf"),
   });
+
   const getImagen = async (
     codigoIdentificacion: string,
     codigoHospital: string
@@ -65,36 +72,10 @@ const AreaDetail = () => {
       console.error(error);
     }
   };
-  const navegarEquipo = (
-    codigoIdentificacion: string,
-    Imagen: string,
-    Tipo: string,
-    Marca: string,
-    Modelo: string,
-    Serie: string,
-    UltimoMantenimiento: string,
-    ProximaVisita: string,
-    area: string
-  ) => {
-    router.push({
-      pathname: `/Equipo/EquipoDetail`,
-      params: {
-        title: Tipo,
-        Imagen: Imagen,
-        codigoIdentificacion: codigoIdentificacion,
-        Tipo: Tipo,
-        Marca: Marca,
-        Modelo: Modelo,
-        Serie: Serie,
-        UltimoMantenimiento: UltimoMantenimiento,
-        ProximaVisita: ProximaVisita,
-        area: area,
-      },
-    });
-  };
   const filteredEquipos = equipos.filter((equipo) =>
     equipo.Tipo.toLowerCase().includes(search.toLowerCase())
   );
+
   const getEquipos = async () => {
     const codigoHospital = await AsyncStorage.getItem("codigoHospital");
     try {
@@ -110,6 +91,7 @@ const AreaDetail = () => {
       console.error(error);
     }
   };
+
   const getArea = async () => {
     const codigoHospital = await AsyncStorage.getItem("codigoHospital");
     if (codigoHospital === null) {
@@ -130,12 +112,7 @@ const AreaDetail = () => {
       console.error(error);
     }
   };
-  useEffect(() => {
-    console.log(
-      "Equipos en el useEffect",
-      equipos.map((equipo) => equipo.Imagen)
-    );
-  }, [equipos]);
+
   useEffect(() => {
     getArea();
     getEquipos();
@@ -148,6 +125,7 @@ const AreaDetail = () => {
       </View>
     );
   }
+
   return (
     <View style={styles.container}>
       {equipos.length === 0 ? (
@@ -208,17 +186,16 @@ const AreaDetail = () => {
           ? equipos.map((equipo) => (
               <Pressable
                 onPress={() => {
-                  navegarEquipo(
-                    equipo.codigoIdentificacion,
-                    `${url.url}/static_images/${codigoHospital}/${equipo.Imagen}`,
-                    equipo.Tipo,
-                    equipo.Marca,
-                    equipo.Modelo,
-                    equipo.Serie,
-                    equipo.UltimoMantenimiento,
-                    equipo.ProximaVisita,
-                    equipo.area
-                  );
+                  {
+                    comeback === "EliminarEquipo" ? (
+                      setCodeDelete(equipo.codigoIdentificacion),
+                      router.replace("Equipo/EliminarEquipo")
+                    ) : (
+                      setCodeWrite(equipo.codigoIdentificacion),
+                      router.replace("Equipo/EscribirTag")
+                    );
+
+                  }
                 }}
                 style={styles.cadaequipo}
                 key={equipo.codigoIdentificacion}
@@ -259,19 +236,6 @@ const AreaDetail = () => {
             ))
           : filteredEquipos.map((equipo) => (
               <Pressable
-                onPress={() => {
-                  navegarEquipo(
-                    equipo.codigoIdentificacion,
-                    `${url.url}/static_images/${codigoHospital}/${equipo.Imagen}`,
-                    equipo.Tipo,
-                    equipo.Marca,
-                    equipo.Modelo,
-                    equipo.Serie,
-                    equipo.UltimoMantenimiento,
-                    equipo.ProximaVisita,
-                    equipo.area
-                  );
-                }}
                 style={styles.cadaequipo}
                 key={equipo.codigoIdentificacion}
               >
@@ -318,7 +282,7 @@ const AreaDetail = () => {
   );
 };
 
-export default AreaDetail;
+export default ListarEquipos;
 
 const styles = StyleSheet.create({
   container: {

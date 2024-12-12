@@ -11,14 +11,16 @@ import {
 } from "react-native";
 import url from "@/constants/url.json";
 import axios from "axios";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useRouter, useSegments } from "expo-router";
 import { Dimensions } from "react-native";
 import { ActivityIndicator } from "react-native";
 import { useFonts } from "expo-font";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { images, iconos } from "@/app/utils/IconosProvider";
 
 const { width, height } = Dimensions.get("window");
-const ListarAreas = () => {
+const ListarAreas = ({ comeback }) => {
+  const segments = useSegments(); // Obtiene las partes de la URL actual
   const router = useRouter();
   interface Area {
     icono: string;
@@ -27,20 +29,22 @@ const ListarAreas = () => {
     responsableArea: string;
     cantidadEquipos?: number;
   }
+  const [codigoRecibido, setCodigoRecibido] = useState("");
   const [areas, setAreas] = useState<Area[]>([]);
   const [search, setSearch] = useState("");
   const [areaSearch, setAreaSearch] = useState("");
   const [isloading, setIsLoading] = useState(true);
   const [fontsLoaded] = useFonts({
-    "Kanit-Regular": require("../assets/fonts/Kanit/Kanit-Regular.ttf"),
+    "Kanit-Regular": require("@/assets/fonts/Kanit/Kanit-Regular.ttf"),
   });
 
   const gotoArea = (area: Area, nombre: string) => () => {
     router.push({
-      pathname: `/Area/AreaDetail`,
+      pathname: `/Equipo/ListarEquipos`,
       params: {
         codigoIdentificacion: area.codigoIdentificacion,
         nombre: nombre,
+        comeback: comeback,
       },
     });
   };
@@ -51,21 +55,23 @@ const ListarAreas = () => {
       const response = await axios.get(`${url.url}/getareas/${codigoHospital}`);
       if (response.status === 200) {
         console.log(response.data);
-        setAreas(
-          response.data.map(
-            (area: {
-              codigoIdentificacion: string;
-              nombre: string;
-              responsableArea: string;
-              idEquipos: string[];
-            }) => ({
-              codigoIdentificacion: area.codigoIdentificacion,
-              nombre: area.nombre,
-              responsableArea: area.responsableArea,
-              cantidadEquipos: area.idEquipos.length,
-            })
-          )
+        const areasData = response.data.map(
+          (area: {
+            icono: string;
+            codigoIdentificacion: string;
+            nombre: string;
+            responsableArea: string;
+            idEquipos: string[];
+          }) => ({
+            icono: area.icono,
+            codigoIdentificacion: area.codigoIdentificacion,
+            nombre: area.nombre,
+            responsableArea: area.responsableArea,
+            cantidadEquipos: area.idEquipos.length,
+          })
         );
+        setAreas(areasData);
+        console.log("Areasdata", areasData);
       } else {
         Alert.alert("Error", "No se pudo obtener las areas");
       }
@@ -78,16 +84,15 @@ const ListarAreas = () => {
   const filteredAreas = areas.filter((area) =>
     area.nombre.toLowerCase().includes(search.toLowerCase())
   );
-  useFocusEffect(
-    useCallback(() => {
-      getAreas();
-      setIsLoading(true);
-    }, [])
-  );
-
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
+  useFocusEffect(
+    useCallback(() => {
+      setIsLoading(true); // Mostrar indicador de carga
+      getAreas(); 
+    }, [])
+  );
   return (
     <View
       style={{
@@ -138,8 +143,8 @@ const ListarAreas = () => {
                   }}
                 >
                   <Image
-                    source={require("../assets/images/photo.png")}
-                    style={{ width: 70, height: 70 }}
+                    source={images[area.icono]}
+                    style={{ width: "100%", height: "100%" }}
                   />
                 </View>
                 <View
@@ -177,8 +182,8 @@ const ListarAreas = () => {
                   }}
                 >
                   <Image
-                    source={require("../assets/images/odo.png")}
-                    style={{ width: 70, height: 70 }}
+                    source={images[area.icono]}
+                    style={{ width: "100%", height: "100%" }}
                   />
                 </View>
                 <View

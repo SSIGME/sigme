@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import Areas from "../ListarAreas";
+import ListarAreas from "@/app/Area/ListarAreas";
 const NfcWrite = () => {
   return (
     <View
@@ -21,7 +21,6 @@ const NfcWrite = () => {
       >
         Busque el equipo medico que desea escribir en la etiqueta NFC
       </Text>
-      <Areas />
     </View>
   );
 };

@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Text, TouchableOpacity, View, StyleSheet, Image } from "react-native";
 import * as Animatable from "react-native-animatable";
-import { router, Tabs } from "expo-router";
+import { Tabs, usePathname, router } from "expo-router";
 import { useUserContext } from "../UserContext";
+import { useShouldLoadAreas } from "@/app/utils/useStore";
 const animate1 = {
   0: { scale: 0.8, translateY: 0 },
   0.92: { translateY: -10 },
@@ -72,7 +73,19 @@ const TabButton = ({ route, focused, onPress, imageSource, title }) => {
 };
 
 export default function TabLayout() {
+  const { value, setValue } = useShouldLoadAreas(); // Importa el hook
   const { userType } = useUserContext();
+  const pathname = usePathname();
+  const [activeTab, setActiveTab] = useState("Home"); // Estado para controlar la pestaña activadate
+  useEffect(() => {
+    const currentTab = pathname.split("/").pop();
+    if (currentTab === "Areas") {
+      setValue(true);
+    } else {
+      console.log("False");
+      setValue(false);
+    }
+  }, [pathname]);
 
   return (
     <Tabs
@@ -115,7 +128,13 @@ export default function TabLayout() {
         headerShown: false,
       })}
     >
-      <Tabs.Screen name="Areas" options={{ headerShown: false }} />
+      <Tabs.Screen
+        name="Areas"
+        options={{
+          headerShown: false,
+        }}
+      />
+
       <Tabs.Screen
         name="Escaner"
         options={{

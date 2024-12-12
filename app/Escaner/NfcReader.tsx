@@ -107,7 +107,7 @@ const NfcReader = () => {
     }
   };
   if (fontsLoaded === true) {
-    if (nfcSupported === false) {
+    if (nfcSupported === true) {
       return (
         <View style={styles.container}>
           <View style={styles.viewtext}>
@@ -196,7 +196,9 @@ const NfcReader = () => {
     } else {
       return (
         <View style={styles.container}>
-          <Text>Este dispositivo no tiene tecnologia NFC</Text>
+          <Text style={styles.errorText}>
+            Este dispositivo no tiene tecnología NFC
+          </Text>
         </View>
       );
     }
@@ -210,9 +212,16 @@ export default NfcReader;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#959595",
+    backgroundColor: "#a0a0a0",
     alignItems: "center",
     justifyContent: "center",
+  },
+  errorText: {
+    fontFamily: "Kanit-Medium",
+    fontSize: 20,
+    color: "white",
+    textAlign: "center",
+    paddingHorizontal: 20,
   },
   boton: {
     alignItems: "center",

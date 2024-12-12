@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import url from "../../constants/url.json";
+import { EXPO_PUBLIC_URL_EXTERN_SERVER } from "@env";
 import axios from "axios";
 import * as Animatable from "react-native-animatable";
 import { useFocusEffect } from "@react-navigation/native";
@@ -32,16 +32,14 @@ const HospitalInfoScreen = () => {
 
       if (!codigoHospital || !token)
         throw new Error("No se encontró el código del hospital o el token.");
-
       const response = await axios.get(
-        `${url.url}/hospital/${codigoHospital}`,
+        `${EXPO_PUBLIC_URL_EXTERN_SERVER}/hospital/${codigoHospital}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-
       setHospitalData(response.data);
     } catch (error) {
       console.error(error);
@@ -156,13 +154,27 @@ const HospitalInfoScreen = () => {
         {userType === "admin" ? (
           <View>
             <Pressable
-              onPress={() => router.push("CrearEquipo")}
+              onPress={() => router.push("Equipo/CrearEquipo")}
               style={styles.createequipo}
             >
               <Text style={styles.logoutButtonText}>Crear equipo</Text>
             </Pressable>
             <Pressable
-              onPress={() => router.push("CrearArea")}
+              onPress={() => router.push("Equipo/EscribirTag")}
+              style={styles.createequipo}
+            >
+              <Text style={styles.logoutButtonText}>
+                Escribir TAG de equipo
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => router.push("Equipo/EliminarEquipo")}
+              style={styles.createequipo}
+            >
+              <Text style={styles.logoutButtonText}>Eliminar equipo</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => router.push("Area/CrearArea")}
               style={styles.createarea}
             >
               <Text style={styles.logoutButtonText}>Crear area</Text>

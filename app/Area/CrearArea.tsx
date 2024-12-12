@@ -146,10 +146,6 @@ export default function CrearArea() {
             <Text
               key={index}
               style={styles.suggestionItem}
-              onPress={() => {
-                setNombreArea(area);
-                setSearchQueryArea("");
-              }}
             >
               Área existente: {area}
             </Text>
@@ -178,7 +174,7 @@ export default function CrearArea() {
             </Text>
           ))}
         <Pressable onPress={toggleModalIcons} style={styles.button}>
-          <Text style={styles.buttonText}>Seleccionar Imagen</Text>
+          <Text style={styles.buttonText}>Seleccionar Icono</Text>
         </Pressable>
         <Pressable onPress={crearArea} style={styles.button}>
           <Text style={styles.buttonText}>Crear Área</Text>
@@ -191,7 +187,7 @@ export default function CrearArea() {
             height: "20%",
             alignItems: "center",
             position: "absolute",
-            bottom: height * 0.1,
+            bottom: height * 0.05,
             flexDirection: "column",
             justifyContent: "space-between",
           }}

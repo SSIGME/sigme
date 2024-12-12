@@ -1,5 +1,4 @@
-
-import React, {  useCallback ,useState, useRef } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import {
   View,
   SafeAreaView,
@@ -12,89 +11,76 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
-import axios from "axios"; 
+import axios from "axios";
 import { useFocusEffect } from "@react-navigation/native";
 import url from "@/constants/url.json";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import SigmeModal from "../../componets/SigmeModal"; // Ensure the path is correct
+import { checkServerAvailability } from "@/app/utils/CheckServer";
+import { EXPO_PUBLIC_URL_EXTERN_SERVER } from "@env";
 
 const AdminLoginScreen: React.FC = () => {
+  const [code, setCode] = useState(["", "", "", ""]);
+  const [serverUrl, setServerUrl] = useState(EXPO_PUBLIC_URL_EXTERN_SERVER); // Inicialmente usa la URL por defecto
+
+  const handleKeyPress = (event, index) => {
+    if (event.nativeEvent.key === "Backspace") {
+      const newCode = [...code];
+      if (code[index]) {
+        // Si el cuadro tiene contenido, borra el carácter
+        newCode[index] = "";
+        setCode(newCode);
+      } else if (index > 0) {
+        inputs[index - 1].focus();
+        newCode[index - 1] = ""; // Borra el contenido del cuadro anterior
+        setCode(newCode);
+      }
+    }
+  };
+
+  const handleInputChange = (text, index) => {
+    if (text.length <= 1) {
+      const newCode = [...code];
+      newCode[index] = text;
+      setCode(newCode);
+      if (text && index < 3) {
+        inputs[index + 1].focus();
+      }
+    }
+  };
+  const inputs = [];
+
   const [modal, setModal] = useState({
     isVisible: false,
     title: "",
     message: "",
-    type: "success" // Default type, you can change this based on login outcome
+    type: "success", // Default type, you can change this based on login outcome
   });
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // State for the three inputs of the "Código"
-  const [code1, setCode1] = useState("");
-  const [code2, setCode2] = useState("");
-  const [code3, setCode3] = useState("");
-  const [code4, setCode4] = useState("");
-  const code1Ref = useRef(null);
-  const code2Ref = useRef(null);
-  const code3Ref = useRef(null);
-  const code4Ref = useRef(null);
-
-  // Function to handle input change and focus movement
-  const handleCode1Change = (text: string) => {
-    setCode1(text.toUpperCase());
-    if (text.length === 1) {
-      code2Ref.current.focus(); // Move to the second input
-    }
-  };
-
-  const handleCode2Change = (text: string) => {
-    setCode2(text.toUpperCase());
-    if (text.length === 1) {
-      code3Ref.current.focus(); // Move to the third input
-    } else if (text.length === 0) {
-      code1Ref.current.focus(); // Move back to the first input if deleting
-    }
-  };
-
-  const handleCode3Change = (text: string) => {
-    setCode3(text.toUpperCase());
-    if (text.length === 1) {
-      code4Ref.current.focus(); // Move to the fourth input
-    } else if (text.length === 0) {
-      code2Ref.current.focus(); // Move back to the second input if deleting
-    } else if (text.length === 2) {
-      code4Ref.current.focus(); // Move back to the second input if deleting
-    }
-  };
-
-  const handleCode4Change = (text: string) => {
-    setCode4(text.toUpperCase());
-    if (text.length === 0) {
-      code3Ref.current.focus(); // Move back to the third input if deleting
-    }
-  };
-
   const handleLogin = async () => {
-    const hospitalCode = `${code1}${code2}${code3}${code4}`;
-
+    const hospitalCode = `${code[0]}${code[1]}${code[2]}${code[3]}`;
     try {
-      const response = await axios.post(`${url.url}/login`, {
+      await AsyncStorage.setItem("codigoHospital", hospitalCode);
+      const response = await axios.post(`${serverUrl}/login`, {
         usuario: username,
         contrasena: password,
         codigoHospital: hospitalCode,
       });
-      
+
       if (response.status === 200) {
-        await AsyncStorage.setItem('codigoHospital', hospitalCode);
-        await AsyncStorage.setItem('access_token', response.data.access_token);
-   
-        router.push("/(tabs)/Areas"); 
+        await AsyncStorage.setItem("codigoHospital", hospitalCode);
+        await AsyncStorage.setItem("access_token", response.data.access_token);
+
+        router.push("/(tabs)/Areas");
       } else {
         setModal({
           isVisible: true,
           title: "Acceso denegado",
           message: "No tienes permisos de administrador.",
-          type: "error"
+          type: "error",
         });
       }
     } catch (error) {
@@ -103,7 +89,7 @@ const AdminLoginScreen: React.FC = () => {
         isVisible: true,
         title: "Inicio sesión",
         message: "Ocurrió un error al intentar iniciar sesión.",
-        type: "error"
+        type: "error",
       });
     }
   };
@@ -111,14 +97,21 @@ const AdminLoginScreen: React.FC = () => {
   const closeModal = () => {
     setModal({ ...modal, isVisible: false });
   };
+  const checkServer = async () => {
+    console.log(serverUrl);
+    const hospitalCode = `${code[0]}${code[1]}${code[2]}${code[3]}`;
+    const url = await checkServerAvailability(hospitalCode);
+    setServerUrl(url);
+    console.log(url);
+    handleLogin();
+  };
+
   useFocusEffect(
     useCallback(() => {
-  
       StatusBar.setBarStyle("light-content");
       StatusBar.setBackgroundColor("#7e9ef7");
     }, [])
   );
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -160,46 +153,18 @@ const AdminLoginScreen: React.FC = () => {
 
         {/* Código del hospital */}
         <View style={styles.codeInputContainer}>
-          <TextInput
-            style={styles.codeInput}
-            ref={code1Ref} // Reference to the first input
-            maxLength={1}
-            value={code1}
-            onChangeText={handleCode1Change}
-            keyboardType="default"
-            placeholder="-"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.codeInput}
-            ref={code2Ref} // Reference to the second input
-            maxLength={1}
-            value={code2}
-            onChangeText={handleCode2Change}
-            keyboardType="default"
-            placeholder="-"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.codeInput}
-            ref={code3Ref} // Reference to the third input
-            maxLength={1}
-            value={code3}
-            onChangeText={handleCode3Change}
-            keyboardType="default"
-            placeholder="-"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.codeInput}
-            ref={code4Ref} // Reference to the fourth input
-            maxLength={1}
-            value={code4}
-            onChangeText={handleCode4Change}
-            keyboardType="default"
-            placeholder="-"
-            placeholderTextColor="#888"
-          />
+          {code.map((char, index) => (
+            <TextInput
+              key={index}
+              style={styles.codeInput}
+              value={char}
+              onChangeText={(text) => handleInputChange(text, index)}
+              onKeyPress={(event) => handleKeyPress(event, index)}
+              keyboardType="default"
+              maxLength={1}
+              ref={(ref) => (inputs[index] = ref)}
+            />
+          ))}
         </View>
         <Text style={styles.hospitalCodeLabel}>Código del hospital</Text>
 
@@ -220,13 +185,13 @@ const AdminLoginScreen: React.FC = () => {
         />
 
         {/* Login button */}
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <TouchableOpacity style={styles.loginButton} onPress={checkServer}>
           <Text style={styles.loginButtonText}>Iniciar</Text>
         </TouchableOpacity>
       </View>
-      
+
       {/* SigmeModal for displaying messages */}
-      <SigmeModal 
+      <SigmeModal
         isVisible={modal.isVisible}
         message={modal.message}
         title={modal.title}
@@ -237,9 +202,6 @@ const AdminLoginScreen: React.FC = () => {
     </SafeAreaView>
   );
 };
-
-  
-
 
 const styles = StyleSheet.create({
   container: {
@@ -294,7 +256,6 @@ const styles = StyleSheet.create({
   codeInput: {
     width: 50,
     height: 50,
-
     borderRadius: 5,
     textAlign: "center",
     borderBottomColor: "black",

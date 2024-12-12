@@ -13,10 +13,16 @@ import {
 } from "react-native";
 import { CheckBox } from "react-native-elements";
 import axios from "axios";
-import url from "../constants/url.json";
-import * as ImagePicker from "expo-image-picker";
+import url from "@/constants/url.json";
 import { Dimensions } from "react-native";
+import ModalHojaVida from "@/app/utils/ModalHojaVida"; // Ensure the path is correct
+import Rutina from "@/app/Equipo/Rutina"; // Ensure the path is correct
+import Documentos from "@/app/Equipo/Documentos"; // Ensure the path is correct
 const { width, height } = Dimensions.get("window");
+import * as DocumentPicker from "expo-document-picker";
+import * as ImagePicker from "expo-image-picker";
+import { ActionSheetIOS, Platform } from "react-native";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 interface Pregunta {
   pregunta: string;
@@ -25,6 +31,7 @@ interface Pregunta {
 }
 
 export default function CrearEquipo() {
+  const [shouldUploadData, setShouldUploadData] = useState(false);
   const [imageUri, setImageUri] = useState("");
   const [numeroQuestions, setNumeroQuestions] = useState(0);
   const [tipos, setTipos] = useState<string[]>([]);
@@ -32,7 +39,8 @@ export default function CrearEquipo() {
   const [modelos, setModelos] = useState<string[]>([]);
   const [serie, setSerie] = useState("");
   const [isModalQuestionsVisible, setIsModalQuestionsVisible] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(false);
+  const [isModalDocumentVisible, setIsModalDocumentVisible] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(true);
   const [selectedModelo, setSelectedModelo] = useState("");
   const [selectedMarca, setSelectedMarca] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
@@ -46,6 +54,25 @@ export default function CrearEquipo() {
   const [preguntas, setPreguntas] = useState<Pregunta[]>([]);
   const [inputs, setInputs] = useState<string[]>([]);
   const [codigoHospital, setCodigoHospital] = useState("");
+  const [modalHoja, setModalHoja] = useState({ isVisible: false });
+  const [gotCodigo, setGotCodigo] = useState("ISAK-BVB4-A587");
+  const closeModal = () => {
+    setModalHoja({ isVisible: false });
+  };
+  const addOption = (index: number) => {
+    console.log("Añadiendo opción");
+    const newPreguntas = [...preguntas];
+    newPreguntas[index].opciones.push("");
+    setPreguntas(newPreguntas);
+  };
+  const deleteOption = (index: number, optionIndex: number) => {
+    const newPreguntas = [...preguntas];
+    newPreguntas[index].opciones.splice(optionIndex, 1);
+    setPreguntas(newPreguntas);
+  };
+  useEffect(() => {
+    console.log(preguntas);
+  }, [preguntas]);
   const handleInputChange = (text: string, index: number) => {
     const newInputs = [...inputs];
     newInputs[index] = text;
@@ -56,6 +83,53 @@ export default function CrearEquipo() {
         pregunta,
       }))
     );
+  };
+  const chooseDocument = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "application/pdf", // Permite seleccionar únicamente archivos PDF
+      });
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const document = result.assets[0];
+        console.log(document.uri);
+        console.log(document.name);
+        console.log(document.size);
+        uploadDocument(document);
+      } else {
+        console.log("No se selecciono ningun documento");
+      }
+    } catch (err) {
+      console.error("Error al seleccionar documento:", err);
+    }
+  };
+  const uploadDocument = async (document: DocumentPicker.DocumentResult) => {
+    console.log("Subiendo documento...");
+    const codigoHospital = "ISAK"; // Código de hospital
+    try {
+      const formData = new FormData();
+      formData.append("file", {
+        uri: document.uri,
+        name: document.name,
+        type: "application/pdf",
+      });
+      const response = await axios.post(
+        `${url.url}/upload_pdf/${codigoHospital}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log(response.data);
+        Alert.alert("Documento subido correctamente");
+      } else {
+        Alert.alert("Error", "No se pudo subir el documento");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
   const addInput = () => {
     setInputs([...inputs, ""]);
@@ -79,8 +153,7 @@ export default function CrearEquipo() {
   };
 
   const crearEquipo = async () => {
-    console.log(codigoHospital  )
-
+    console.log(codigoHospital);
     console.log(
       "Datos del ",
       selectedTipo,
@@ -114,6 +187,7 @@ export default function CrearEquipo() {
         Alert.alert("Equipo creado correctamente");
       }
       const codigoIdentificacion = response.data.codigoIdentificacion;
+      setGotCodigo(response.data.codigoIdentificacion);
       Alert.alert(
         "Equipo creado correctamente",
         `Código de identificación: ${codigoIdentificacion}`
@@ -138,20 +212,84 @@ export default function CrearEquipo() {
     }
   };
   const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Error", "Necesitas permisos para acceder a la galería");
+    const { status: galleryStatus } =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const { status: cameraStatus } =
+      await ImagePicker.requestCameraPermissionsAsync();
+
+    if (galleryStatus !== "granted" || cameraStatus !== "granted") {
+      Alert.alert(
+        "Error",
+        "Necesitas permisos para acceder a la galería y la cámara"
+      );
       return;
     }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      quality: 1,
-      allowsEditing: true,
-      aspect: [3, 3],
-    });
-    if (!result.canceled) {
-      const { uri } = result.assets[0];
-      setImageUri(uri);
-    }
+
+    const showOptions = async () => {
+      if (Platform.OS === "ios") {
+        ActionSheetIOS.showActionSheetWithOptions(
+          {
+            options: ["Cancelar", "Abrir galería", "Tomar foto"],
+            cancelButtonIndex: 0,
+          },
+          async (buttonIndex) => {
+            if (buttonIndex === 1) {
+              await openGallery();
+            } else if (buttonIndex === 2) {
+              await openCamera();
+            }
+          }
+        );
+      } else {
+        const response = await new Promise((resolve) => {
+          Alert.alert(
+            "Seleccionar una opción",
+            "Elige cómo quieres añadir tu imagen",
+            [
+              {
+                text: "Cancelar",
+                style: "cancel",
+                onPress: () => resolve(null),
+              },
+              { text: "Abrir galería", onPress: () => resolve("gallery") },
+              { text: "Tomar foto", onPress: () => resolve("camera") },
+            ]
+          );
+        });
+
+        if (response === "gallery") {
+          await openGallery();
+        } else if (response === "camera") {
+          await openCamera();
+        }
+      }
+    };
+
+    const openGallery = async () => {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        quality: 1,
+        allowsEditing: true,
+        aspect: [3, 3],
+      });
+      if (!result.canceled) {
+        const { uri } = result.assets[0];
+        setImageUri(uri);
+      }
+    };
+
+    const openCamera = async () => {
+      const result = await ImagePicker.launchCameraAsync({
+        quality: 1,
+        allowsEditing: true,
+        aspect: [3, 3],
+      });
+      if (!result.canceled) {
+        const { uri } = result.assets[0];
+        setImageUri(uri);
+      }
+    };
+
+    await showOptions();
   };
   const uploadImage = async (imageUri: string, fileName: string) => {
     console.log("Subiendo imagen", fileName);
@@ -163,7 +301,7 @@ export default function CrearEquipo() {
         type: "image/jpeg", // Tipo MIME del archivo
       });
       const response = await axios.post(
-        `${url.url}/upload_photo/${codigoHospital}`,
+        `${url.url}/upload/${codigoHospital}`,
         formData,
         {
           headers: {
@@ -226,17 +364,18 @@ export default function CrearEquipo() {
   const filteredAreas = areas.filter((area) =>
     area.toLowerCase().includes(searchQueryArea.toLowerCase())
   );
-
+  useEffect(() => {
+    console.log("SHOULD", shouldUploadData);
+  }
+  , [shouldUploadData]);
   useEffect(() => {
     getAreas();
     fetchTipos();
   }, []);
 
   return (
-    <KeyboardAvoidingView style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} scrollEnabled={true}>
       <View style={styles.divinputs}>
-        <Text style={styles.title}>CREAR EQUIPO</Text>
-
         <TextInput
           placeholder={
             "Tipo de equipo seleccionado: " + selectedTipo ||
@@ -323,9 +462,9 @@ export default function CrearEquipo() {
         <TextInput
           placeholder={
             "Area seleccionada:" + selectedArea || "Selecciona el area"
-          } // Mostrar el modelo seleccionado o el texto inicial          value={searchQueryArea}
-          onChangeText={setSearchQueryArea}
+          } // Mostrar el modelo seleccionado o el texto inicial
           value={searchQueryArea}
+          onChangeText={setSearchQueryArea}
           style={styles.inputs}
         />
         {searchQueryArea &&
@@ -341,18 +480,6 @@ export default function CrearEquipo() {
               {area}
             </Text>
           ))}
-        <View style={styles.divcheckbox}>
-          <CheckBox
-            title="SI"
-            checked={selectedOption}
-            onPress={() => setSelectedOption(true)}
-          />
-          <CheckBox
-            title="NO"
-            checked={!selectedOption}
-            onPress={() => setSelectedOption(false)}
-          />
-        </View>
         <View style={styles.divbuttons}>
           {selectedOption && (
             <Pressable onPress={togglemodalQuestions} style={styles.button}>
@@ -362,7 +489,26 @@ export default function CrearEquipo() {
           <Pressable onPress={pickImage} style={styles.button}>
             <Text style={styles.whitetext}>Seleccionar imagen</Text>
           </Pressable>
-          <Pressable onPress={crearEquipo} style={styles.button}>
+          <Pressable
+            onPress={() => setModalHoja({ isVisible: true })}
+            style={styles.button}
+          >
+            <Text style={styles.whitetext}>Rellenar Hoja de vida</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              setIsModalDocumentVisible(true);
+            }}
+            style={styles.button}
+          >
+            <Text style={styles.whitetext}> Seleccionar documentos </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              setShouldUploadData(true);
+            }}
+            style={styles.button}
+          >
             <Text style={styles.whitetext}>Crear Equipo</Text>
           </Pressable>
         </View>
@@ -377,170 +523,47 @@ export default function CrearEquipo() {
               alignItems: "center",
             }}
           >
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "bold",
-                color: "#2d3748",
-              }}
-            >
+            <Text style={{ fontWeight: "bold", fontSize: 22, marginTop: "0%" }}>
               Imagen del equipo:
             </Text>
             <Image
               source={{ uri: imageUri }}
               style={{
-                width: width * 0.25,
-                height: width * 0.25,
+                width: width * 0.3,
+                height: width * 0.3,
                 position: "absolute",
-                bottom: "10%",
+                bottom: "0%",
               }}
             />
           </View>
         )}
       </View>
-      <Modal
-        onRequestClose={() => {
-          setIsModalQuestionsVisible(!isModalQuestionsVisible);
-        }}
-        animationType="slide"
-        transparent={true}
-        visible={isModalQuestionsVisible}
-      >
-        <Pressable
-          style={styles.overlay}
-          onPress={() => setIsModalQuestionsVisible(false)} // Cierra el modal al presionar fuera
-        ></Pressable>
-        <View style={styles.modalView}>
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              marginBottom: "5%",
-              textAlign: "center",
-            }}
-          >
-            Ingresa las preguntas para la rutina
-          </Text>
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: "normal",
-              textAlign: "center",
-            }}
-          >
-            Preguntas actuales: {inputs.length}
-          </Text>
-          <Pressable
-            style={{ justifyContent: "center", alignItems: "center" }}
-            onPress={addInput}
-          >
-            <Image
-              source={require("../assets/images/add.png")}
-              style={{ width: 40, height: 40, margin: "5%" }}
-            />
-          </Pressable>
-          <ScrollView style={{ width: "100%", height: "60%" }}>
-            {inputs.map((input, index) => (
-              <View
-                key={index}
-                style={{
-                  height:
-                    preguntas[index]?.tipo === "cerrada"
-                      ? height * 0.2
-                      : height * 0.15,
-                  backgroundColor: "#f9f9f9",
-                  borderRadius: 10,
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 5,
-                  elevation: 3,
-                  marginVertical: 20,
-                  alignItems: "center",
-                }}
-              >
-                <View style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginVertical: 10,
-                  paddingHorizontal: 10,
-                }}>
-                  <TextInput
-                    style={styles.inputsmodal}
-                    placeholder={`Ingresa la pregunta número ${index + 1}`}
-                    value={input}
-                    onChangeText={(text) => handleInputChange(text, index)}
-                  />
-                  <Pressable
-                    style={styles.deleteButton}
-                    onPress={() => removeInput(index)}
-                  >
-                    <Image
-                      source={require("../assets/images/delete.png")}
-                      style={{ width: 30, height: 30 }}
-                    />
-                  </Pressable>
-                </View>
-
-                <View style={{
-                  position: "absolute",
-                  top: '35%',
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginVertical: 10,
-                }}>
-                  <CheckBox
-                    checked={preguntas[index]?.tipo === "abierta"}
-                    onPress={() => updateTipoPregunta(index, "abierta")}
-                  />
-                  <Text>Abierta</Text>
-
-                  <CheckBox
-                    checked={preguntas[index]?.tipo === "cerrada"}
-                    onPress={() => updateTipoPregunta(index, "cerrada")}
-                  />
-                  <Text>Cerrada</Text>
-                </View>
-                {preguntas[index]?.tipo === "cerrada" && (
-                  <Pressable
-                    style={{
-                      width: "50%",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      backgroundColor: "#2C37FF",
-                      borderRadius: 10,
-                      padding: 5,
-                    }}
-                    onPress={() => {
-                      const newPreguntas = [...preguntas];
-                      newPreguntas[index].opciones = [];
-                      setPreguntas(newPreguntas);
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontWeight: "bold",
-                        textAlign: "center",
-                        fontSize: 16,
-                        color: "#fff",
-                      }}
-                    >Anadir opcion de respuesta</Text>
-                  </Pressable>
-                )}
-              </View>
-            ))}
-          </ScrollView>
-          <Pressable
-            style={[styles.modalboton]}
-            onPress={() => setIsModalQuestionsVisible(!isModalQuestionsVisible)}
-          >
-            <Text style={{ fontWeight: "bold", fontSize: 22 }}>Guardar</Text>
-          </Pressable>
-        </View>
-      </Modal>
-    </KeyboardAvoidingView>
+      <ModalHojaVida
+        setShouldUploadData={setShouldUploadData}
+        shouldUploadData={shouldUploadData}
+        visible={modalHoja.isVisible}
+        onClose={closeModal}
+        codigoHospital={codigoHospital}
+        gotCodigo={gotCodigo}
+      />
+      <Rutina
+        isModalQuestionsVisible={isModalQuestionsVisible}
+        setIsModalQuestionsVisible={setIsModalQuestionsVisible}
+        deleteOption={deleteOption}
+        inputs={inputs}
+        addInput={addInput}
+        addOption={addOption}
+        handleInputChange={handleInputChange}
+        removeInput={removeInput}
+        preguntas={preguntas}
+        updateTipoPregunta={updateTipoPregunta}
+        setPreguntas={setPreguntas}
+      />
+      <Documentos
+        isModalDocumentVisible={isModalDocumentVisible}
+        setIsModalDocumentVisible={setIsModalDocumentVisible}
+      />
+    </ScrollView>
   );
 }
 
@@ -608,8 +631,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    alignItems: "center",
+    backgroundColor: "#f9fafb", // Fondo claro
     justifyContent: "center",
+    alignItems: "center",
   },
   suggestionItem: {
     color: "#2b6cb0", // Azul para ítems seleccionables
@@ -621,7 +645,7 @@ const styles = StyleSheet.create({
     top: "2%",
     backgroundColor: "#ffffff", // Fondo blanco para el formulario
     width: "90%",
-    height: height * 0.85,
+    height: height * 0.88,
     borderRadius: 16,
     padding: 20,
     shadowColor: "#000",
@@ -632,9 +656,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   divbuttons: {
+    marginTop: "5%",
+    justifyContent: "center",
     flexDirection: "row",
-    justifyContent: "space-between",
+    flexWrap: "wrap",
     width: "100%",
+    height: "20%",
   },
   inputs: {
     backgroundColor: "#f9fafb", // Fondo claro para inputs
@@ -653,15 +680,16 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   button: {
-    backgroundColor: "#3182ce", // Azul vibrante para el botón
-    width: "30%",
+    margin: "2%",
+    backgroundColor: "rgba(5, 2, 89, 1)", // Azul vibrante para el botón
+    width: "45%",
     height: "35%",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 8,
-    marginTop: 20,
   },
   whitetext: {
+    textAlign: "center",
     color: "#fff", // Texto blanco
   },
   title: {

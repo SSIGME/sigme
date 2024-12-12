@@ -11,7 +11,12 @@ import {
 } from "react-native";
 import url from "../../constants/url.json";
 import axios from "axios";
-import { useRouter, useSegments } from "expo-router";
+import {
+  useLocalSearchParams,
+  usePathname,
+  useRouter,
+  useSegments,
+} from "expo-router";
 import { Dimensions } from "react-native";
 import { ActivityIndicator } from "react-native";
 import { useFonts } from "expo-font";
@@ -20,13 +25,13 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { images, iconos } from "@/app/utils/IconosProvider";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
-
+import { useShouldLoadAreas } from "@/app/utils/useStore";
 const { width, height } = Dimensions.get("window");
 
 const Areas = () => {
+  const { value: shouldLoadAreas } = useShouldLoadAreas(); // Accede al valor
+  const pathname = usePathname();
   const segments = useSegments(); // Obtiene las partes de la URL actual
-
   const [hasFetched, setHasFetched] = useState(false); // Indica si ya se ha hecho la petición
   const router = useRouter();
   interface Area {
@@ -35,10 +40,6 @@ const Areas = () => {
     nombre: string;
     responsableArea: string;
     cantidadEquipos?: number;
-  }
-
-  if (!iconos || iconos.length === 0) {
-    console.log("NO hay iconos");
   }
   const isFocused = useIsFocused(); // Detecta si la pantalla está enfocada
   const [areas, setAreas] = useState<Area[]>([]);
@@ -93,15 +94,19 @@ const Areas = () => {
       console.log("Finalizado");
     }
   };
-  useEffect(() => {
-    if (segments.slice(1).includes("Areas")) {
-      getAreas();
-    }
-  }, [segments]); // Cambia cuando la URL cambia
 
   const filteredAreas = areas.filter((area) =>
     area.nombre.toLowerCase().includes(search.toLowerCase())
   );
+/*   useEffect(() => {
+    if (shouldLoadAreas) {
+      getAreas();
+    }
+  }
+  , [shouldLoadAreas]); */
+  useEffect(() => {
+    getAreas();
+  }, []);
 
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -231,24 +236,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   boton: {
-   
-  
     shadowOpacity: 0.58,
     shadowRadius: 16.0,
-  
+
     flexDirection: "row",
     padding: "2%",
     alignItems: "center",
     justifyContent: "space-around",
     width: width * 0.9,
     height: height * 0.16,
-    backgroundColor: "#050259",// Fondo del botón
+    backgroundColor: "#050259", // Fondo del botón
     marginBottom: "5%",
-    borderRadius: 9, 
+    borderRadius: 9,
     shadowColor: "#00aeff",
     shadowOffset: {
       width: 0,
-      height: 1,},
+      height: 1,
+    },
     elevation: 8,
   },
   whitetext: {
