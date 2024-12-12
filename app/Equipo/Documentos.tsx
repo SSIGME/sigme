@@ -1,18 +1,76 @@
 import { useEffect, useState } from "react";
-import { Button, Modal, Pressable } from "react-native";
+import { Alert, Button, Modal, Pressable } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import { StyleSheet, Text, View } from "react-native";
 import { ScrollView } from "react-native";
 import { Icon } from "react-native-elements";
+import axios from "axios";
+import url from "@/constants/url.json";
+import { router } from "expo-router";
 interface Document {
   uri: string;
   name: string;
   size: number;
 }
-const Documentos = ({ isModalDocumentVisible, setIsModalDocumentVisible }) => {
+const Documentos = ({
+  isModalDocumentVisible,
+  setIsModalDocumentVisible,
+  codigoHospital,
+  shouldUploadDocuments,
+  setShouldUploadDocuments,
+  gotCodigo,
+}) => {
   const [documents, setDocuments] = useState<Document[]>(
     new Array(5).fill({ uri: "", name: "", size: 0 })
   );
+  const uploadDocument = async () => {
+    console.log("Subiendo documentos...");
+    setShouldUploadDocuments(false);
+    try {
+      const formData = new FormData();
+      let validFileCount = 0; // Contador de archivos válidos
+
+      documents.forEach((document, index) => {
+        // Verificar si el documento existe y no está vacío
+        if (document && document.uri) {
+          formData.append("files", {
+            uri: document.uri,
+            name: documentNames[index] + ".pdf",
+            type: "application/pdf",
+          });
+          validFileCount++; // Incrementa si el archivo es válido
+        } else {
+          console.log(
+            `El documento en el índice ${index} está vacío o no existe.`
+          );
+        }
+      });
+      if (validFileCount > 0) {
+        const response = await axios.post(
+          `${url.url}/upload_multiple_pdfs/${codigoHospital}/${gotCodigo}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        console.log(response.data);
+        if (response.status === 200) {
+          Alert.alert("Documentos subidos correctamente.");
+          router.replace("/(tabs)/Perfil");
+          console.log("Documentos subidos correctamente.");
+        }
+      } else {
+        console.log("No hay documentos válidos para subir.");
+      }
+    } catch (error) {
+      console.error(
+        "Error al subir documentos:",
+        error.response?.data || error.message
+      );
+    }
+  };
 
   useEffect(() => {
     {
@@ -24,6 +82,15 @@ const Documentos = ({ isModalDocumentVisible, setIsModalDocumentVisible }) => {
       });
     }
   }, [documents]);
+  useEffect(() => {
+    console.log(shouldUploadDocuments);
+    console.log("Se estan subeindo los documentos ");
+    console.log(codigoHospital, gotCodigo);
+    if (shouldUploadDocuments) {
+      console.log("Subiendo documentos");
+      uploadDocument();
+    }
+  }, [shouldUploadDocuments]);
   const setDocument = (index: number, document: Document) => {
     const newDocuments = [...documents];
     newDocuments[index] = document;

@@ -9,20 +9,26 @@ import {
   StyleSheet,
   Image,
   Alert,
+  KeyboardAvoidingView,
+  Dimensions,
+  Keyboard,
+  Platform,
+  Pressable,
 } from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import { useFocusEffect } from "@react-navigation/native";
 import url from "@/constants/url.json";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import SigmeModal from "../../componets/SigmeModal"; // Ensure the path is correct
+import SigmeModal from "@/app/componets/SigmeModal"; // Ensure the path is correct
 import { checkServerAvailability } from "@/app/utils/CheckServer";
 import { EXPO_PUBLIC_URL_EXTERN_SERVER } from "@env";
 
 const AdminLoginScreen: React.FC = () => {
   const [code, setCode] = useState(["", "", "", ""]);
   const [serverUrl, setServerUrl] = useState(EXPO_PUBLIC_URL_EXTERN_SERVER); // Inicialmente usa la URL por defecto
-
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const { height } = Dimensions.get('window'); 
   const handleKeyPress = (event, index) => {
     if (event.nativeEvent.key === "Backspace") {
       const newCode = [...code];
@@ -108,22 +114,46 @@ const AdminLoginScreen: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      StatusBar.setBarStyle("light-content");
+      StatusBar.setBarStyle("dark-content");
       StatusBar.setBackgroundColor("#7e9ef7");
+      const keyboardDidShowListener = Keyboard.addListener(
+        "keyboardDidShow",
+        () => {
+          setKeyboardVisible(true);  // Establece el estado a true cuando el teclado aparece
+        }
+      );
+      const keyboardDidHideListener = Keyboard.addListener(
+        "keyboardDidHide",
+        () => {
+          setKeyboardVisible(false);  // Establece el estado a false cuando el teclado desaparece
+        }
+      );
+  
+      // Limpieza de los listeners cuando el componente se desmonta
+      return () => {
+        keyboardDidHideListener.remove();
+        keyboardDidShowListener.remove();
+      };
     }, [])
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#7e9ef7" />
-      <View style={styles.topContainer}>
+      <StatusBar barStyle="dark-content" backgroundColor="#7e9ef7" />
+      <KeyboardAvoidingView
+      style={{ flex: 1, height }} // Garantiza que ocupe toda la altura
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+   <Pressable style={{ flex: 1, height }}   onPress={Keyboard.dismiss}>
+      <View style={[styles.topContainer,  keyboardVisible ? {height:'16%'}: {},]}>
+      
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
           <Image
             source={require("../../../assets/images/back.png")}
-            style={styles.backButton}
+            style={{ height: "100%", width: undefined, aspectRatio: 2 }} 
             tintColor={"#ffff"}
           />
         </TouchableOpacity>
@@ -137,9 +167,9 @@ const AdminLoginScreen: React.FC = () => {
         >
           <Image
             source={require("../../../assets/images/admin.png")}
-            style={styles.image}
+            style={[styles.image,  keyboardVisible ? {display:'none'}: {},]}
           />
-          <Text style={styles.title}>Encargado{"\n"}Mantenimiento</Text>
+          <Text style={[styles.title, keyboardVisible ? {display:'none'}: {},]}>Encargado{"\n"}Mantenimiento</Text>
         </View>
       </View>
 
@@ -199,6 +229,9 @@ const AdminLoginScreen: React.FC = () => {
         onClose={closeModal}
         onConfirm={closeModal}
       />
+  
+  </Pressable>
+  </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -210,10 +243,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: 20,
+    top: 40,
     left: 10,
     width: 38,
     height: 20,
+    paddingLeft:0,
   },
   image: {
     width: "43%",
@@ -296,3 +330,4 @@ const styles = StyleSheet.create({
 });
 
 export default AdminLoginScreen;
+

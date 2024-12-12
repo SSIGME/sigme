@@ -13,7 +13,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import axios from "axios";
-import url from "../../constants/url.json";
+import url from "@/constants/url.json";
 import { useRouter } from "expo-router";
 import { useFonts } from "expo-font";
 import { Dimensions } from "react-native";
@@ -52,9 +52,9 @@ const ListarEquipos = () => {
   const [equipos, setEquipos] = useState<Equipo[]>([]);
   const [search, setSearch] = useState("");
   const [fontsLoaded] = useFonts({
-    "Kanit-Regular": require("../../assets/fonts/Kanit/Kanit-Regular.ttf"),
-    "Kanit-Medium": require("../../assets/fonts/Kanit/Kanit-Medium.ttf"),
-    "Kanit-Light": require("../../assets/fonts/Kanit/Kanit-Light.ttf"),
+    "Kanit-Regular": require("@/assets/fonts/Kanit/Kanit-Regular.ttf"),
+    "Kanit-Medium": require("@/assets/fonts/Kanit/Kanit-Medium.ttf"),
+    "Kanit-Light": require("@/assets/fonts/Kanit/Kanit-Light.ttf"),
   });
 
   const getImagen = async (

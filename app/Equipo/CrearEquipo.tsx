@@ -32,6 +32,7 @@ interface Pregunta {
 
 export default function CrearEquipo() {
   const [shouldUploadData, setShouldUploadData] = useState(false);
+  const [shouldUploadDocuments, setShouldUploadDocuments] = useState(false);
   const [imageUri, setImageUri] = useState("");
   const [numeroQuestions, setNumeroQuestions] = useState(0);
   const [tipos, setTipos] = useState<string[]>([]);
@@ -55,7 +56,7 @@ export default function CrearEquipo() {
   const [inputs, setInputs] = useState<string[]>([]);
   const [codigoHospital, setCodigoHospital] = useState("");
   const [modalHoja, setModalHoja] = useState({ isVisible: false });
-  const [gotCodigo, setGotCodigo] = useState("ISAK-BVB4-A587");
+  const [gotCodigo, setGotCodigo] = useState("");
   const closeModal = () => {
     setModalHoja({ isVisible: false });
   };
@@ -84,48 +85,26 @@ export default function CrearEquipo() {
       }))
     );
   };
-  const chooseDocument = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: "application/pdf", // Permite seleccionar únicamente archivos PDF
-      });
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const document = result.assets[0];
-        console.log(document.uri);
-        console.log(document.name);
-        console.log(document.size);
-        uploadDocument(document);
-      } else {
-        console.log("No se selecciono ningun documento");
-      }
-    } catch (err) {
-      console.error("Error al seleccionar documento:", err);
+  const uploadRutina = async () => {
+    console.log("Subiendo rutina...", selectedTipo);
+    if (preguntas.length === 0) {
+      Alert.alert("No hay preguntas");
+      return;
     }
-  };
-  const uploadDocument = async (document: DocumentPicker.DocumentResult) => {
-    console.log("Subiendo documento...");
-    const codigoHospital = "ISAK"; // Código de hospital
     try {
-      const formData = new FormData();
-      formData.append("file", {
-        uri: document.uri,
-        name: document.name,
-        type: "application/pdf",
-      });
       const response = await axios.post(
-        `${url.url}/upload_pdf/${codigoHospital}`,
-        formData,
+        `${url.url}/preventivo/${codigoHospital} `,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          tipoequipo: selectedTipo,
+          modelo: selectedModelo,
+          marca: selectedMarca,
+          preguntas: preguntas,
         }
       );
-      if (response.status === 200) {
-        console.log(response.data);
-        Alert.alert("Documento subido correctamente");
-      } else {
-        Alert.alert("Error", "No se pudo subir el documento");
+      if (response.status === 201) {
+        Alert.alert("Rutina subida correctamente");
+        setShouldUploadDocuments(true);
+        setShouldUploadData(true);
       }
     } catch (error) {
       console.error(error);
@@ -301,7 +280,7 @@ export default function CrearEquipo() {
         type: "image/jpeg", // Tipo MIME del archivo
       });
       const response = await axios.post(
-        `${url.url}/upload/${codigoHospital}`,
+        `${url.url}/upload_image/${codigoHospital}/${fileName}`,
         formData,
         {
           headers: {
@@ -312,6 +291,7 @@ export default function CrearEquipo() {
 
       if (response.status === 200) {
         Alert.alert("Imagen subida correctamente");
+        uploadRutina();
       } else {
         console.log("Error al subir la imagen");
       }
@@ -366,8 +346,7 @@ export default function CrearEquipo() {
   );
   useEffect(() => {
     console.log("SHOULD", shouldUploadData);
-  }
-  , [shouldUploadData]);
+  }, [shouldUploadData]);
   useEffect(() => {
     getAreas();
     fetchTipos();
@@ -505,7 +484,7 @@ export default function CrearEquipo() {
           </Pressable>
           <Pressable
             onPress={() => {
-              setShouldUploadData(true);
+              crearEquipo();
             }}
             style={styles.button}
           >
@@ -560,6 +539,10 @@ export default function CrearEquipo() {
         setPreguntas={setPreguntas}
       />
       <Documentos
+        gotCodigo={gotCodigo}
+        setShouldUploadDocuments={setShouldUploadDocuments}
+        shouldUploadDocuments={shouldUploadDocuments}
+        codigoHospital={codigoHospital}
         isModalDocumentVisible={isModalDocumentVisible}
         setIsModalDocumentVisible={setIsModalDocumentVisible}
       />

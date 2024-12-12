@@ -125,16 +125,18 @@ const styles = StyleSheet.create({
     fontWeight: "300",
   },
   image:{
-
+    position:'static',
+    marginTop:-35,
     width:'100%',
     resizeMode:"contain"
   },
     imageC:{
         position:"absolute",
-        top:-20,
+        top:10,
         right:20,
+        height:30,
         width:'10%',
-        resizeMode:"contain"
+  
       }
 });
 

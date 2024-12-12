@@ -65,19 +65,18 @@ const Rutina = ({
               style={{ width: 40, height: 40, margin: "5%" }}
             />
           </Pressable>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            style={{
-              width: "100%",
-              flex: 1,
-              flexDirection: "column",
-              borderRadius: 10,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.2,
-              padding: 10,
-            }}
-          >
+              <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={{
+                width: "100%",
+                flexDirection: "column",
+                borderRadius: 10,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                padding: 10,
+              }}
+              >
             {inputs.map((input, index) => (
               <View
                 key={index}
@@ -239,9 +238,9 @@ const styles = StyleSheet.create({
   },
   modalView: {
     display: "flex",
-    height: height * 0.9,
+    height: height * 0.85,
     width: width * 0.9,
-    backgroundColor: "white",
+    backgroundColor: "#fff",
     borderRadius: 20,
     paddingTop: "5%",
     paddingLeft: "5%",
@@ -271,7 +270,7 @@ const styles = StyleSheet.create({
     width: "80%",
     height: "6%",
     position: "absolute",
-    bottom: "5%",
+    bottom: "0%",
     backgroundColor: "rgba(5, 2, 89, 1)",
     borderRadius: 20,
     padding: 10,

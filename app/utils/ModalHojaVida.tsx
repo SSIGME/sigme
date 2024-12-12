@@ -54,7 +54,7 @@ const ModalHojaVida = ({
     ubicacion: "",
     registroSanitario: "",
     vidaUtil: "",
-    tipoEquipo: "Fijo", // Valor por defecto como ejemplo
+    tipoEquipo: "", // Valor por defecto como ejemplo
     formaAdquisicion: "",
     fabricante: "",
     fechaCompra: "",

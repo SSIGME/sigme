@@ -13,7 +13,7 @@ export default function ReporteEquipoViewScreen() {
     "Kanit-Medium": require("@/assets/fonts/Kanit/Kanit-Medium.ttf"),
     "Kanit-Light": require("@/assets/fonts/Kanit/Kanit-Light.ttf"),
     "Kanit-Thin": require("@/assets/fonts/Kanit/Kanit-Thin.ttf"),
-    "Kanit-Bold": require("../../assets/fonts/Kanit/Kanit-Regular.ttf"),
+    "Kanit-Bold": require("@/assets/fonts/Kanit/Kanit-Regular.ttf"),
   });
   const handlePressIn = () => {
     Animated.spring(scaleValue, {
@@ -40,7 +40,7 @@ export default function ReporteEquipoViewScreen() {
     <View style={styles.contenedor}>
           <View style={styles.header}>
       <TouchableOpacity onPress={() => {router.push('/(tabs)/Pendientes2');}} style={styles.backButton}>
-          <Image source={require("../../assets/images/back.png")} style={styles.backIcon} />
+          <Image source={require("@/assets/images/back.png")} style={styles.backIcon} />
         </TouchableOpacity>
         <Text style={styles.headerText}>
  

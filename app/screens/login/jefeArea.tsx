@@ -1,94 +1,94 @@
-import React, { useCallback , useState, useRef, useEffect } from 'react';
-import { SafeAreaView ,View, Text, StatusBar,TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useRouter } from 'expo-router';
-import axios from "axios" 
+import React, { useCallback, useState, useRef, useEffect } from "react";
+import {
+  SafeAreaView,
+  Keyboard,
+  Pressable,
+  View,
+  Text,
+  StatusBar,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  Image,
+  Platform,
+  KeyboardAvoidingView,
+} from "react-native";
+import { useRouter } from "expo-router";
+import axios from "axios";
 import url from "@/constants/url.json";
 import { useFocusEffect } from "@react-navigation/native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import SigmeModal from "../../componets/SigmeModal"; // 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import SigmeModal from "../../componets/SigmeModal"; //
 const JefeAreaLoginScreen = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState(["", "", "", ""]);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const { height } = Dimensions.get('window'); 
   const [modal, setModal] = useState({
     isVisible: false,
     title: "",
     message: "",
-    type: "success" // Default type, you can change this based on login outcome
+    type: "success", // Default type, you can change this based on login outcome
   });
-  // State for the three inputs of the "Código"
-  const [code1, setCode1] = useState("");
-  const [code2, setCode2] = useState("");
-  const [code3, setCode3] = useState("");
-  const [code4, setCode4] = useState("");
-  const code1Ref = useRef(null);
-  const code2Ref = useRef(null);
-  const code3Ref = useRef(null);
-  const code4Ref = useRef(null);
-  // Function to handle input change and focus movement
-  const handleCode1Change = (text) => {
-    setCode1(text.toUpperCase());
-    if (text.length === 1) {
-      code2Ref.current.focus(); // Move to the second input
+  const handleKeyPress = (event, index) => {
+    if (event.nativeEvent.key === "Backspace") {
+      const newCode = [...code];
+      if (code[index]) {
+        // Si el cuadro tiene contenido, borra el carácter
+        newCode[index] = "";
+        setCode(newCode);
+      } else if (index > 0) {
+        inputs[index - 1].focus();
+        newCode[index - 1] = ""; // Borra el contenido del cuadro anterior
+        setCode(newCode);
+      }
     }
   };
 
-  const handleCode2Change = (text) => {
-    setCode2(text.toUpperCase());
-    if (text.length === 1) {
-      code3Ref.current.focus(); // Move to the third input
-    } else if (text.length === 0) {
-      code1Ref.current.focus(); // Move back to the first input if deleting
+  const handleInputChange = (text, index) => {
+    if (text.length <= 1) {
+      const newCode = [...code];
+      newCode[index] = text;
+      setCode(newCode);
+      if (text && index < 3) {
+        inputs[index + 1].focus();
+      }
     }
   };
-
-  const handleCode3Change = (text) => {
-    setCode3(text.toUpperCase());
-    if (text.length === 1) {
-      code4Ref.current.focus(); // Move back to the second input if deleting
-    } else if (text.length === 0) {
-      code2Ref.current.focus(); // Move back to the first input if deleting
-    }
-  };
-
-  const handleCode4Change = (text) => {
-    setCode4(text.toUpperCase());
-    if (text.length === 0) {
-      code3Ref.current.focus(); // Move back to the second input if deleting
-    }
-  };
-
+  const inputs = [];
 
   const handleLogin = async () => {
-    const hospitalCode = `${code1}${code2}${code3}${code4}`;
-  
+    const hospitalCode = `${code[0]}${code[1]}${code[2]}${code[3]}`;
+    console.log(username);
+
     try {
       const response = await axios.post(`${url.url}/login/code`, {
         codigo: username,
         contrasena: password,
         codigoHospital: hospitalCode,
-        tipo: "responsableArea"
+        tipo: "responsableArea",
       });
-      
+
       if (response.status === 200) {
-        await AsyncStorage.setItem('codigoHospital', hospitalCode);
-        await AsyncStorage.setItem('access_token', response.data.access_token);
-        await AsyncStorage.setItem('codigo', username);
-        
-        console.log(response.data.firmaEstado)
+        await AsyncStorage.setItem("codigoHospital", hospitalCode);
+        await AsyncStorage.setItem("access_token", response.data.access_token);
+        await AsyncStorage.setItem("codigo", username);
+
+        console.log(response.data.firmaEstado);
         if (response.data.firmaEstado) {
           router.push("/(tabs)/Areas");
-          
         } else {
           router.push("/screens/terminos/terminos");
-       
         }
       } else {
         setModal({
           isVisible: true,
           title: "Acceso denegado",
           message: "No tienes permisos de jefe de area.",
-          type: "error"
+          type: "error",
         });
       }
     } catch (error) {
@@ -97,7 +97,7 @@ const JefeAreaLoginScreen = () => {
         isVisible: true,
         title: "Inicio sesión",
         message: "Ocurrió un error al intentar iniciar sesión.",
-        type: "error"
+        type: "error",
       });
     }
   };
@@ -106,72 +106,88 @@ const JefeAreaLoginScreen = () => {
   };
   useFocusEffect(
     useCallback(() => {
-  
       StatusBar.setBarStyle("light-content");
       StatusBar.setBackgroundColor("#3f58a8");
-    }, [])
+      const keyboardDidShowListener = Keyboard.addListener(
+        "keyboardDidShow",
+        () => {
+          setKeyboardVisible(true);  // Establece el estado a true cuando el teclado aparece
+        }
+      );
+      const keyboardDidHideListener = Keyboard.addListener(
+        "keyboardDidHide",
+        () => {
+          setKeyboardVisible(false);  // Establece el estado a false cuando el teclado desaparece
+        }
+      );
+  
+      // Limpieza de los listeners cuando el componente se desmonta
+      return () => {
+        keyboardDidHideListener.remove();
+        keyboardDidShowListener.remove();
+      };}, [])
   );
 
   return (
     <SafeAreaView style={styles.container}>
-       <StatusBar barStyle="light-content" backgroundColor="#3f58a8" /> 
-      <View style={styles.topContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Image tintColor={"white"} source={require("../../../assets/images/back.png")} style={styles.backButton}></Image>
-        </TouchableOpacity>
+      <StatusBar barStyle="light-content" backgroundColor="#3f58a8" />
+      <KeyboardAvoidingView
+      style={{ flex: 1, height }} // Garantiza que ocupe toda la altura
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <Pressable    style={{ flex: 1, height }}  onPress={Keyboard.dismiss}>
+      
+      
+      <View style={[styles.topContainer,  keyboardVisible ? {height:'16%'}: {},]}>
         
-        <View style={{ height: "100%", flexDirection: "row", paddingHorizontal: "5%" }}>
-          <Image source={require('../../../assets/images/jefeArea.png')} style={styles.image} />
-          <Text style={styles.title}>Jefe de{"\n"}Area</Text>
+      <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Image
+            source={require("../../../assets/images/back.png")}
+            style={{ height: "100%", width: undefined, aspectRatio: 2 }} 
+            tintColor={"#ffff"}
+          />
+        </TouchableOpacity>
+
+        <View
+          style={{
+            height: "100%",
+            flexDirection: "row",
+            paddingHorizontal: "5%",
+          }}
+        >
+          <Image
+            source={require("../../../assets/images/jefeArea.png")}
+            style={[styles.image,  keyboardVisible ? {display:'none'}: {},]}
+          />
+          <Text style={[styles.title, keyboardVisible ? {display:'none'}: {},]}>Jefe de{"\n"}Area</Text>
         </View>
       </View>
 
       <View style={styles.formContainer}>
         {/* Input fields */}
-        <Text style={styles.label}>Ingresa tu código {"\n"}<Text style={[styles.label, { fontWeight: 'bold' }]}>asignado</Text></Text>
+        <Text style={styles.label}>
+          Ingresa tu código {"\n"}
+          <Text style={[styles.label, { fontWeight: "bold" }]}>asignado</Text>
+        </Text>
 
         {/* Código del hospital */}
+        {/* Código del hospital */}
         <View style={styles.codeInputContainer}>
-        <TextInput
-        style={styles.codeInput}
-        ref={code1Ref} // Reference to the first input
-        maxLength={1}
-        value={code1}
-        onChangeText={handleCode1Change}
-        keyboardType="default"
-        placeholder="-"
-        placeholderTextColor="#888"
-      />
-      <TextInput
-        style={styles.codeInput}
-        ref={code2Ref}  // Reference to the second input
-        maxLength={1}
-        value={code2}
-        onChangeText={handleCode2Change}
-        keyboardType="default"
-        placeholder="-"
-        placeholderTextColor="#888"
-      />
-          <TextInput
-            style={styles.codeInput}
-            ref={code3Ref} // Reference to the third input
-            maxLength={1}
-            value={code3}
-            onChangeText={handleCode3Change}
-            keyboardType="default"
-            placeholder="-"
-            placeholderTextColor="#888"
-          />
-        <TextInput
-        style={styles.codeInput}
-        ref={code4Ref}  // Reference to the third input
-        maxLength={1}
-        value={code4}
-        onChangeText={handleCode4Change}
-        keyboardType="default"
-        placeholder="-"
-        placeholderTextColor="#888"
-      />
+          {code.map((char, index) => (
+            <TextInput
+              key={index}
+              style={styles.codeInput}
+              value={char}
+              onChangeText={(text) => handleInputChange(text, index)}
+              onKeyPress={(event) => handleKeyPress(event, index)}
+              keyboardType="default"
+              maxLength={1}
+              ref={(ref) => (inputs[index] = ref)}
+            />
+          ))}
         </View>
         <Text style={styles.hospitalCodeLabel}>Código del hospital</Text>
 
@@ -182,13 +198,13 @@ const JefeAreaLoginScreen = () => {
           onChangeText={setUsername}
           placeholderTextColor="#888"
         />
-   
+
         {/* Login button */}
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginButtonText}>Iniciar</Text>
         </TouchableOpacity>
       </View>
-      <SigmeModal 
+      <SigmeModal
         isVisible={modal.isVisible}
         message={modal.message}
         title={modal.title}
@@ -196,6 +212,8 @@ const JefeAreaLoginScreen = () => {
         onClose={closeModal}
         onConfirm={closeModal}
       />
+    </Pressable>
+    </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -203,94 +221,95 @@ const JefeAreaLoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFC',
+    backgroundColor: "#F9FAFC",
     height: "100%",
   },
   backButton: {
-    position: 'absolute',
-    top: 20,
+    position: "absolute",
+    top: 40,
     left: 10,
     width: 38,
     height: 20,
+    paddingLeft:0,
   },
   image: {
-    width: "40%",
+    width: "43%",
     height: "80%",
     marginBottom: 0,
     marginTop: "auto",
   },
   title: {
     fontSize: 27,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: "12%",
     marginLeft: "10%",
-    color: '#ffffff',
+    color: "#ffffff",
     marginTop: "auto",
   },
   label: {
     fontSize: 22,
-    color: '#050259',
+    color: "#050259",
     marginBottom: "4%",
-    marginTop: '20%',
+    marginTop: "20%",
     fontWeight: "300",
   },
   input: {
-    width: '100%',
+    width: "100%",
     height: 50,
-    backgroundColor: '#D6D7F2',
+    backgroundColor: "#D6D7F2",
     borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 20,
     fontSize: 18,
   },
   codeInputContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    flexDirection: "row",
+    justifyContent: "space-evenly",
     marginBottom: 10,
-    width:'65%',
-    marginLeft:'auto',
-    marginRight:'auto',
+    width: "65%",
+    marginLeft: "auto",
+    marginRight: "auto",
   },
   codeInput: {
     width: 50,
     height: 50,
 
     borderRadius: 5,
-    textAlign: 'center',
-    borderBottomColor:'black',
-    borderBottomWidth:1.4,
+    textAlign: "center",
+    borderBottomColor: "black",
+    borderBottomWidth: 1.4,
     fontSize: 24,
   },
   hospitalCodeLabel: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 18,
-    color: '#888',
+    color: "#888",
     marginBottom: "10%",
-    fontWeight:"200"
+    fontWeight: "200",
   },
   loginButton: {
-    backgroundColor: '#001366',
-    width: '60%',
-    marginRight:'auto',
-    marginLeft:"auto",
+    backgroundColor: "#001366",
+    width: "60%",
+    marginRight: "auto",
+    marginLeft: "auto",
     padding: 15,
-    marginTop:"5%",
+    marginTop: "5%",
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   loginButtonText: {
     fontSize: 20,
-    color: '#FFF',
-    fontWeight: '300',
+    color: "#FFF",
+    fontWeight: "300",
   },
   topContainer: {
-    backgroundColor: '#3f58a8',
+    backgroundColor: "#3f58a8",
     height: "35%",
     borderBottomLeftRadius: 23,
     borderBottomRightRadius: 23,
   },
   formContainer: {
-    paddingHorizontal: '10%',
+    paddingHorizontal: "10%",
   },
 });
 

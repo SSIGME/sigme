@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View, Image, Alert } from "react-native";
 import React, { useCallback, useEffect } from "react";
 import ListarAreas from "@/app/Area/ListarAreas";
-import { useCodeDeleteStore } from "../utils/useStore";
+import { useCodeDeleteStore } from "@/app/utils/useStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Equipo } from "@/app/Models/Equipo";
 import axios from "axios";
@@ -15,8 +15,23 @@ const EliminarEquipo = () => {
     console.log("Código actual:", codeDelete);
     setCodeDelete(codigo);
   };
+  const DeleteEquipo = async () => {
+    try {
+      const codigoHospital = await AsyncStorage.getItem("codigoHospital");
+      const response = await axios.delete(
+        `${url.url}/delete/equipo/${codigoHospital}/${codeDelete}`
+      );
+      if (response.status === 200) {
+        Alert.alert("El equipo ha sido borrado correctamente");
+        router.replace("Equipo/EliminarEquipo");
+        handleClick("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
-    console.log("Ha cambiado codeDelete", codeDelete)
+    console.log("Ha cambiado codeDelete", codeDelete);
     if (codeDelete !== "") {
       getEquipo(codeDelete);
     } else {
@@ -87,9 +102,7 @@ const EliminarEquipo = () => {
               borderRadius: 10,
             }}
             onPress={() => {
-              Alert.alert("El equipo ha sido borrado correctamente")
-              router.replace("Equipo/EliminarEquipo");
-              handleClick("");
+              DeleteEquipo();
             }}
           >
             <Text
@@ -108,14 +121,16 @@ const EliminarEquipo = () => {
   };
   return (
     <View style={styles.container}>
-      <Text
-        style={styles.text}
-      >
+      <Text style={styles.text}>
         {codeDelete === ""
           ? "Seleccione un equipo para eliminarlo"
           : "Equipo seleccionado para eliminar"}
       </Text>
-      {codeDelete === "" ? <ListarAreas comeback={"EliminarEquipo"}/> : <ConfirmarEliminacion />}
+      {codeDelete === "" ? (
+        <ListarAreas comeback={"EliminarEquipo"} />
+      ) : (
+        <ConfirmarEliminacion />
+      )}
     </View>
   );
 };

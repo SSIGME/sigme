@@ -76,7 +76,7 @@ export default function ReporteEquipoScreen() {
     <View style={styles.contenedor}>
    <View style={styles.header}>
       <TouchableOpacity onPress={() => router.push('/(tabs)/Codigos')} style={styles.backButton}>
-          <Image source={require("../../assets/images/back.png")} style={styles.backIcon} />
+          <Image source={require("@/assets/images/back.png")} style={styles.backIcon} />
         </TouchableOpacity>
         <Text style={styles.headerText}>
  

@@ -2,7 +2,7 @@
 import React, { useEffect , useState} from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet, FlatList, SafeAreaView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import SigmeModal from "../componets/SigmeModal";
+import SigmeModal from "@/app/componets/SigmeModal";
 import url from "@/constants/url.json";
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -73,7 +73,7 @@ const CodesAccessScreen = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Image source={require("../../assets/images/back.png")} style={styles.backIcon} />
+          <Image source={require("@/assets/images/back.png")} style={styles.backIcon} />
         </TouchableOpacity>
         <Text style={styles.headerText}>
           Hoja de <Text style={{ fontWeight: '600' }}>Vida</Text>
@@ -83,7 +83,7 @@ const CodesAccessScreen = () => {
       <View style={styles.fototipo}>
         {Imagen === "" ? (
           <Image
-            source={require("../../assets/images/tenso.jpg")}
+            source={require("@/assets/images/tenso.jpg")}
             style={styles.image}
           />
         ) : (

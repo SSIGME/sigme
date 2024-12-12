@@ -10,14 +10,14 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { EXPO_PUBLIC_URL_EXTERN_SERVER } from "@env";
+import url from "../../constants/url.json";
 import axios from "axios";
 import * as Animatable from "react-native-animatable";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
 import { router, useRouter } from "expo-router";
 import { useUserContext } from "@/app/UserContext";
-
+import Icon from "react-native-vector-icons/FontAwesome5";
 const { width } = Dimensions.get("window");
 const HospitalInfoScreen = () => {
   const route = useRouter();
@@ -32,14 +32,16 @@ const HospitalInfoScreen = () => {
 
       if (!codigoHospital || !token)
         throw new Error("No se encontró el código del hospital o el token.");
+
       const response = await axios.get(
-        `${EXPO_PUBLIC_URL_EXTERN_SERVER}/hospital/${codigoHospital}`,
+        `${url.url}/hospital/${codigoHospital}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
+
       setHospitalData(response.data);
     } catch (error) {
       console.error(error);
@@ -152,41 +154,58 @@ const HospitalInfoScreen = () => {
           </View>
         </Animatable.View>
         {userType === "admin" ? (
-          <View>
+          <View style={styles.tileContainer}>
             <Pressable
               onPress={() => router.push("Equipo/CrearEquipo")}
-              style={styles.createequipo}
+              style={[styles.tile, styles.tileSmall]}
             >
-              <Text style={styles.logoutButtonText}>Crear equipo</Text>
+              <Text style={styles.tileText}>Crear equipo</Text>
+              <Icon name="plus-circle" size={30} color="#fff" />
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push("Area/CrearArea")}
+              style={[styles.tile, styles.tileSmall]}
+            >
+              <Text style={styles.tileText}>Crear área</Text>
+              <Icon name="building" size={30} color="#fff" />
             </Pressable>
             <Pressable
               onPress={() => router.push("Equipo/EscribirTag")}
-              style={styles.createequipo}
+              style={[styles.tile, styles.tileSmall]}
             >
-              <Text style={styles.logoutButtonText}>
+              <Text style={styles.tileText}>
                 Escribir TAG de equipo
               </Text>
+              <Icon name="power-off" size={30} color="#fff" />
             </Pressable>
-            <Pressable
+
+             <Pressable
               onPress={() => router.push("Equipo/EliminarEquipo")}
-              style={styles.createequipo}
+              style={[styles.tile, styles.tileSmall]}
             >
-              <Text style={styles.logoutButtonText}>Eliminar equipo</Text>
+              <Text style={styles.tileText}>Eliminar equipo</Text>
+              <Icon name="power-off" size={30} color="#fff" />
             </Pressable>
+
             <Pressable
-              onPress={() => router.push("Area/CrearArea")}
-              style={styles.createarea}
+              onPress={() => logout()}
+              style={[styles.tile, styles.tileLarge]}
             >
-              <Text style={styles.logoutButtonText}>Crear area</Text>
-            </Pressable>
-            <Pressable onPress={() => logout()} style={styles.logoutButton}>
-              <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
+              <Text style={styles.tileText}>Cerrar sesión</Text>
+              <Icon name="power-off" size={30} color="#fff" />
             </Pressable>
           </View>
         ) : (
-          <Pressable onPress={() => logout()} style={styles.logoutButton}>
-            <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
-          </Pressable>
+          <View style={styles.tileContainer}>
+            <Pressable
+              onPress={() => logout()}
+              style={[styles.tile, styles.tileLarge]}
+            >
+              <Text style={styles.tileText}>Cerrar sesión</Text>
+              <Icon name="sign-out-alt" size={30} color="#fff" />
+            </Pressable>
+          </View>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -266,6 +285,7 @@ const styles = StyleSheet.create({
     padding: 25,
     borderRadius: 10,
     elevation: 6,
+    marginBottom: "3%",
   },
   infoRow: {
     flexDirection: "row",
@@ -297,6 +317,39 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 20,
     color: "#02096b",
+  },
+
+  tileContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 3, // Espaciado uniforme entre mosaicos
+    paddingHorizontal: 0, // Espaciado lateral dentro del contenedor
+  },
+  tile: {
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    backgroundColor: "#050259", // Color base del mosaico
+    padding: 20,
+    marginTop: 0,
+  },
+  tileLarge: {
+    width: "100%",
+    height: 90,
+    backgroundColor: "#e66262",
+    marginTop: 0,
+  },
+  tileSmall: {
+    width: "49%",
+    height: 100,
+  },
+  tileText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "300",
+    marginBottom: 10,
   },
 });
 

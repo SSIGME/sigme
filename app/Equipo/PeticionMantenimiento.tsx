@@ -6,7 +6,7 @@ import CheckBox from 'expo-checkbox';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import url from "@/constants/url.json";
 import { useFonts } from "expo-font";
-import SigmeModal from "../componets/SigmeModal";
+import SigmeModal from "@/app/componets/SigmeModal";
 import { router, useLocalSearchParams } from "expo-router";
 export default function ReporteEquipoScreen() {
   const scaleValue = useRef(new Animated.Value(1)).current;
@@ -145,7 +145,7 @@ export default function ReporteEquipoScreen() {
     <View style={styles.contenedor}>
    <View style={styles.header}>
       <TouchableOpacity onPress={() => router.push('/(tabs)/Codigos')} style={styles.backButton}>
-          <Image source={require("../../assets/images/back.png")} style={styles.backIcon} />
+          <Image source={require("@/assets/images/back.png")} style={styles.backIcon} />
         </TouchableOpacity>
         <Text style={styles.headerText}>
  

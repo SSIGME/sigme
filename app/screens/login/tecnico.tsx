@@ -8,7 +8,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  Alert,
+  Dimensions,
+  Platform,
+  KeyboardAvoidingView,
+  Pressable,
+  Keyboard,
 } from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios";
@@ -20,6 +24,9 @@ const TecnicoLoginScreen = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState(["", "", "", ""]);
+  const { height } = Dimensions.get('window'); 
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [modal, setModal] = useState({
     isVisible: false,
     title: "",
@@ -27,48 +34,37 @@ const TecnicoLoginScreen = () => {
     type: "success", // Default type, you can change this based on login outcome
   });
   // State for the three inputs of the "Código"
-  const [code1, setCode1] = useState("");
-  const [code2, setCode2] = useState("");
-  const [code3, setCode3] = useState("");
-  const [code4, setCode4] = useState("");
-  const code1Ref = useRef(null);
-  const code2Ref = useRef(null);
-  const code3Ref = useRef(null);
-  const code4Ref = useRef(null);
-  // Function to handle input change and focus movement
-  const handleCode1Change = (text) => {
-    setCode1(text.toUpperCase());
-    if (text.length === 1) {
-      code2Ref.current.focus(); // Move to the second input
+  
+  const handleKeyPress = (event, index) => {
+    if (event.nativeEvent.key === "Backspace") {
+      const newCode = [...code];
+      if (code[index]) {
+        // Si el cuadro tiene contenido, borra el carácter
+        newCode[index] = "";
+        setCode(newCode);
+      } else if (index > 0) {
+        inputs[index - 1].focus();
+        newCode[index - 1] = ""; // Borra el contenido del cuadro anterior
+        setCode(newCode);
+      }
     }
   };
 
-  const handleCode2Change = (text) => {
-    setCode2(text.toUpperCase());
-    if (text.length === 1) {
-      code3Ref.current.focus(); // Move to the third input
-    } else if (text.length === 0) {
-      code1Ref.current.focus(); // Move back to the first input if deleting
+  const handleInputChange = (text, index) => {
+    if (text.length <= 1) {
+      const newCode = [...code];
+      newCode[index] = text;
+      setCode(newCode);
+      if (text && index < 3) {
+        inputs[index + 1].focus();
+      }
     }
   };
-  const handleCode3Change = (text: string) => {
-    setCode3(text.toUpperCase());
-    if (text.length === 1) {
-      code4Ref.current.focus(); // Move to the fourth input
-    } else if (text.length === 0) {
-      code2Ref.current.focus(); // Move back to the second input if deleting
-    }
-  };
-  const handleCode4Change = (text) => {
-    setCode4(text.toUpperCase());
-    if (text.length === 0) {
-      code3Ref.current.focus(); // Move back to the second input if deleting
-    }
-  };
+  const inputs = [];
 
   const handleLogin = async () => {
-    const hospitalCode = `${code1}${code2}${code3}${code4}`;
-
+    const hospitalCode = `${code[0]}${code[1]}${code[2]}${code[3]}`;
+    console.log(username)
     try {
       const response = await axios.post(`${url.url}/login/code`, {
         codigo: username,
@@ -118,21 +114,40 @@ const TecnicoLoginScreen = () => {
   
       StatusBar.setBarStyle("light-content");
       StatusBar.setBackgroundColor("#6a7ebe");
+      const keyboardDidShowListener = Keyboard.addListener(
+        "keyboardDidShow",
+        () => {
+          setKeyboardVisible(true);  // Establece el estado a true cuando el teclado aparece
+        }
+      );
+      const keyboardDidHideListener = Keyboard.addListener(
+        "keyboardDidHide",
+        () => {
+          setKeyboardVisible(false);  // Establece el estado a false cuando el teclado desaparece
+        }
+      );
+  
+      // Limpieza de los listeners cuando el componente se desmonta
+      return () => {
+        keyboardDidHideListener.remove();
+        keyboardDidShowListener.remove();
+      };
     }, []))
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#A4B1E3" />
-      <View style={styles.topContainer}>
-        <TouchableOpacity
+      <StatusBar barStyle="light-content" backgroundColor="#6a7ebe" />
+      <View style={[styles.topContainer,  keyboardVisible ? {height:'16%'}: {},]}>
+      <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
           <Image
             source={require("../../../assets/images/back.png")}
-            style={styles.backButton}
+            style={{ height: "100%", width: undefined, aspectRatio: 2 }} 
             tintColor={"#ffff"}
-          ></Image>
+          />
         </TouchableOpacity>
+
 
         <View
           style={{
@@ -143,9 +158,9 @@ const TecnicoLoginScreen = () => {
         >
           <Image
             source={require("../../../assets/images/tecnico.png")}
-            style={styles.image}
+            style={[styles.image,  keyboardVisible ? {display:'none'}: {},]}
           />
-          <Text style={styles.title}>Técnico</Text>
+          <Text style={[styles.title, keyboardVisible ? {display:'none'}: {},]}>Técnico</Text>
         </View>
       </View>
 
@@ -158,48 +173,21 @@ const TecnicoLoginScreen = () => {
           </Text>
         </Text>
 
-        {/* Código del hospital */}
-        <View style={styles.codeInputContainer}>
-          <TextInput
-            style={styles.codeInput}
-            ref={code1Ref} // Reference to the first input
-            maxLength={1}
-            value={code1}
-            onChangeText={handleCode1Change}
-            keyboardType="default"
-            placeholder="-"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.codeInput}
-            ref={code2Ref} // Reference to the second input
-            maxLength={1}
-            value={code2}
-            onChangeText={handleCode2Change}
-            keyboardType="default"
-            placeholder="-"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.codeInput}
-            ref={code3Ref} // Reference to the third input
-            maxLength={1}
-            value={code3}
-            onChangeText={handleCode3Change}
-            keyboardType="default"
-            placeholder="-"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.codeInput}
-            ref={code4Ref} // Reference to the third input
-            maxLength={1}
-            value={code4}
-            onChangeText={handleCode4Change}
-            keyboardType="default"
-            placeholder="-"
-            placeholderTextColor="#888"
-          />
+    
+          {/* Código del hospital */}
+          <View style={styles.codeInputContainer}>
+          {code.map((char, index) => (
+            <TextInput
+              key={index}
+              style={styles.codeInput}
+              value={char}
+              onChangeText={(text) => handleInputChange(text, index)}
+              onKeyPress={(event) => handleKeyPress(event, index)}
+              keyboardType="default"
+              maxLength={1}
+              ref={(ref) => (inputs[index] = ref)}
+            />
+          ))}
         </View>
         <Text style={styles.hospitalCodeLabel}>Código del hospital</Text>
 
@@ -236,10 +224,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: 20,
+    top: 40,
     left: 10,
     width: 38,
     height: 20,
+    paddingLeft:0,
   },
   image: {
     width: "57%",

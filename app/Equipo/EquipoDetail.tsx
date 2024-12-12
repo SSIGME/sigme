@@ -14,7 +14,7 @@ import { useFonts } from "expo-font";
 import axios from "axios";
 import url from "@/constants/url.json";
 
-import { useUserContext } from "../UserContext";
+import { useUserContext } from "@/app/UserContext";
 import ModalAlert from "@/app/componets/ModalAlert";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 interface Equipo {
@@ -36,9 +36,9 @@ const EquipoDetail = () => {
   const [equipo, setEquipo] = React.useState<Equipo | null>(null);
   const [modalVisible, setModalVisible] = React.useState<boolean>(false);
   const [fontsLoaded] = useFonts({
-    "Kanit-Regular": require("../../assets/fonts/Kanit/Kanit-Regular.ttf"),
-    "Kanit-Medium": require("../../assets/fonts/Kanit/Kanit-Medium.ttf"),
-    "Kanit-Light": require("../../assets/fonts/Kanit/Kanit-Medium.ttf"),
+    "Kanit-Regular": require("@/assets/fonts/Kanit/Kanit-Regular.ttf"),
+    "Kanit-Medium": require("@/assets/fonts/Kanit/Kanit-Medium.ttf"),
+    "Kanit-Light": require("@/assets/fonts/Kanit/Kanit-Medium.ttf"),
   });
   const router = useRouter();
   const {
@@ -153,7 +153,7 @@ const EquipoDetail = () => {
           >
             <Image
               tintColor={"#c99494f"}
-              source={require("../../assets/images/papaer.png")}
+              source={require("@/assets/images/papaer.png")}
               style={styles.icon}
             />
             <Text style={styles.optionText}>Hoja de vida</Text>
@@ -177,7 +177,7 @@ const EquipoDetail = () => {
           >
             <Image
               tintColor={"#5e5454f"}
-              source={require("../../assets/images/paper-plane.png")}
+              source={require("@/assets/images/paper-plane.png")}
               style={styles.icon}
             />
             <Text style={[styles.optionText, { textAlign: "center" }]}>
@@ -264,7 +264,7 @@ const EquipoDetail = () => {
           style={styles.botonrapido}>
             <Image
               tintColor={"#ffff"}
-              source={require("../../assets/images/usoManual.png")}
+              source={require("@/assets/images/usoManual.png")}
               style={{ width: 30, height: 30 }}
             />
             <Text
@@ -296,7 +296,7 @@ const EquipoDetail = () => {
           style={styles.botonrapido}>
             <Image
               tintColor={"#ffff"}
-              source={require("../../assets/images/bell.png")}
+              source={require("@/assets/images/bell.png")}
               style={{ width: 30, height: 30 }}
             />
             <Text
@@ -323,7 +323,7 @@ const EquipoDetail = () => {
             style={styles.botonrapido}
           >
             <Image
-              source={require("../../assets/images/manual.png")}
+              source={require("@/assets/images/manual.png")}
               style={{ width: 30, height: 30 }}
             />
             <Text
@@ -351,7 +351,7 @@ const EquipoDetail = () => {
             style={styles.botonrapido}
           >
             <Image
-              source={require("../../assets/images/guiarapida.png")}
+              source={require("@/assets/images/guiarapida.png")}
               style={{ width: 30, height: 30 }}
             />
             <Text
@@ -379,7 +379,7 @@ const EquipoDetail = () => {
           >
             <Image
               tintColor={"#ffff"}
-              source={require("../../assets/images/clena.png")}
+              source={require("@/assets/images/clena.png")}
               style={{ width: 40, height: 40 }}
             />
             <Text
@@ -407,7 +407,7 @@ const EquipoDetail = () => {
           >
             <Image
               tintColor={"#ffff"}
-              source={require("../../assets/images/calibration.png")}
+              source={require("@/assets/images/calibration.png")}
               style={{ width: 40, height: 40 }}
             />
             <Text
