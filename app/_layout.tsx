@@ -10,7 +10,6 @@ import { router } from "expo-router";
 export default function Layout() {
   return (
     <UserProvider>
-      <NavigationContainer>
         <Stack>
           <Stack.Screen
             name="index"
@@ -315,6 +314,24 @@ export default function Layout() {
               ),
             }}
           />
+                    <Stack.Screen
+            name="screens/mantenimiento/PreviewJefe"
+            options={{
+              headerShadowVisible: false,
+              headerTitle: "",
+              headerStyle: {
+                backgroundColor: "#050259",
+              },
+              headerLeft: () => (
+                <TouchableOpacity onPress={() => router.back()}>
+                  <Image
+                    source={require("../assets/images/backarrow.png")}
+                    style={{ width: 40, height: 20, marginLeft: 1 }}
+                  />
+                </TouchableOpacity>
+              ),
+            }}
+          />
           <Stack.Screen
             name="screens/mantenimiento/Correctivo"
             options={{
@@ -356,7 +373,6 @@ export default function Layout() {
             }}
           />
         </Stack>
-      </NavigationContainer>
     </UserProvider>
   );
 }

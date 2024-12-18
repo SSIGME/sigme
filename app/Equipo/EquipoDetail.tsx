@@ -118,7 +118,7 @@ const EquipoDetail = () => {
     });
   }, []);
   if (!equipo || !fontsLoaded) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return <ActivityIndicator color="#0000ff" />;
   } else {
     return (
       <View style={styles.container}>
@@ -399,7 +399,7 @@ const EquipoDetail = () => {
               router.push({
                 pathname: "Equipo/Pdf",
                 params: {
-                  url: `${url.url2}/equipo/certificadoCalibracion/${codigoHospital}/${codigoIdentificacion}`,
+                  url: `${url.url}/document/${codigoHospital}/${codigoIdentificacion}/calibracion`,
                 },
               });
             }}

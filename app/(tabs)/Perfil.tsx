@@ -68,7 +68,6 @@ const HospitalInfoScreen = () => {
   if (loading) {
     return (
       <ActivityIndicator
-        size="large"
         color="#6200EE"
         style={{ flex: 1, justifyContent: "center" }}
       />

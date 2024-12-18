@@ -18,11 +18,7 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions":[
-        "CAMERA",
-        "NFC",
-        "INTERNET"
-      ],
+      "permissions": ["CAMERA", "NFC", "INTERNET"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -33,8 +29,12 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "@config-plugins/react-native-blob-util",
+      "@config-plugins/react-native-pdf",
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-document-picker",
+      "expo-image-picker"
     ],
     "extra": {
       "eas": {

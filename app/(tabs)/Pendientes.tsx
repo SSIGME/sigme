@@ -4,6 +4,7 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
@@ -12,7 +13,7 @@ import axios from "axios";
 import url from "@/constants/url.json";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
-import { router } from "expo-router";
+import { router, useSegments } from "expo-router";
 import { useFonts } from "expo-font";
 import { Dimensions } from "react-native";
 const { width, height } = Dimensions.get("window");
@@ -34,6 +35,9 @@ const Pendientes = () => {
     "Kanit-Light": require("@/assets/fonts/Kanit/Kanit-Light.ttf"),
   });
   const { userType } = useUserContext();
+  const segments = useSegments(); // Obtiene las partes de la URL actual
+
+  const [previousSigned, setPreviousSigned] = useState<boolean>(false);
   const [pendientes, setPendientes] = useState<Pendiente[]>([]);
   const [CodigoHospital, setCodigoHospital] = useState<string | null>(null);
   const checkToken = async () => {
@@ -43,24 +47,35 @@ const Pendientes = () => {
       const decodedToken = jwtDecode(token);
       const subData = JSON.parse(decodedToken.sub);
       console.log("Sub Data:", subData);
-    getPendientesJefeArea(subData.codigo, codigoHospital);
+      getPendientesJefeArea(subData.codigo, codigoHospital);
       setCodigoHospital(codigoHospital);
     }
   };
   const signMantenimiento = async (
+    codigoEquipo: string,
     idMantenimiento: number,
-    codigoEquipo: string
   ) => {
-    console.log("Recibido", idMantenimiento);
-    try {
+    const token = await AsyncStorage.getItem("access_token");
+    const codigoHospital = await AsyncStorage.getItem("codigoHospital");
+    if (!token) {
+      throw new Error("Token de acceso no encontrado");
+    } else {
       const response = await axios.post(
-        `${url.url}/firmar_mantenimiento/${CodigoHospital}/${codigoEquipo}/${idMantenimiento}`
+        `${url.url}/firmar_mantenimiento/${codigoHospital}/${codigoEquipo}/${idMantenimiento}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (response.status === 200) {
-        alert("Mantenimiento firmado correctamente");
+        Alert.alert("Mantenimiento firmado correctamente");
+        checkToken();
+      } else {
+        console.log("Error al firmar el mantenimiento");
       }
-    } catch (error) {
-      console.error(error);
     }
   };
   const getPendientesJefeArea = async (
@@ -69,7 +84,7 @@ const Pendientes = () => {
   ) => {
     try {
       const response = await axios.get(
-        `${url.url}/getpendientes/${codigoHospital}/${codigoUsuario}`
+        `${url.url}/pendientes/${codigoHospital}/${codigoUsuario}`
       );
       const pendientesData = response.data.map((pendiente: any) => ({
         idMantenimiento: pendiente.idMantenimiento,
@@ -87,11 +102,12 @@ const Pendientes = () => {
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
+  useEffect(() => {
+    console.log("Segments:", segments[1]);
+    if (segments[1] === "Pendientes") {
       checkToken();
-    }, [])
-  );
+    }
+  }, [segments]);
 
   return (
     <>
@@ -110,47 +126,68 @@ const Pendientes = () => {
                 },
               ]}
             >
-          <Text style={styles.pendienteText}>
-  Equipo: <Text style={styles.valorText}>{pendiente.codigoEquipo}</Text>
-</Text>
-<Text style={styles.pendienteText}>
-  Tipo: <Text style={styles.valorText}>{pendiente.tipoEquipo}</Text>
-</Text>
-<Text style={styles.pendienteText}>
-  Mantenimiento: <Text style={styles.valorText}>{pendiente.tipoMantenimiento}</Text>
-</Text>
-<Text style={styles.pendienteText}>
-  Realizado por: <Text style={styles.valorText}>{pendiente.tecnico}</Text>
-</Text>
-<Text style={styles.pendienteText}>
-  Fecha:{" "}
-  <Text style={styles.valorText}>
-    {new Date(pendiente.fecha).toLocaleDateString("es-ES", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    })}
-  </Text>
-</Text>
-<Text style={styles.pendienteText}>
-  <Text style={styles.valorText}>
-    {pendiente.firmadoPorRecibidor
-      ? "Firmado por el recibidor"
-      : "Pendiente de firma"}
-  </Text>
-</Text>
+              <Text style={styles.pendienteText}>
+                Equipo:{" "}
+                <Text style={styles.valorText}>{pendiente.codigoEquipo}</Text>
+              </Text>
+              <Text style={styles.pendienteText}>
+                Tipo:{" "}
+                <Text style={styles.valorText}>{pendiente.tipoEquipo}</Text>
+              </Text>
+              <Text style={styles.pendienteText}>
+                Mantenimiento:{" "}
+                <Text style={styles.valorText}>
+                  {pendiente.tipoMantenimiento}
+                </Text>
+              </Text>
+              <Text style={styles.pendienteText}>
+                Realizado por:{" "}
+                <Text style={styles.valorText}>{pendiente.tecnico}</Text>
+              </Text>
+              <Text style={styles.pendienteText}>
+                Fecha:{" "}
+                <Text style={styles.valorText}>
+                  {new Date(pendiente.fecha).toLocaleDateString("es-ES", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </Text>
+              </Text>
+              <Text style={styles.pendienteText}>
+                <Text style={styles.valorText}>
+                  {pendiente.firmadoPorRecibidor
+                    ? "Firmado por ti"
+                    : "Pendiente de firma"}
+                </Text>
+              </Text>
 
               <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.viewButton}>
+                <TouchableOpacity
+                  onPress={() =>
+                    router.push({
+                      pathname: "screens/mantenimiento/PreviewJefe",
+                      params: {
+                        codigoEquipo: pendiente.codigoEquipo,
+                        idMantenimiento: pendiente.idMantenimiento,
+                        tipoMantenimiento: pendiente.tipoMantenimiento,
+                      },
+                    })
+                  }
+                  style={[
+                    styles.viewButton,
+                    !pendiente.firmadoPorRecibidor && styles.halfWidthButton,
+                  ]}
+                >
                   <Text style={styles.buttonText}>Documento</Text>
                 </TouchableOpacity>
                 {!pendiente.firmadoPorRecibidor && (
                   <TouchableOpacity
-                    style={styles.signButton}
+                    style={[styles.signButton, styles.halfWidthButton]}
                     onPress={() =>
                       signMantenimiento(
-                        pendiente.idMantenimiento,
-                        pendiente.codigoEquipo
+                        pendiente.codigoEquipo,
+                        pendiente.idMantenimiento
                       )
                     }
                   >
@@ -177,6 +214,10 @@ const styles = StyleSheet.create({
     paddingTop: "10%",
     paddingHorizontal: 20,
   },
+  halfWidthButton: {
+    flex: 0.5, // Ambos ocupan la mitad del espacio cuando están juntos
+    marginHorizontal: 5, // Espaciado entre los botones
+  },
   title: {
     fontFamily: "Kanit-Medium",
     color: "#050259",
@@ -201,7 +242,7 @@ const styles = StyleSheet.create({
     height: 300,
     width: "100%",
     padding: 20,
-    gap:5,
+    gap: 5,
     borderRadius: 10,
     marginBottom: 15,
     borderWidth: 1,
@@ -232,7 +273,7 @@ const styles = StyleSheet.create({
   viewButton: {
     justifyContent: "center",
     alignItems: "center",
-    width: "48%",
+    width: "100%",
     backgroundColor: "rgba(255, 255, 255, 1)",
     paddingVertical: 15,
     paddingHorizontal: 20,

@@ -25,6 +25,7 @@ import { ActionSheetIOS, Platform } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 interface Pregunta {
+  id: number;
   pregunta: string;
   tipo: string;
   opciones?: string[];
@@ -89,6 +90,7 @@ export default function CrearEquipo() {
     console.log("Subiendo rutina...", selectedTipo);
     if (preguntas.length === 0) {
       Alert.alert("No hay preguntas");
+      setShouldUploadDocuments(true);
       return;
     }
     try {
@@ -109,12 +111,13 @@ export default function CrearEquipo() {
     } catch (error) {
       console.error(error);
     }
-  };
+  }
+
   const addInput = () => {
     setInputs([...inputs, ""]);
     setPreguntas([
       ...preguntas,
-      { pregunta: "", tipo: "abierta", opciones: [] },
+      { pregunta: "", tipo: "abierta", opciones: [], id: preguntas.length },
     ]);
   };
   const updateTipoPregunta = (index: number, tipo: string) => {
@@ -345,8 +348,8 @@ export default function CrearEquipo() {
     area.toLowerCase().includes(searchQueryArea.toLowerCase())
   );
   useEffect(() => {
-    console.log("SHOULD", shouldUploadData);
-  }, [shouldUploadData]);
+    console.log("SHOULD DOCUMENTS", shouldUploadDocuments);
+  }, [shouldUploadDocuments]);
   useEffect(() => {
     getAreas();
     fetchTipos();

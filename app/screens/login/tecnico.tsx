@@ -74,6 +74,7 @@ const TecnicoLoginScreen = () => {
       });
 
       if (response.status === 200) {
+        console.log(response.data);
         await AsyncStorage.setItem("codigoHospital", hospitalCode);
         await AsyncStorage.setItem("access_token", response.data.access_token);
         await AsyncStorage.setItem("codigo", username);

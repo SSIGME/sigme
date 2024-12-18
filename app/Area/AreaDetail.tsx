@@ -144,7 +144,7 @@ const AreaDetail = () => {
   if (!area) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator />
       </View>
     );
   }

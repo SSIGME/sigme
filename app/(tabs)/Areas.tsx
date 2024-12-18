@@ -109,7 +109,7 @@ const Areas = () => {
   }, []);
 
   if (!fontsLoaded) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return <ActivityIndicator color="#0000ff" />;
   }
   return (
     <View style={styles.container}>

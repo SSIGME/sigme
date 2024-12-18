@@ -7,6 +7,8 @@ import {
   Image,
   ScrollView,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Dimensions } from "react-native";
 const { width, height } = Dimensions.get("window");
@@ -35,7 +37,10 @@ const Rutina = ({
       transparent={true}
       visible={isModalQuestionsVisible}
     >
-      <View style={styles.overlay}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.overlay}
+      >
         <View style={styles.modalView}>
           <Text
             style={{
@@ -65,18 +70,21 @@ const Rutina = ({
               style={{ width: 40, height: 40, margin: "5%" }}
             />
           </Pressable>
-              <ScrollView
-              showsVerticalScrollIndicator={false}
-              style={{
-                width: "100%",
-                flexDirection: "column",
-                borderRadius: 10,
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.2,
-                padding: 10,
-              }}
-              >
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{
+              width: "100%",
+              flexDirection: "column",
+              borderRadius: 10,
+              shadowColor: "#000",
+              backgroundColor: "red",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.2,
+              padding: 10,
+              paddingBottom: 50,
+            }}
+
+          >
             {inputs.map((input, index) => (
               <View
                 key={index}
@@ -222,7 +230,7 @@ const Rutina = ({
             Guardar
           </Text>
         </Pressable>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
@@ -242,6 +250,7 @@ const styles = StyleSheet.create({
     width: width * 0.9,
     backgroundColor: "#fff",
     borderRadius: 20,
+    marginTop: "-10%",
     paddingTop: "5%",
     paddingLeft: "5%",
     paddingRight: "5%",
@@ -270,7 +279,7 @@ const styles = StyleSheet.create({
     width: "80%",
     height: "6%",
     position: "absolute",
-    bottom: "0%",
+    bottom: 0,
     backgroundColor: "rgba(5, 2, 89, 1)",
     borderRadius: 20,
     padding: 10,

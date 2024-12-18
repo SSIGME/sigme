@@ -89,29 +89,35 @@ const Preventivo = () => {
   const saveMantenimiento = async () => {
     console.log("Enviando mantenimiento", idMantenimiento);
     const token = await AsyncStorage.getItem("access_token");
+    const decodedToken = jwtDecode(token);
+    console.log("Token decodificado:", decodedToken);
     if (!token) {
-      console.log("No hay token");
-    } else {
-      const decodedToken = jwtDecode(token);
-      const nombretecnico = decodedToken.sub.nombre;
-      settecnico(nombretecnico);
+      console.error("No hay token");
+      Alert.alert("Error", "No se encontró un token de autenticación");
+      return;
     }
-    console.log("Token:", tecnico);
+    console.log("Respuestas a enviar:", token);
     const codigoHospital = await AsyncStorage.getItem("codigoHospital");
+    if (!codigoHospital || !IdEquipo || !respuestas) {
+      console.error("Datos insuficientes para la solicitud");
+      Alert.alert("Error", "Faltan datos para enviar el mantenimiento");
+      return;
+    }
+
     try {
+      console.log("Enviando mantenimiento", token);
       const response = await axios.post(
         `${url.url}/mantenimiento`,
         {
-          idMantenimiento: Number(idMantenimiento),
+          fecha: new Date().toISOString(),
+          idMantenimiento: idMantenimiento,
           codigoHospital: codigoHospital,
-          fecha: new Date(),
           IdEquipo: IdEquipo,
-          nombre: tecnico,
           respuestas: respuestas,
           tipoMantenimiento: "preventivo",
           finished: false,
           firma: "",
-          duracion: hours,
+          duracion: hours || 0, // Proporcionar un valor predeterminado si no se define
         },
         {
           headers: {
@@ -120,20 +126,25 @@ const Preventivo = () => {
           },
         }
       );
-      console.log(response);
+
+      console.log("Respuesta del servidor:", response.data);
       if (response.status === 201) {
-        console.log("Mantenimiento enviado con éxito");
-        Alert.alert("Mantenimiento almacenado podras consultarlo mas tarde");
+        Alert.alert("Éxito", "Mantenimiento almacenado correctamente");
       } else {
-        console.log("Error al enviar el mantenimiento");
+        Alert.alert("Error", "Error al enviar el mantenimiento");
       }
     } catch (error) {
-      console.error("Error en la solicitud:", error);
+      console.error(
+        "Error en la solicitud:",
+        error.response?.data || error.message
+      );
+      Alert.alert("Error", "Ocurrió un error al procesar la solicitud");
     }
   };
+
   const generateId = () => {
     return Math.floor(Math.random() * 1000000);
-  }
+  };
   const checkSaved = async () => {
     const codigoHospital = await AsyncStorage.getItem("codigoHospital");
     try {
@@ -151,11 +162,14 @@ const Preventivo = () => {
             setIsContinue(true);
             getRutina();
             setRespuestas(
-              mantenimiento.respuestas.map((respuesta: any) => ({
+              mantenimiento.respuestas.map((respuesta: {
+                id: number;
+                respuesta: string;
+              }) => ({
                 id: respuesta.id,
                 respuesta: respuesta.respuesta,
               }))
-            );
+            )
             setTimer(mantenimiento.duracion * 1000 * 60 * 60);
             setidMantenimiento(mantenimiento.idMantenimiento);
           }
@@ -180,13 +194,13 @@ const Preventivo = () => {
           response.data.preguntas.map(
             (pregunta: {
               opciones: string[];
-              texto: string;
+              pregunta: string;
               tipo: string;
               id: number;
             }) => ({
-              opciones: pregunta.opciones,
+              opciones: pregunta.opciones || [],
               tipo: pregunta.tipo,
-              texto: pregunta.texto,
+              texto: pregunta.pregunta,
               id: pregunta.id,
             })
           )
@@ -201,7 +215,9 @@ const Preventivo = () => {
   useEffect(() => {
     checkSaved();
   }, []);
-
+  useEffect(() => {
+    console.log("Respuestas en el useEffect", respuestas);
+  }, [respuestas]);
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
@@ -243,7 +259,7 @@ const Preventivo = () => {
             alignItems: "center",
           }}
         >
-                    <Image
+          <Image
             source={require("@/assets/images/timer.png")}
             style={{
               height: height * 0.045,

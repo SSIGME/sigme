@@ -7,7 +7,7 @@ import {
   Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useSegments } from "expo-router";
 import { useFonts } from "expo-font";
 import { Dimensions } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -15,37 +15,104 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import url from "@/constants/url.json";
 import { Svg } from "react-native-svg";
+
 import { Path } from "react-native-svg";
 const { height, width } = Dimensions.get("window");
 interface Respuesta {
   id: number;
   respuesta: string;
 }
-const Preview = () => {
+const PreviewJefe = () => {
   const router = useRouter();
   const [isSigned, setIsSigned] = useState(false);
   const [nombretecnico, setNombretecnico] = useState("");
   const [firma, setFirma] = useState("");
-  const {
-    idMantenimiento,
-    tipo,
-    marca,
-    modelo,
-    serie,
-    area,
-    hours,
-    IdEquipo,
-    tipoMantenimiento,
-    respuestas: respuestasParam,
-  } = useLocalSearchParams();
-  const respuestas = respuestasParam
-    ? JSON.parse(respuestasParam as string)
-    : [];
+  const { idMantenimiento, codigoEquipo, tipoMantenimiento, previousSigned } =
+    useLocalSearchParams();
   const [fontsLoaded] = useFonts({
     "Kanit-Regular": require("@/assets/fonts/Kanit/Kanit-Regular.ttf"),
     "Kanit-Medium": require("@/assets/fonts/Kanit/Kanit-Medium.ttf"),
     "Kanit-Light": require("@/assets/fonts/Kanit/Kanit-Light.ttf"),
   });
+  const [mantenimiento, setMantenimiento] = useState({
+    id: 0,
+    fecha: "",
+    modelo: "",
+    marca: "",
+    serie: "",
+    area: "",
+    tipo: "",
+    hours: "",
+    respuestas: [],
+    firmaTecnico: "",
+    firmaResponsable: "",
+    firmadoPorRecibidor: false,
+  });
+  const getMantenimiento = async () => {
+    const token = await AsyncStorage.getItem("access_token");
+    const codigoHospital = await AsyncStorage.getItem("codigoHospital");
+    if (!token) {
+      throw new Error("Token de acceso no encontrado");
+    } else {
+      const response = await axios.get(
+        `${url.url}/finished_mantenimiento/${codigoHospital}/${codigoEquipo}/${idMantenimiento}`,
+        {
+          headers: {
+            "Content-Type": "application",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log("Mantenimiento obtenido con éxito", response.data);
+        const data = response.data[0];
+        setMantenimiento({
+          id: data.idMantenimiento,
+          fecha: data.fecha,
+          modelo: data.modelo,
+          marca: data.marca,
+          serie: data.serie,
+          area: data.ubicacion,
+          tipo: data.tipoequipo,
+          hours: data.duracion,
+          respuestas: data.respuestas,
+          firmaTecnico: data.firmaTecnico,
+          firmaResponsable: data.firmaResponsable,
+          firmadoPorRecibidor: data.firmadoPorRecibidor,
+        });
+        setIsSigned(data.firmadoPorRecibidor);
+      } else {
+        console.log("Error al obtener el mantenimiento");
+      }
+    }
+  };
+  useEffect(() => {
+    console.log("Mantenimiento en el useEffect", mantenimiento);
+  }, [mantenimiento]);
+  const sendApprobed = async () => {
+    const token = await AsyncStorage.getItem("access_token");
+    const codigoHospital = await AsyncStorage.getItem("codigoHospital");
+    if (!token) {
+      throw new Error("Token de acceso no encontrado");
+    } else {
+      const response = await axios.post(
+        `${url.url}/firmar_mantenimiento/${codigoHospital}/${codigoEquipo}/${idMantenimiento}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        Alert.alert("Mantenimiento firmado correctamente");
+        router.replace("/(tabs)/Pendientes");
+      } else {
+        console.log("Error al firmar el mantenimiento");
+      }
+    }
+  };
   const getFirmaandPut = async () => {
     const token = await AsyncStorage.getItem("access_token");
     console.log("Hay un token", token);
@@ -66,45 +133,8 @@ const Preview = () => {
       }
     }
   };
-  const sendMantenimiento = async () => {
-    console.log("Enviando mantenimiento", IdEquipo);
-    const token = await AsyncStorage.getItem("access_token");
-    const codigoHospital = await AsyncStorage.getItem("codigoHospital");
-    try {
-      const response = await axios.post(
-        `${url.url}/mantenimiento`,
-        {
-          idMantenimiento: idMantenimiento,
-          codigoHospital: codigoHospital,
-          fecha: new Date(),
-          IdEquipo: IdEquipo,
-          nombre: nombretecnico,
-          respuestas: respuestas,
-          firma: firma,
-          tipoMantenimiento: tipoMantenimiento,
-          finished: true,
-          duracion: hours,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(response);
-      if (response.status === 201) {
-        console.log("Mantenimiento enviado con éxito");
-        Alert.alert("Mantenimiento enviado al responsable de area con éxito");
-        router.push("/Areas");
-      } else {
-        console.log("Error al enviar el mantenimiento");
-      }
-    } catch (error) {
-      console.error("Error en la solicitud:", error);
-    }
-  };
   useEffect(() => {
+    getMantenimiento();
     getFirmaandPut();
   }, []);
 
@@ -116,19 +146,26 @@ const Preview = () => {
         <Text style={styles.title}>Previsualización</Text>
         <View style={styles.plantilla}>
           <View style={styles.scrollViewContent}>
-            <Text style={styles.texttitle}>{tipo}</Text>
+            <Text style={styles.texttitle}>{mantenimiento.tipo}</Text>
             <View style={styles.cajaparametros}>
               <Text style={styles.parametro}>
-                Modelo <Text style={styles.parametroinfo}> {modelo}</Text>
+                Modelo{" "}
+                <Text style={styles.parametroinfo}>
+                  {" "}
+                  {mantenimiento.modelo}
+                </Text>
               </Text>
               <Text style={styles.parametro}>
-                Marca <Text style={styles.parametroinfo}> {marca}</Text>
+                Marca{" "}
+                <Text style={styles.parametroinfo}> {mantenimiento.marca}</Text>
               </Text>
               <Text style={styles.parametro}>
-                Serie <Text style={styles.parametroinfo}> {serie}</Text>
+                Serie{" "}
+                <Text style={styles.parametroinfo}> {mantenimiento.serie}</Text>
               </Text>
               <Text style={[styles.parametro, { marginTop: "5%" }]}>
-                Ubicacion <Text style={styles.parametroinfo}>{area}</Text>
+                Ubicacion{" "}
+                <Text style={styles.parametroinfo}>{mantenimiento.area}</Text>
               </Text>
             </View>
             <View style={styles.cajahallazgos}>
@@ -145,13 +182,17 @@ const Preview = () => {
                 Horas Gastadas:
                 <Text style={{ fontFamily: "Kanit-Light", fontSize: 20 }}>
                   {" "}
-                  {hours}
+                  {mantenimiento.hours}
                 </Text>
               </Text>
             </View>
             <View style={styles.cajaobservaciones}>
               <Text style={styles.texttitle}>Observaciones</Text>
-              <Text style={styles.infospace}> {respuestas[1]?.respuesta} </Text>
+              <Text style={styles.infospace}>
+                {mantenimiento.respuestas.length > 0
+                  ? mantenimiento.respuestas[0].respuesta
+                  : ""}
+              </Text>
               <TouchableOpacity
                 style={{
                   position: "absolute",
@@ -178,6 +219,26 @@ const Preview = () => {
           </View>
           <View style={styles.cajafirmas}>
             <View style={styles.cajitafirma}>
+              <Svg
+                style={{
+                  width: "100%",
+                  height: "70%",
+                  position: "absolute",
+                  bottom: "50%",
+                }}
+                viewBox="0 0 400 200" // Ajusta el tamaño del viewBox según la firma
+              >
+                <Path
+                  d={mantenimiento.firmaTecnico} // La firma obtenida de la base de datos
+                  fill="none" // No rellena el trazado
+                  stroke="black" // Color del trazo
+                  strokeWidth="12" // Ancho del trazo
+                  transform="rotate(270, 20, 240)" // Rota 90 grados hacia la derecha alrededor del centro del SVG
+                />
+              </Svg>
+              <Text style={styles.firmatext}>Firma Entregador</Text>
+            </View>
+            <View style={styles.cajitafirma}>
               {isSigned ? (
                 <Svg
                   style={{
@@ -197,16 +258,15 @@ const Preview = () => {
                   />
                 </Svg>
               ) : null}
-              <Text style={styles.firmatext}>Firma Entregador</Text>
-            </View>
-            <View style={styles.cajitafirma}>
               <Text style={styles.firmatext}>Firma Recibidor</Text>
             </View>
           </View>
         </View>
-        {isSigned ? (
+        {mantenimiento.firmadoPorRecibidor ? null : isSigned ? (
           <TouchableOpacity
-            onPress={() => sendMantenimiento()}
+            onPress={() => {
+              sendApprobed();
+            }}
             style={styles.firmarbutton}
           >
             <Text
@@ -240,7 +300,7 @@ const Preview = () => {
   }
 };
 
-export default Preview;
+export default PreviewJefe;
 
 const styles = StyleSheet.create({
   container: {

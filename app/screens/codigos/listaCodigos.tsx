@@ -67,6 +67,7 @@ const CodesAccessScreen = () => {
       });
   
       if (response?.data) {
+        console.log(response.data)
         setAccessCodes(response.data);
       }
     } catch (error) {
@@ -93,7 +94,6 @@ const CodesAccessScreen = () => {
       const response = await axios.put(`${url.url}/usuario/${codigoHospital}/${codigo}`, {}, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         }
       });
   
